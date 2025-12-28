@@ -6,7 +6,7 @@
         data: { action: "input->form#fieldChanged" } },
       "1", "0" %>
 
-    <span class="label-text">
+    <span class="label-text w-[calc(100%-2.25rem)] text-wrap">
       <%= field.label || field.name.titleize %>
       <% if field.required %>
         <span class="text-error">*</span>
@@ -15,7 +15,7 @@
   </label>
 
   <% if field.help_text.present? %>
-    <label class="label pt-0">
+    <label class="label pt-0 w-full text-wrap">
       <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
     </label>
   <% end %>
