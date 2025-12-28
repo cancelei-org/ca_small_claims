@@ -91,7 +91,7 @@ module Pdf
         case field.field_type
         when :Btn
           if field.check_box?
-            field.field_value = (truthy_value?(value) ? :Yes : :Off)
+            field.field_value = (truthy_value?(value) ? (field.allowed_values.first || :Yes) : nil)
           else
             field.field_value = value.to_sym
           end
