@@ -117,7 +117,7 @@ group :development, :test do
   gem "faker"
   gem "pry-byebug"
   gem "pry-rails"
-  gem "rspec-rails", "~> 7.0"
+  gem "rspec-rails", "~> 8.0"
 
   # ERB linting
   gem "erb_lint", require: false
