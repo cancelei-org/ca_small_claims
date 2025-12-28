@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= @form_code %> - <%= @form_title %></title>
+  <style>
+    <%= render 'pdf_templates/layouts/court_form_styles' %>
+  </style>
+</head>
+<body class="court-form">
+  <div class="page">
+    <%= render 'pdf_templates/layouts/header',
+        form_code: @form_code,
+        form_title: @form_title %>
+
+    <main class="content">
+      <%= yield %>
+    </main>
+
+    <%= render 'pdf_templates/layouts/footer',
+        form_code: @form_code %>
+  </div>
+</body>
+</html>

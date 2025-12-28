@@ -1,0 +1,163 @@
+{
+  "stats": {
+    "total_forms": 5,
+    "fillable_forms": 3,
+    "non_fillable_forms": 2,
+    "total_fields": 45,
+    "total_pii_fields": 5,
+    "total_non_pii_fields": 40,
+    "total_pages": 8,
+    "total_size_bytes": 500000,
+    "forms_with_errors": 0,
+    "field_types": {
+      "text": 25,
+      "checkbox": 15,
+      "date": 3,
+      "signature": 2
+    },
+    "forms_by_category": {
+      "SC": 2,
+      "FL": 2,
+      "DV": 1
+    },
+    "fillable_by_category": {
+      "SC": 2,
+      "FL": 1,
+      "DV": 0
+    }
+  },
+  "results": [
+    {
+      "path": "/tmp/test_forms/sc100.pdf",
+      "filename": "sc100.pdf",
+      "form_number": "SC-100",
+      "file_size": 100000,
+      "is_fillable": true,
+      "num_pages": 2,
+      "total_fields": 15,
+      "pii_fields": 2,
+      "non_pii_fields": 13,
+      "field_names": [
+        "PlaintiffName",
+        "DefendantName",
+        "ClaimAmount",
+        "DateOfIncident",
+        "CourtName",
+        "CaseNumber",
+        "PlaintiffAddress",
+        "PlaintiffPhone",
+        "PlaintiffEmail",
+        "CheckBox1",
+        "CheckBox2",
+        "Description",
+        "Signature",
+        "Save",
+        "Print"
+      ],
+      "pii_field_names": ["PlaintiffName", "DefendantName"],
+      "field_types": {
+        "text": 8,
+        "checkbox": 2,
+        "date": 1,
+        "signature": 1,
+        "other": 3
+      },
+      "error": null
+    },
+    {
+      "path": "/tmp/test_forms/sc103.pdf",
+      "filename": "sc103.pdf",
+      "form_number": "SC-103",
+      "file_size": 80000,
+      "is_fillable": true,
+      "num_pages": 1,
+      "total_fields": 10,
+      "pii_fields": 1,
+      "non_pii_fields": 9,
+      "field_names": [
+        "DefendantName",
+        "ClaimResponse",
+        "ResponseDate",
+        "CheckBoxAgree",
+        "CheckBoxDisagree",
+        "Amount",
+        "CourtAddress",
+        "ResetForm"
+      ],
+      "pii_field_names": ["DefendantName"],
+      "field_types": {
+        "text": 5,
+        "checkbox": 2,
+        "date": 1,
+        "other": 2
+      },
+      "error": null
+    },
+    {
+      "path": "/tmp/test_forms/fl100.pdf",
+      "filename": "fl100.pdf",
+      "form_number": "FL-100",
+      "file_size": 150000,
+      "is_fillable": true,
+      "num_pages": 3,
+      "total_fields": 20,
+      "pii_fields": 2,
+      "non_pii_fields": 18,
+      "field_names": [
+        "FL-100[0].Page1[0].PetitionerName[0]",
+        "FL-100[0].Page1[0].RespondentName[0]",
+        "FL-100[0].Page1[0].DateOfMarriage[0]",
+        "FL-100[0].Page1[0].DateOfSeparation[0]",
+        "FL-100[0].Page2[0].Children[0].ChildName[0]",
+        "FL-100[0].Page2[0].Children[0].ChildDOB[0]",
+        "CheckBoxDissolution",
+        "CheckBoxLegalSeparation",
+        "CourtInfo.CaseNumber",
+        "CourtInfo.County",
+        "WhiteOut",
+        "NoticeHeader1"
+      ],
+      "pii_field_names": [
+        "FL-100[0].Page1[0].PetitionerName[0]",
+        "FL-100[0].Page1[0].RespondentName[0]"
+      ],
+      "field_types": {
+        "text": 12,
+        "checkbox": 4,
+        "date": 2,
+        "other": 2
+      },
+      "error": null
+    },
+    {
+      "path": "/tmp/test_forms/fl110info.pdf",
+      "filename": "fl110info.pdf",
+      "form_number": "FL-110-INFO",
+      "file_size": 90000,
+      "is_fillable": false,
+      "num_pages": 2,
+      "total_fields": 0,
+      "pii_fields": 0,
+      "non_pii_fields": 0,
+      "field_names": [],
+      "pii_field_names": [],
+      "field_types": {},
+      "error": null
+    },
+    {
+      "path": "/tmp/test_forms/dv100info.pdf",
+      "filename": "dv100info.pdf",
+      "form_number": "DV-100-INFO",
+      "file_size": 80000,
+      "is_fillable": false,
+      "num_pages": 2,
+      "total_fields": 0,
+      "pii_fields": 0,
+      "non_pii_fields": 0,
+      "field_names": [],
+      "pii_field_names": [],
+      "field_types": {},
+      "error": null
+    }
+  ]
+}

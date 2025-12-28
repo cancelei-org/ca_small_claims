@@ -1,0 +1,114 @@
+<% content_for :title, "My Profile" %>
+
+<div class="max-w-2xl mx-auto">
+  <h1 class="text-2xl font-bold mb-6">My Profile</h1>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="card-title">Personal Information</h2>
+        <div id="profile-status">
+          <%= render "profiles/status", message: nil, status: nil %>
+        </div>
+      </div>
+
+      <p class="text-base-content/70 text-sm mb-6">
+        This information will be used to auto-fill common fields across court forms.
+      </p>
+
+      <%= form_with model: @user, url: profile_path, method: :patch, data: { controller: "profile", profile_url_value: profile_path } do |f| %>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <%# Full Name %>
+          <div class="form-control md:col-span-2">
+            <%= f.label :full_name, class: "label" do %>
+              <span class="label-text">Full Legal Name</span>
+            <% end %>
+            <%= f.text_field :full_name, class: "input input-bordered w-full", placeholder: "Your full legal name", data: { action: "input->profile#save" } %>
+          </div>
+
+          <%# Phone %>
+          <div class="form-control">
+            <%= f.label :phone, class: "label" do %>
+              <span class="label-text">Phone Number</span>
+            <% end %>
+            <%= f.telephone_field :phone, class: "input input-bordered w-full", placeholder: "(555) 555-5555", data: { action: "input->profile#save" } %>
+          </div>
+
+          <%# Date of Birth %>
+          <div class="form-control">
+            <%= f.label :date_of_birth, class: "label" do %>
+              <span class="label-text">Date of Birth</span>
+            <% end %>
+            <%= f.date_field :date_of_birth, class: "input input-bordered w-full", data: { action: "change->profile#save" } %>
+          </div>
+
+          <%# Address %>
+          <div class="form-control md:col-span-2">
+            <%= f.label :address, class: "label" do %>
+              <span class="label-text">Street Address</span>
+            <% end %>
+            <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "123 Main Street", data: { action: "input->profile#save" } %>
+          </div>
+
+          <%# City %>
+          <div class="form-control">
+            <%= f.label :city, class: "label" do %>
+              <span class="label-text">City</span>
+            <% end %>
+            <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Los Angeles", data: { action: "input->profile#save" } %>
+          </div>
+
+          <%# State %>
+          <div class="form-control">
+            <%= f.label :state, class: "label" do %>
+              <span class="label-text">State</span>
+            <% end %>
+            <%= f.text_field :state, class: "input input-bordered w-full", value: @user.state || "CA", data: { action: "input->profile#save" } %>
+          </div>
+
+          <%# Zip Code %>
+          <div class="form-control">
+            <%= f.label :zip_code, class: "label" do %>
+              <span class="label-text">ZIP Code</span>
+            <% end %>
+            <%= f.text_field :zip_code, class: "input input-bordered w-full", placeholder: "90210", maxlength: 10, data: { action: "input->profile#save" } %>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="flex justify-end">
+          <%= f.submit "Save Profile", class: "btn btn-primary" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Account Info Card %>
+  <div class="card bg-base-100 shadow-xl mt-6">
+    <div class="card-body">
+      <h2 class="card-title">Account Information</h2>
+
+      <dl class="space-y-3 mt-4">
+        <div class="flex justify-between">
+          <dt class="text-base-content/70">Email</dt>
+          <dd class="font-medium"><%= @user.email %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-base-content/70">Member Since</dt>
+          <dd class="font-medium"><%= @user.created_at.strftime("%B %d, %Y") %></dd>
+        </div>
+        <div class="flex justify-between">
+          <dt class="text-base-content/70">Forms Saved</dt>
+          <dd class="font-medium"><%= @user.submissions.count %></dd>
+        </div>
+      </dl>
+
+      <div class="divider"></div>
+
+      <div class="flex gap-2">
+        <%= link_to "Change Password", edit_user_registration_path, class: "btn btn-outline btn-sm" %>
+      </div>
+    </div>
+  </div>
+</div>

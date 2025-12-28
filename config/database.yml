@@ -1,23 +1,22 @@
-# SQLite for development and test environments
-# PostgreSQL for production
+# PostgreSQL for all environments
+# Provides consistency between development, test, and production
 
 default: &default
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
-  timeout: 5000
-
-development:
-  <<: *default
-  adapter: sqlite3
-  database: storage/development.sqlite3
-
-test:
-  <<: *default
-  adapter: sqlite3
-  database: storage/test.sqlite3
-
-# Production uses PostgreSQL - configure via DATABASE_URL environment variable
-production:
   adapter: postgresql
   encoding: unicode
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: <%= ENV.fetch("DATABASE_HOST") { "localhost" } %>
+  username: <%= ENV.fetch("DATABASE_USERNAME") { ENV["USER"] } %>
+  password: <%= ENV.fetch("DATABASE_PASSWORD") { "" } %>
+
+development:
+  <<: *default
+  database: ca_small_claims_development
+
+test:
+  <<: *default
+  database: ca_small_claims_test
+
+production:
+  <<: *default
   url: <%= ENV["DATABASE_URL"] %>

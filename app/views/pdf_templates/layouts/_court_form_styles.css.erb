@@ -1,0 +1,307 @@
+/* Court Form PDF Styles */
+
+@page {
+  size: letter;
+  margin: 0.5in 0.75in;
+}
+
+@media print {
+  body {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body.court-form {
+  font-family: "Times New Roman", Times, serif;
+  font-size: 10pt;
+  line-height: 1.4;
+  color: #000;
+  background: #fff;
+}
+
+.page {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Header Styles */
+.form-header {
+  border-bottom: 2px solid #000;
+  padding-bottom: 8pt;
+  margin-bottom: 16pt;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.form-number {
+  font-weight: bold;
+  font-size: 11pt;
+  text-align: right;
+}
+
+.form-title {
+  font-weight: bold;
+  font-size: 12pt;
+  text-align: center;
+  text-transform: uppercase;
+  flex: 1;
+  padding: 0 20pt;
+}
+
+.court-info {
+  font-size: 9pt;
+  text-align: left;
+}
+
+/* Content Area */
+.content {
+  padding: 0;
+}
+
+/* Section Styles */
+.section {
+  margin-bottom: 16pt;
+  page-break-inside: avoid;
+}
+
+.section-title {
+  font-weight: bold;
+  font-size: 11pt;
+  margin-bottom: 8pt;
+  border-bottom: 1px solid #000;
+  padding-bottom: 4pt;
+}
+
+.section-content {
+  padding-left: 12pt;
+}
+
+/* Paragraph Styles */
+p {
+  margin-bottom: 8pt;
+  text-align: justify;
+}
+
+/* Field Styles */
+.field-row {
+  display: flex;
+  margin-bottom: 6pt;
+  align-items: baseline;
+}
+
+.field-label {
+  min-width: 120pt;
+  font-weight: normal;
+}
+
+.field-value {
+  flex: 1;
+  border-bottom: 1px solid #000;
+  min-height: 14pt;
+  padding-left: 4pt;
+  padding-bottom: 2pt;
+}
+
+.field-value.empty {
+  color: transparent;
+}
+
+/* Checkbox Styles */
+.checkbox-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 6pt;
+}
+
+.checkbox-box {
+  width: 10pt;
+  height: 10pt;
+  border: 1px solid #000;
+  margin-right: 8pt;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8pt;
+  font-weight: bold;
+}
+
+.checkbox-box.checked::after {
+  content: "X";
+}
+
+.checkbox-label {
+  flex: 1;
+}
+
+/* List Styles */
+.numbered-list {
+  counter-reset: list-counter;
+  list-style: none;
+  padding-left: 0;
+}
+
+.numbered-list li {
+  counter-increment: list-counter;
+  margin-bottom: 8pt;
+  padding-left: 24pt;
+  position: relative;
+}
+
+.numbered-list li::before {
+  content: counter(list-counter) ".";
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+.bulleted-list {
+  list-style: disc;
+  padding-left: 24pt;
+  margin-bottom: 8pt;
+}
+
+.bulleted-list li {
+  margin-bottom: 4pt;
+}
+
+/* Table Styles */
+.form-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 12pt;
+}
+
+.form-table th,
+.form-table td {
+  border: 1px solid #000;
+  padding: 4pt 6pt;
+  text-align: left;
+  vertical-align: top;
+}
+
+.form-table th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+/* Footer Styles */
+.form-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  font-size: 8pt;
+  border-top: 1px solid #000;
+  padding-top: 4pt;
+  display: flex;
+  justify-content: space-between;
+}
+
+.form-id {
+  font-style: italic;
+}
+
+.page-number {
+  text-align: right;
+}
+
+/* Utility Classes */
+.text-center {
+  text-align: center;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-bold {
+  font-weight: bold;
+}
+
+.text-italic {
+  font-style: italic;
+}
+
+.text-underline {
+  text-decoration: underline;
+}
+
+.mt-1 { margin-top: 4pt; }
+.mt-2 { margin-top: 8pt; }
+.mt-3 { margin-top: 12pt; }
+.mt-4 { margin-top: 16pt; }
+
+.mb-1 { margin-bottom: 4pt; }
+.mb-2 { margin-bottom: 8pt; }
+.mb-3 { margin-bottom: 12pt; }
+.mb-4 { margin-bottom: 16pt; }
+
+.indent-1 { padding-left: 12pt; }
+.indent-2 { padding-left: 24pt; }
+.indent-3 { padding-left: 36pt; }
+
+/* Page Break Control */
+.page-break-before {
+  page-break-before: always;
+}
+
+.page-break-after {
+  page-break-after: always;
+}
+
+.no-break {
+  page-break-inside: avoid;
+}
+
+/* Signature Line */
+.signature-line {
+  display: flex;
+  align-items: flex-end;
+  margin-top: 24pt;
+}
+
+.signature-line .line {
+  flex: 1;
+  border-bottom: 1px solid #000;
+  margin-right: 12pt;
+}
+
+.signature-line .label {
+  font-size: 9pt;
+}
+
+/* Info Box */
+.info-box {
+  border: 1px solid #000;
+  padding: 8pt;
+  margin-bottom: 12pt;
+  background-color: #f9f9f9;
+}
+
+.info-box-title {
+  font-weight: bold;
+  margin-bottom: 6pt;
+}
+
+/* Warning/Notice Box */
+.notice-box {
+  border: 2px solid #000;
+  padding: 8pt;
+  margin-bottom: 12pt;
+  background-color: #fffde7;
+}
+
+.notice-box-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin-bottom: 6pt;
+}

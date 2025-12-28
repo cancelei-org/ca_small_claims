@@ -7,6 +7,24 @@ Rails.application.routes.draw do
   root "home#index"
   get "about", to: "home#about"
   get "help", to: "home#help"
+  get "home/forms_picker", to: "home#forms_picker", as: :forms_picker_home
+
+  # Admin namespace
+  namespace :admin do
+    root "dashboard#index"
+    resources :feedbacks, only: [:index, :show, :update] do
+      member do
+        patch :acknowledge
+        patch :resolve
+      end
+    end
+  end
+
+  # Form Feedbacks (public submission)
+  resources :form_feedbacks, only: [:create]
+
+  # Profile
+  resource :profile, only: [:show, :update]
 
   # Forms (individual access)
   resources :forms, only: [:index, :show, :update], param: :id do

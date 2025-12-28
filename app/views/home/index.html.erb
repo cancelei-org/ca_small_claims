@@ -1,130 +1,240 @@
 <% content_for :title, "California Small Claims Court Forms - Free Online Form Filler" %>
 
-<!-- Hero Section -->
-<div class="text-center mb-12">
-  <h1 class="text-4xl font-bold text-gray-900 mb-4">
-    California Small Claims Court Forms
-  </h1>
-  <p class="text-xl text-gray-600 max-w-2xl mx-auto">
-    Fill out your court forms online, for free. Generate print-ready PDFs without any account required.
-  </p>
-</div>
-
-<!-- Quick Actions -->
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-blue-600">
-    <h2 class="text-xl font-semibold text-gray-900 mb-2">Filing a Claim?</h2>
-    <p class="text-gray-600 mb-4">Start with the Plaintiff's Claim form (SC-100) to sue someone in small claims court.</p>
-    <%= link_to "Start Your Claim", form_path("SC-100"), class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium" %>
+<%# Hero Section with Three Paths %>
+<section class="hero py-8 lg:py-12">
+  <div class="text-center mb-8">
+    <h1 class="text-4xl lg:text-5xl font-bold mb-4">
+      California Small Claims Court Forms
+    </h1>
+    <p class="text-xl text-base-content/70 max-w-2xl mx-auto">
+      Fill out your court forms online, for free. Generate print-ready PDFs.
+    </p>
   </div>
 
-  <div class="bg-white rounded-lg shadow-md p-6 border-l-4 border-green-600">
-    <h2 class="text-xl font-semibold text-gray-900 mb-2">Being Sued?</h2>
-    <p class="text-gray-600 mb-4">Use the Defendant's Claim form (SC-120) to file a counter-claim against the plaintiff.</p>
-    <%= link_to "File Counter-Claim", form_path("SC-120"), class: "inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium" %>
-  </div>
-</div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <%# Path 1: Quick Form Picker %>
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-primary">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+          </svg>
+          Find a Form
+        </h2>
+        <p class="text-sm text-base-content/70 mb-4">Search or browse all available forms</p>
 
-<!-- Guided Workflows -->
-<% if @featured_workflows.any? %>
-  <div class="mb-12">
-    <h2 class="text-2xl font-bold text-gray-900 mb-6">Guided Workflows</h2>
-    <p class="text-gray-600 mb-4">Not sure which forms you need? Follow our step-by-step guides.</p>
+        <div data-controller="forms-picker" data-forms-picker-url-value="<%= forms_picker_home_path %>">
+          <%# Search Input %>
+          <div class="form-control mb-4">
+            <input type="text"
+                   placeholder="Search forms (e.g., SC-100)"
+                   class="input input-bordered w-full"
+                   data-forms-picker-target="searchInput"
+                   data-action="input->forms-picker#search">
+          </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <% @featured_workflows.each do |workflow| %>
-        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
-          <h3 class="text-lg font-semibold text-gray-900 mb-2"><%= workflow.name %></h3>
-          <p class="text-gray-600 text-sm mb-4"><%= workflow.description %></p>
-          <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-500"><%= workflow.total_steps %> steps</span>
-            <%= link_to "Start", workflow_path(workflow), class: "text-blue-600 hover:text-blue-800 font-medium" %>
+          <%# Category Pills %>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-action="click->forms-picker#clearCategory">All</button>
+            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="filing" data-action="click->forms-picker#selectCategory">Filing</button>
+            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="service" data-action="click->forms-picker#selectCategory">Service</button>
+            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="judgment" data-action="click->forms-picker#selectCategory">Judgment</button>
+          </div>
+
+          <%# Results with Turbo Frame %>
+          <div id="forms-picker-results">
+            <%= render "home/forms_picker_results", forms: @all_forms %>
           </div>
         </div>
-      <% end %>
-    </div>
-  </div>
-<% end %>
 
-<!-- Popular Forms -->
-<div class="mb-12">
-  <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-bold text-gray-900">Popular Forms</h2>
-    <%= link_to "View All Forms →", forms_path, class: "text-blue-600 hover:text-blue-800" %>
-  </div>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    <% @popular_forms.each do |form| %>
-      <%= link_to form_path(form.code), class: "block bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow" do %>
-        <div class="flex items-start space-x-3">
-          <div class="flex-shrink-0">
-            <span class="inline-flex items-center justify-center h-10 w-10 rounded-full bg-blue-100 text-blue-600 font-bold text-sm">
-              <%= form.code.gsub("SC-", "") %>
-            </span>
-          </div>
-          <div>
-            <h3 class="font-medium text-gray-900"><%= form.code %></h3>
-            <p class="text-sm text-gray-500 line-clamp-2"><%= form.title %></p>
-          </div>
+        <div class="card-actions justify-end mt-4">
+          <%= link_to "Browse All Forms", forms_path, class: "btn btn-primary btn-sm" %>
         </div>
-      <% end %>
-    <% end %>
+      </div>
+    </div>
+
+    <%# Path 2: Guided Workflows %>
+    <div class="card bg-base-100 shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-secondary">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
+          </svg>
+          Step-by-Step Guides
+        </h2>
+        <p class="text-sm text-base-content/70 mb-4">Not sure which forms you need? Follow our guided workflows.</p>
+
+        <div class="space-y-3">
+          <% @featured_workflows.each do |workflow| %>
+            <%= link_to workflow_path(workflow), class: "block p-4 rounded-lg bg-base-200 hover:bg-base-300 transition-colors" do %>
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold"><%= workflow.name %></h3>
+                  <p class="text-sm text-base-content/60"><%= workflow.total_steps %> steps</p>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-base-content/40">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </div>
+            <% end %>
+          <% end %>
+
+          <% if @featured_workflows.empty? %>
+            <div class="text-center py-4 text-base-content/60">
+              <p>Workflows coming soon</p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="card-actions justify-end mt-4">
+          <%= link_to "View All Workflows", workflows_path, class: "btn btn-secondary btn-sm" %>
+        </div>
+      </div>
+    </div>
+
+    <%# Path 3: Account CTA %>
+    <div class="card bg-gradient-to-br from-primary to-secondary text-primary-content shadow-xl">
+      <div class="card-body">
+        <h2 class="card-title gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Save Your Progress
+        </h2>
+        <p class="text-sm opacity-90 mb-4">Create a free account to save your forms and access them from any device.</p>
+
+        <ul class="space-y-2 mb-6">
+          <li class="flex items-center gap-2 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            Auto-save your progress
+          </li>
+          <li class="flex items-center gap-2 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            Access from any device
+          </li>
+          <li class="flex items-center gap-2 text-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+            </svg>
+            Auto-fill common fields
+          </li>
+        </ul>
+
+        <% if user_signed_in? %>
+          <div class="card-actions">
+            <%= link_to "My Forms", submissions_path, class: "btn btn-outline border-primary-content text-primary-content hover:bg-primary-content hover:text-primary w-full" %>
+          </div>
+        <% else %>
+          <div class="card-actions">
+            <%= link_to "Create Free Account", new_user_registration_path, class: "btn bg-base-100 text-primary hover:bg-base-200 w-full" %>
+            <p class="text-xs opacity-80 text-center w-full mt-2">
+              Already have an account? <%= link_to "Sign in", new_user_session_path, class: "underline" %>
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
-<!-- How It Works -->
-<div class="bg-white rounded-lg shadow-md p-8 mb-12">
-  <h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">How It Works</h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    <div class="text-center">
-      <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">1</div>
-      <h3 class="font-semibold text-gray-900 mb-2">Choose Your Form</h3>
-      <p class="text-gray-600 text-sm">Select from all 51 official California Small Claims Court forms.</p>
+<%# Quick Actions - Filing vs Being Sued %>
+<section class="py-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div class="card bg-base-100 shadow border-l-4 border-primary">
+      <div class="card-body">
+        <h2 class="card-title">Filing a Claim?</h2>
+        <p class="text-base-content/70">Start with the Plaintiff's Claim form (SC-100) to sue someone in small claims court.</p>
+        <div class="card-actions justify-end">
+          <%= link_to "Start Your Claim", form_path("SC-100"), class: "btn btn-primary" %>
+        </div>
+      </div>
     </div>
 
-    <div class="text-center">
-      <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">2</div>
-      <h3 class="font-semibold text-gray-900 mb-2">Fill It Out Online</h3>
-      <p class="text-gray-600 text-sm">Complete the form in your browser. Your progress is automatically saved.</p>
-    </div>
-
-    <div class="text-center">
-      <div class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 text-blue-600 font-bold text-xl mb-4">3</div>
-      <h3 class="font-semibold text-gray-900 mb-2">Download & Print</h3>
-      <p class="text-gray-600 text-sm">Generate a PDF that matches the official court form, ready to file.</p>
+    <div class="card bg-base-100 shadow border-l-4 border-secondary">
+      <div class="card-body">
+        <h2 class="card-title">Being Sued?</h2>
+        <p class="text-base-content/70">Use the Defendant's Claim form (SC-120) to file a counter-claim against the plaintiff.</p>
+        <div class="card-actions justify-end">
+          <%= link_to "File Counter-Claim", form_path("SC-120"), class: "btn btn-secondary" %>
+        </div>
+      </div>
     </div>
   </div>
-</div>
+</section>
 
-<!-- Categories -->
-<div class="mb-12">
-  <h2 class="text-2xl font-bold text-gray-900 mb-6">Browse by Category</h2>
+<%# How It Works %>
+<section class="py-8">
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="text-2xl font-bold text-center mb-8">How It Works</h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="text-center">
+          <div class="avatar placeholder mb-4">
+            <div class="bg-primary text-primary-content rounded-full w-12">
+              <span class="text-xl font-bold">1</span>
+            </div>
+          </div>
+          <h3 class="font-semibold mb-2">Choose Your Form</h3>
+          <p class="text-base-content/70 text-sm">Select from over 1,400 official California court forms.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="avatar placeholder mb-4">
+            <div class="bg-primary text-primary-content rounded-full w-12">
+              <span class="text-xl font-bold">2</span>
+            </div>
+          </div>
+          <h3 class="font-semibold mb-2">Fill It Out Online</h3>
+          <p class="text-base-content/70 text-sm">Complete the form in your browser. Your progress is automatically saved.</p>
+        </div>
+
+        <div class="text-center">
+          <div class="avatar placeholder mb-4">
+            <div class="bg-primary text-primary-content rounded-full w-12">
+              <span class="text-xl font-bold">3</span>
+            </div>
+          </div>
+          <h3 class="font-semibold mb-2">Download & Print</h3>
+          <p class="text-base-content/70 text-sm">Generate a PDF that matches the official court form, ready to file.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<%# Browse by Category %>
+<section class="py-8">
+  <h2 class="text-2xl font-bold mb-6">Browse by Category</h2>
 
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <% @categories.each do |category| %>
-      <%= link_to forms_path(category: category.slug), class: "bg-white rounded-lg shadow p-4 hover:shadow-md transition-shadow text-center" do %>
-        <span class="text-gray-900 font-medium"><%= category.name %></span>
+      <%= link_to forms_path(category: category.slug), class: "card bg-base-100 shadow hover:shadow-lg transition-shadow" do %>
+        <div class="card-body items-center text-center p-4">
+          <span class="font-medium"><%= category.name %></span>
+        </div>
       <% end %>
     <% end %>
   </div>
-</div>
+</section>
 
-<!-- Disclaimer -->
-<div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
-  <div class="flex">
-    <div class="flex-shrink-0">
-      <svg class="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
-        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-      </svg>
-    </div>
-    <div class="ml-3">
-      <h3 class="text-sm font-medium text-yellow-800">Important Disclaimer</h3>
-      <p class="mt-2 text-sm text-yellow-700">
+<%# Disclaimer %>
+<section class="py-8">
+  <div class="alert alert-warning">
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+    <div>
+      <h3 class="font-bold">Important Disclaimer</h3>
+      <p class="text-sm">
         This tool helps you fill out court forms but does not provide legal advice.
         For legal questions about your case, consult with an attorney or visit the
-        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="font-medium underline">California Courts Self-Help Center</a>.
+        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link">California Courts Self-Help Center</a>.
       </p>
     </div>
   </div>
-</div>
+</section>

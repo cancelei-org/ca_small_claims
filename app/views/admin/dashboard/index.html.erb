@@ -1,0 +1,135 @@
+<% content_for :title, "Dashboard - Admin" %>
+
+<div class="space-y-6">
+  <%# Stats Cards %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <%# Pending Feedbacks %>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-figure text-warning">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="stat-title">Pending</div>
+      <div class="stat-value text-warning"><%= @stats[:pending_feedbacks] %></div>
+      <div class="stat-desc">Need attention</div>
+    </div>
+
+    <%# Low Rated %>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-figure text-error">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+        </svg>
+      </div>
+      <div class="stat-title">Low Rated</div>
+      <div class="stat-value text-error"><%= @stats[:low_rated_unresolved] %></div>
+      <div class="stat-desc">Unresolved issues</div>
+    </div>
+
+    <%# Resolved Today %>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-figure text-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="stat-title">Resolved Today</div>
+      <div class="stat-value text-success"><%= @stats[:resolved_today] %></div>
+      <div class="stat-desc">Keep it up!</div>
+    </div>
+
+    <%# Average Rating %>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-figure text-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8">
+          <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+        </svg>
+      </div>
+      <div class="stat-title">Avg Rating</div>
+      <div class="stat-value text-primary"><%= @stats[:average_rating] %></div>
+      <div class="stat-desc">Out of 5 stars</div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <%# Forms Needing Attention %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-warning">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          Forms Needing Attention
+        </h2>
+
+        <% if @forms_needing_attention.any? %>
+          <div class="overflow-x-auto">
+            <table class="table table-zebra">
+              <thead>
+                <tr>
+                  <th>Form</th>
+                  <th>Pending</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @forms_needing_attention.each do |form| %>
+                  <tr>
+                    <td>
+                      <div class="font-medium"><%= form.code %></div>
+                      <div class="text-sm opacity-60"><%= truncate(form.title, length: 40) %></div>
+                    </td>
+                    <td>
+                      <span class="badge badge-warning"><%= form.feedback_count %></span>
+                    </td>
+                    <td>
+                      <%= link_to "View", admin_feedbacks_path(form_id: form.id), class: "btn btn-ghost btn-xs" %>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+        <% else %>
+          <div class="text-center py-8 text-base-content/60">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-2 opacity-50">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p>No forms need attention</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Recent Feedback %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <div class="flex items-center justify-between">
+          <h2 class="card-title">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+            Recent Feedback
+          </h2>
+          <%= link_to "View All", admin_feedbacks_path, class: "btn btn-ghost btn-sm" %>
+        </div>
+
+        <% if @recent_feedbacks.any? %>
+          <div class="space-y-3">
+            <% @recent_feedbacks.each do |feedback| %>
+              <%= render "admin/feedbacks/feedback_card", feedback: feedback %>
+            <% end %>
+          </div>
+        <% else %>
+          <div class="text-center py-8 text-base-content/60">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-2 opacity-50">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+            <p>No feedback yet</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

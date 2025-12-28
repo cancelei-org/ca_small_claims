@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full" data-theme="corporate">
+  <head>
+    <title><%= content_for(:title) || "Admin - CA Small Claims" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen bg-base-200">
+    <div class="drawer lg:drawer-open">
+      <input id="admin-drawer" type="checkbox" class="drawer-toggle" />
+
+      <!-- Main Content Area -->
+      <div class="drawer-content flex flex-col">
+        <!-- Top Navbar -->
+        <nav class="navbar bg-base-100 shadow-sm border-b border-base-300">
+          <div class="flex-none lg:hidden">
+            <label for="admin-drawer" class="btn btn-square btn-ghost">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+              </svg>
+            </label>
+          </div>
+          <div class="flex-1 px-2">
+            <span class="text-lg font-semibold">Admin Dashboard</span>
+          </div>
+          <div class="flex-none gap-2">
+            <%= link_to root_path, class: "btn btn-ghost btn-sm gap-2" do %>
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+              </svg>
+              View Site
+            <% end %>
+
+            <div class="dropdown dropdown-end">
+              <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+                <div class="bg-neutral text-neutral-content rounded-full w-10">
+                  <span class="text-sm"><%= current_user.display_name.first(2).upcase %></span>
+                </div>
+              </div>
+              <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52">
+                <li class="menu-title"><%= current_user.display_name %></li>
+                <li><%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete } %></li>
+              </ul>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Flash Messages -->
+        <% if notice.present? %>
+          <div class="px-6 pt-4">
+            <div role="alert" class="alert alert-success">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span><%= notice %></span>
+            </div>
+          </div>
+        <% end %>
+
+        <% if alert.present? %>
+          <div class="px-6 pt-4">
+            <div role="alert" class="alert alert-error">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span><%= alert %></span>
+            </div>
+          </div>
+        <% end %>
+
+        <!-- Page Content -->
+        <main class="flex-1 p-6">
+          <%= yield %>
+        </main>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="drawer-side">
+        <label for="admin-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <aside class="bg-base-100 w-64 min-h-full border-r border-base-300">
+          <!-- Sidebar Header -->
+          <div class="p-4 border-b border-base-300">
+            <div class="flex items-center gap-2">
+              <div class="bg-primary text-primary-content rounded-lg p-2">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-bold">CA Small Claims</div>
+                <div class="text-xs opacity-60">Admin Panel</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Navigation Menu -->
+          <ul class="menu p-4 text-base-content">
+            <li class="menu-title">Overview</li>
+            <li>
+              <%= link_to admin_root_path, class: "#{controller_name == 'dashboard' ? 'active' : ''}" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                </svg>
+                Dashboard
+              <% end %>
+            </li>
+
+            <li class="menu-title mt-4">Feedback</li>
+            <li>
+              <%= link_to admin_feedbacks_path, class: "#{controller_name == 'feedbacks' ? 'active' : ''}" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                </svg>
+                All Feedback
+                <% if defined?(@pending_count) && @pending_count.to_i > 0 %>
+                  <span class="badge badge-warning badge-sm"><%= @pending_count %></span>
+                <% end %>
+              <% end %>
+            </li>
+
+            <li class="menu-title mt-4">Reports</li>
+            <li>
+              <%= link_to "#", class: "opacity-50 cursor-not-allowed" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+                </svg>
+                Analytics
+                <span class="badge badge-ghost badge-sm">Soon</span>
+              <% end %>
+            </li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </body>
+</html>

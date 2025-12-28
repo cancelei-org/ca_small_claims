@@ -1,4 +1,5 @@
 module ApplicationHelper
+  include Pagy::Frontend
   # Returns the current theme for the user
   # Priority: session > user preference > default
   def current_theme

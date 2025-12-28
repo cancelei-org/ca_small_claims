@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_25_190530) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_27_071456) do
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "pg_catalog.plpgsql"
+
   create_table "categories", force: :cascade do |t|
     t.boolean "active", default: true
     t.datetime "created_at", null: false
@@ -75,6 +78,28 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_190530) do
     t.index ["code"], name: "index_form_definitions_on_code", unique: true
   end
 
+  create_table "form_feedbacks", force: :cascade do |t|
+    t.text "admin_notes"
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.bigint "form_definition_id", null: false
+    t.string "issue_types", default: [], array: true
+    t.integer "rating", null: false
+    t.datetime "resolved_at"
+    t.bigint "resolved_by_id"
+    t.string "session_id"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["form_definition_id", "status"], name: "index_form_feedbacks_on_form_definition_id_and_status"
+    t.index ["form_definition_id"], name: "index_form_feedbacks_on_form_definition_id"
+    t.index ["issue_types"], name: "index_form_feedbacks_on_issue_types", using: :gin
+    t.index ["rating"], name: "index_form_feedbacks_on_rating"
+    t.index ["resolved_by_id"], name: "index_form_feedbacks_on_resolved_by_id"
+    t.index ["status"], name: "index_form_feedbacks_on_status"
+    t.index ["user_id"], name: "index_form_feedbacks_on_user_id"
+  end
+
   create_table "session_submissions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.datetime "expires_at", null: false
@@ -112,7 +137,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_190530) do
 
   create_table "users", force: :cascade do |t|
     t.text "address"
+    t.boolean "admin", default: false, null: false
+    t.string "city"
     t.datetime "created_at", null: false
+    t.date "date_of_birth"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "full_name"
@@ -122,7 +150,10 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_190530) do
     t.datetime "remember_created_at"
     t.datetime "reset_password_sent_at"
     t.string "reset_password_token"
+    t.string "state", default: "CA"
     t.datetime "updated_at", null: false
+    t.string "zip_code"
+    t.index ["admin"], name: "index_users_on_admin"
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
   end
@@ -163,6 +194,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_25_190530) do
   add_foreign_key "categories", "categories", column: "parent_id"
   add_foreign_key "field_definitions", "form_definitions"
   add_foreign_key "form_definitions", "categories"
+  add_foreign_key "form_feedbacks", "form_definitions"
+  add_foreign_key "form_feedbacks", "users"
+  add_foreign_key "form_feedbacks", "users", column: "resolved_by_id"
   add_foreign_key "session_submissions", "form_definitions"
   add_foreign_key "submissions", "form_definitions"
   add_foreign_key "submissions", "users"
