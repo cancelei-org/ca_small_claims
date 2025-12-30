@@ -4,7 +4,7 @@ class SubmissionsController < ApplicationController
   include SessionStorage
   include PdfHandling
 
-  before_action :set_submission, only: [:show, :destroy, :pdf, :download_pdf]
+  before_action :set_submission, only: [ :show, :destroy, :pdf, :download_pdf ]
 
   def index
     @submissions = if current_user
@@ -47,5 +47,17 @@ class SubmissionsController < ApplicationController
   # Override PdfHandling concern method
   def pdf_failure_redirect_path(submission)
     submission_path(submission)
+  end
+
+  def valid_pdf_path?(path)
+    return false if path.blank?
+
+    expanded_path = File.expand_path(path)
+    allowed_dirs = [
+      Rails.root.join("tmp", "pdfs").to_s,
+      Rails.root.join("storage").to_s
+    ]
+
+    allowed_dirs.any? { |dir| expanded_path.start_with?(dir) } && File.exist?(expanded_path)
   end
 end

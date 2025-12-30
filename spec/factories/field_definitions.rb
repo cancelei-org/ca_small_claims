@@ -52,7 +52,7 @@ FactoryBot.define do
 
     trait :with_options do
       field_type { "select" }
-      options { [{ value: "opt1", label: "Option 1" }, { value: "opt2", label: "Option 2" }] }
+      options { [ { value: "opt1", label: "Option 1" }, { value: "opt2", label: "Option 2" } ] }
     end
 
     trait :with_validation do

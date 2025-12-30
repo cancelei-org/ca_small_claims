@@ -17,7 +17,7 @@ class CreateFormFeedbacks < ActiveRecord::Migration[8.1]
 
     add_index :form_feedbacks, :status
     add_index :form_feedbacks, :issue_types, using: :gin
-    add_index :form_feedbacks, [:form_definition_id, :status]
+    add_index :form_feedbacks, [ :form_definition_id, :status ]
     add_index :form_feedbacks, :rating
   end
 end

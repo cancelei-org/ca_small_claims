@@ -21,6 +21,6 @@ class CreateSubmissions < ActiveRecord::Migration[8.0]
     add_index :submissions, :session_id
     add_index :submissions, :status
     add_index :submissions, :workflow_session_id
-    add_index :submissions, [:user_id, :status]
+    add_index :submissions, [ :user_id, :status ]
   end
 end

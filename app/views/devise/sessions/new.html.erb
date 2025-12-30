@@ -1,0 +1,45 @@
+<div class="max-w-md mx-auto">
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title text-2xl font-bold mb-6">Log in</h2>
+
+      <%= form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "space-y-4" }) do |f| %>
+        <div class="form-control w-full">
+          <%= f.label :email, class: "label" do %>
+            <span class="label-text text-base">Email</span>
+          <% end %>
+          <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "input input-bordered w-full text-base min-h-[48px]", placeholder: "your@email.com" %>
+        </div>
+
+        <div class="form-control w-full">
+          <%= f.label :password, class: "label" do %>
+            <span class="label-text text-base">Password</span>
+          <% end %>
+          <%= f.password_field :password, autocomplete: "current-password", class: "input input-bordered w-full text-base min-h-[48px]", placeholder: "Enter your password" %>
+        </div>
+
+        <% if devise_mapping.rememberable? %>
+          <div class="form-control">
+            <label class="label cursor-pointer justify-start gap-3">
+              <%= f.check_box :remember_me, class: "checkbox checkbox-primary" %>
+              <span class="label-text text-base">Remember me</span>
+            </label>
+          </div>
+        <% end %>
+
+        <div class="form-control mt-6">
+          <%= f.submit "Log in", class: "btn btn-primary w-full min-h-[48px] text-base" %>
+        </div>
+      <% end %>
+
+      <div class="divider">OR</div>
+
+      <div class="flex flex-col gap-3 text-center">
+        <%= link_to "Sign up", new_registration_path(resource_name), class: "link link-primary text-base" %>
+        <% if devise_mapping.recoverable? && controller_name != 'passwords' && controller_name != 'registrations' %>
+          <%= link_to "Forgot your password?", new_password_path(resource_name), class: "link link-secondary text-base" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

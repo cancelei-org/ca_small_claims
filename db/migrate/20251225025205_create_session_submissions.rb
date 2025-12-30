@@ -11,6 +11,6 @@ class CreateSessionSubmissions < ActiveRecord::Migration[8.0]
 
     add_index :session_submissions, :session_id
     add_index :session_submissions, :expires_at
-    add_index :session_submissions, [:session_id, :form_definition_id], unique: true
+    add_index :session_submissions, [ :session_id, :form_definition_id ], unique: true
   end
 end

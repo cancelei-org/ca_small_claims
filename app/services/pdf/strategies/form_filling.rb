@@ -20,7 +20,7 @@ module Pdf
 
         flattened_path = output.sub(".pdf", "_flattened.pdf")
 
-        system("pdftk '#{output}' output '#{flattened_path}' flatten")
+        system(pdftk_path, output, "output", flattened_path, "flatten")
 
         File.exist?(flattened_path) ? flattened_path : output
       end

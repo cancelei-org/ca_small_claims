@@ -1,12 +1,12 @@
 <div class="form-control mb-4">
-  <label class="label cursor-pointer justify-start gap-3">
+  <label class="label cursor-pointer justify-start gap-3 min-h-[48px]">
     <%= form.check_box field.name,
       { checked: submission.field_value(field.name) == "1" || submission.field_value(field.name) == true,
-        class: "checkbox checkbox-primary",
+        class: "checkbox checkbox-primary w-6 h-6",
         data: { action: "input->form#fieldChanged" } },
       "1", "0" %>
 
-    <span class="label-text w-[calc(100%-2.25rem)] text-wrap">
+    <span class="label-text w-[calc(100%-2.25rem)] text-wrap text-base">
       <%= field.label || field.name.titleize %>
       <% if field.required %>
         <span class="text-error">*</span>

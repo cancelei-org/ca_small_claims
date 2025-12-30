@@ -51,7 +51,7 @@
       <div class="navbar-end gap-2">
         <%# Theme Toggle Button %>
         <button type="button"
-                class="btn btn-ghost btn-circle"
+                class="btn btn-ghost btn-circle min-w-[44px] min-h-[44px]"
                 data-controller="theme"
                 data-action="click->theme#openModal"
                 title="Change theme"
@@ -79,26 +79,26 @@
             </ul>
           </div>
         <% else %>
-          <%= link_to "Sign In", new_user_session_path, class: "btn btn-ghost btn-sm" %>
-          <%= link_to "Register", new_user_registration_path, class: "btn btn-secondary btn-sm" %>
+          <%= link_to "Sign In", new_user_session_path, class: "btn btn-ghost btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
+          <%= link_to "Register", new_user_registration_path, class: "btn btn-secondary btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
         <% end %>
 
         <%# Mobile menu button %>
         <div class="dropdown dropdown-end lg:hidden">
-          <div tabindex="0" role="button" class="btn btn-ghost btn-circle">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle min-w-[44px] min-h-[44px]">
             <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
             </svg>
           </div>
-          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-52">
-            <li><%= link_to "Forms", forms_path %></li>
-            <li><%= link_to "Workflows", workflows_path %></li>
-            <li><%= link_to "My Forms", submissions_path %></li>
+          <ul tabindex="0" class="menu dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-56">
+            <li><%= link_to "Forms", forms_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to "Workflows", workflows_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to "My Forms", submissions_path, class: "text-base py-3 min-h-[44px]" %></li>
             <li>
               <button type="button"
                       data-controller="theme"
                       data-action="click->theme#openModal"
-                      class="flex items-center gap-2">
+                      class="flex items-center gap-2 text-base py-3 min-h-[44px]">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
@@ -139,19 +139,19 @@
     </main>
 
     <!-- Footer -->
-    <footer class="footer footer-center p-10 bg-base-200 text-base-content mt-auto">
-      <nav class="grid grid-flow-col gap-4">
-        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link link-hover">CA Courts Self-Help</a>
-        <a href="https://www.courts.ca.gov/forms.htm" target="_blank" class="link link-hover">Official Court Forms</a>
-        <%= link_to "Help & FAQ", help_path, class: "link link-hover" %>
+    <footer class="footer footer-center p-6 md:p-10 bg-base-200 text-base-content mt-auto">
+      <nav class="flex flex-col sm:flex-row gap-4 text-base">
+        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link link-hover min-h-[44px] flex items-center">CA Courts Self-Help</a>
+        <a href="https://www.courts.ca.gov/forms.htm" target="_blank" class="link link-hover min-h-[44px] flex items-center">Official Court Forms</a>
+        <%= link_to "Help & FAQ", help_path, class: "link link-hover min-h-[44px] flex items-center" %>
       </nav>
-      <aside>
-        <p class="text-sm">
+      <aside class="text-center">
+        <p class="text-sm md:text-base">
           A free, open-source tool to help Californians fill out Small Claims Court forms online.
-          <br>
-          This tool provides form assistance only. It is not legal advice. Consult an attorney for legal questions.
+          <br class="hidden sm:block">
+          <span class="block sm:inline">This tool provides form assistance only. It is not legal advice. Consult an attorney for legal questions.</span>
         </p>
-        <p class="text-xs mt-2 opacity-60">
+        <p class="text-xs md:text-sm mt-2 opacity-60">
           Open source software released under the MIT License.
           <%= link_to "View on GitHub", "https://github.com/example/ca-small-claims", target: "_blank", class: "link" %>
         </p>

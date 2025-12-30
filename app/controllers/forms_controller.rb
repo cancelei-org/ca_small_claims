@@ -4,7 +4,7 @@ class FormsController < ApplicationController
   include SessionStorage
   include PdfHandling
 
-  before_action :set_form_definition, only: [:show, :update, :preview, :download, :toggle_wizard]
+  before_action :set_form_definition, only: [ :show, :update, :preview, :download, :toggle_wizard ]
 
   def index
     @forms = FormDefinition.active.includes(:category).ordered

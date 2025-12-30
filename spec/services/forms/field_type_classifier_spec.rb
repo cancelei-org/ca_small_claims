@@ -101,7 +101,7 @@ RSpec.describe Forms::FieldTypeClassifier do
 
   describe "#pii_field?" do
     it "returns true for known PII field names" do
-      expect(classifier.pii_field?("Name", ["Name"])).to be true
+      expect(classifier.pii_field?("Name", [ "Name" ])).to be true
     end
 
     it "returns true for fields matching PII patterns" do

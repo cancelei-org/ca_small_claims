@@ -15,7 +15,7 @@ Grover.configure do |config|
     emulate_media: "print",
     wait_until: "networkidle0",
     # Chrome launch args for headless mode
-    launch_args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    launch_args: [ "--no-sandbox", "--disable-setuid-sandbox" ],
     # Use system Chrome/Chromium instead of puppeteer's bundled version
     executable_path: ENV.fetch("CHROMIUM_PATH") { "/usr/bin/google-chrome" }
   }

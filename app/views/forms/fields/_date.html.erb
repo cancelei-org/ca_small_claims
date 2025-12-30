@@ -1,6 +1,6 @@
 <div class="form-control w-full mb-4">
   <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
+    <span class="label-text font-medium text-base"><%= field.label || field.name.titleize %></span>
     <% if field.required %>
       <span class="label-text-alt text-error">*</span>
     <% end %>
@@ -9,7 +9,7 @@
   <%= form.date_field field.name,
     value: submission.field_value(field.name),
     required: field.required,
-    class: "input input-bordered w-full",
+    class: "input input-bordered w-full min-h-[48px] text-base",
     data: { action: "input->form#fieldChanged" } %>
 
   <% if field.help_text.present? %>

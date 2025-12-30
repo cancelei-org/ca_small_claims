@@ -12,7 +12,7 @@ Rails.application.routes.draw do
   # Admin namespace
   namespace :admin do
     root "dashboard#index"
-    resources :feedbacks, only: [:index, :show, :update] do
+    resources :feedbacks, only: [ :index, :show, :update ] do
       member do
         patch :acknowledge
         patch :resolve
@@ -21,13 +21,13 @@ Rails.application.routes.draw do
   end
 
   # Form Feedbacks (public submission)
-  resources :form_feedbacks, only: [:create]
+  resources :form_feedbacks, only: [ :create ]
 
   # Profile
-  resource :profile, only: [:show, :update]
+  resource :profile, only: [ :show, :update ]
 
   # Forms (individual access)
-  resources :forms, only: [:index, :show, :update], param: :id do
+  resources :forms, only: [ :index, :show, :update ], param: :id do
     member do
       get :preview
       get :download
@@ -36,7 +36,7 @@ Rails.application.routes.draw do
   end
 
   # Workflows (guided wizard)
-  resources :workflows, only: [:index, :show], param: :id do
+  resources :workflows, only: [ :index, :show ], param: :id do
     member do
       patch :step
       post :advance
@@ -46,7 +46,7 @@ Rails.application.routes.draw do
   end
 
   # Submissions (user's saved forms)
-  resources :submissions, only: [:index, :show, :destroy] do
+  resources :submissions, only: [ :index, :show, :destroy ] do
     member do
       get :pdf
       get :download_pdf

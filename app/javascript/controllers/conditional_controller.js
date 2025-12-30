@@ -1,67 +1,76 @@
-import { Controller } from "@hotwired/stimulus"
+import { Controller } from '@hotwired/stimulus';
 
 // Handles conditional show/hide of form sections based on field values
 export default class extends Controller {
-  static targets = ["trigger", "section"]
+  static targets = ['trigger', 'section'];
   static values = {
-    showWhen: String,  // Format: "field_name:value" or "field_name:value1,value2"
+    showWhen: String, // Format: "field_name:value" or "field_name:value1,value2"
     hideWhen: String
-  }
+  };
 
   connect() {
-    this.evaluate()
+    this.evaluate();
   }
 
   changed() {
-    this.evaluate()
+    this.evaluate();
   }
 
   evaluate() {
-    if (!this.hasSectionTarget) return
+    if (!this.hasSectionTarget) {
+      return;
+    }
 
-    let shouldShow = true
+    let shouldShow = true;
 
     if (this.hasShowWhenValue && this.showWhenValue) {
-      shouldShow = this.checkCondition(this.showWhenValue)
+      shouldShow = this.checkCondition(this.showWhenValue);
     }
 
     if (this.hasHideWhenValue && this.hideWhenValue) {
-      shouldShow = !this.checkCondition(this.hideWhenValue)
+      shouldShow = !this.checkCondition(this.hideWhenValue);
     }
 
-    this.sectionTarget.classList.toggle("hidden", !shouldShow)
+    this.sectionTarget.classList.toggle('hidden', !shouldShow);
 
     // Also toggle the required attribute on hidden inputs
-    const inputs = this.sectionTarget.querySelectorAll("input, select, textarea")
+    const inputs = this.sectionTarget.querySelectorAll(
+      'input, select, textarea'
+    );
+
     inputs.forEach(input => {
       if (!shouldShow) {
-        input.dataset.wasRequired = input.required
-        input.required = false
-      } else if (input.dataset.wasRequired === "true") {
-        input.required = true
+        input.dataset.wasRequired = input.required;
+        input.required = false;
+      } else if (input.dataset.wasRequired === 'true') {
+        input.required = true;
       }
-    })
+    });
   }
 
   checkCondition(condition) {
-    const [fieldName, values] = condition.split(":")
-    const allowedValues = values.split(",").map(v => v.trim().toLowerCase())
+    const [fieldName, values] = condition.split(':');
+    const allowedValues = values.split(',').map(v => v.trim().toLowerCase());
 
     // Find the field by name
-    const field = document.querySelector(`[name*="${fieldName}"]`)
-    if (!field) return false
+    const field = document.querySelector(`[name*="${fieldName}"]`);
 
-    let fieldValue = ""
-
-    if (field.type === "checkbox") {
-      fieldValue = field.checked ? "true" : "false"
-    } else if (field.type === "radio") {
-      const checked = document.querySelector(`[name*="${fieldName}"]:checked`)
-      fieldValue = checked ? checked.value.toLowerCase() : ""
-    } else {
-      fieldValue = field.value.toLowerCase()
+    if (!field) {
+      return false;
     }
 
-    return allowedValues.includes(fieldValue)
+    let fieldValue = '';
+
+    if (field.type === 'checkbox') {
+      fieldValue = field.checked ? 'true' : 'false';
+    } else if (field.type === 'radio') {
+      const checked = document.querySelector(`[name*="${fieldName}"]:checked`);
+
+      fieldValue = checked ? checked.value.toLowerCase() : '';
+    } else {
+      fieldValue = field.value.toLowerCase();
+    }
+
+    return allowedValues.includes(fieldValue);
   }
 }

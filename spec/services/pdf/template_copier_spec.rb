@@ -68,7 +68,7 @@ RSpec.describe Pdf::TemplateCopier do
 
     context "when given specific filenames" do
       it "only copies specified files" do
-        copier.copy_all!(["sc100.pdf", "fl100.pdf"])
+        copier.copy_all!([ "sc100.pdf", "fl100.pdf" ])
 
         expect(File.exist?(target_dir.join("sc100.pdf"))).to be true
         expect(File.exist?(target_dir.join("fl100.pdf"))).to be true
@@ -78,7 +78,7 @@ RSpec.describe Pdf::TemplateCopier do
 
     context "when source file does not exist" do
       it "records an error" do
-        copier.copy_all!(["nonexistent.pdf"])
+        copier.copy_all!([ "nonexistent.pdf" ])
 
         expect(copier.stats[:errors]).to eq(1)
         expect(copier.errors.first[:filename]).to eq("nonexistent.pdf")

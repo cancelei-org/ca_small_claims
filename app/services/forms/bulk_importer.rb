@@ -318,7 +318,7 @@ module Forms
 
       if @errors.any?
         log ""
-        log "First #{[@errors.count, 10].min} errors:"
+        log "First #{[ @errors.count, 10 ].min} errors:"
         @errors.first(10).each do |error|
           log "  - #{error[:context]}: #{error[:error]}"
         end

@@ -222,9 +222,61 @@ non_fillable_forms.each do |form_data|
 end
 
 # =============================================================================
+# STEP 5: Test Users (Development/Test only)
+# =============================================================================
+if Rails.env.development? || Rails.env.test?
+  puts "\n--- Creating Test Users ---"
+
+  test_users = [
+    {
+      email: "aline.entrepreneur@flukebase.me",
+      password: "password123",
+      full_name: "Aline Rodriguez",
+      address: "1234 Entrepreneur Way, Suite 100",
+      city: "Los Angeles",
+      state: "CA",
+      zip_code: "90001",
+      phone: "(213) 555-0123",
+      date_of_birth: Date.new(1985, 6, 15),
+      admin: false
+    },
+    {
+      email: "admin@example.com",
+      password: "admin123",
+      full_name: "Admin User",
+      address: "100 Court Street",
+      city: "Sacramento",
+      state: "CA",
+      zip_code: "95814",
+      phone: "(916) 555-0100",
+      admin: true
+    }
+  ]
+
+  test_users.each do |user_data|
+    user = User.find_or_initialize_by(email: user_data[:email])
+    user.assign_attributes(
+      password: user_data[:password],
+      password_confirmation: user_data[:password],
+      full_name: user_data[:full_name],
+      address: user_data[:address],
+      city: user_data[:city],
+      state: user_data[:state],
+      zip_code: user_data[:zip_code],
+      phone: user_data[:phone],
+      date_of_birth: user_data[:date_of_birth],
+      admin: user_data[:admin] || false
+    )
+    user.save!
+    puts "  Created/Updated user: #{user.email} (#{user.admin? ? 'admin' : 'user'})"
+  end
+end
+
+# =============================================================================
 # Summary
 # =============================================================================
 puts "\n=== Seeding Complete ==="
 puts "  Categories: #{Category.count} (#{Category.roots.count} parents, #{Category.where.not(parent_id: nil).count} children)"
 puts "  Forms: #{FormDefinition.count} (#{FormDefinition.where(fillable: true).count} fillable, #{FormDefinition.where(fillable: false).count} non-fillable)"
 puts "  Workflows: #{Workflow.count}"
+puts "  Users: #{User.count}" if Rails.env.development? || Rails.env.test?

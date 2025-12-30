@@ -12,7 +12,7 @@ class CreateCategories < ActiveRecord::Migration[8.1]
     end
 
     add_index :categories, :slug, unique: true
-    add_index :categories, [:parent_id, :position]
+    add_index :categories, [ :parent_id, :position ]
 
     # Add category reference to form_definitions and workflows
     add_reference :form_definitions, :category, foreign_key: true

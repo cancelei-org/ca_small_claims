@@ -28,17 +28,17 @@
           <div class="form-control mb-4">
             <input type="text"
                    placeholder="Search forms (e.g., SC-100)"
-                   class="input input-bordered w-full"
+                   class="input input-bordered w-full min-h-[48px] text-base"
                    data-forms-picker-target="searchInput"
                    data-action="input->forms-picker#search">
           </div>
 
           <%# Category Pills %>
           <div class="flex flex-wrap gap-2 mb-4">
-            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-action="click->forms-picker#clearCategory">All</button>
-            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="filing" data-action="click->forms-picker#selectCategory">Filing</button>
-            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="service" data-action="click->forms-picker#selectCategory">Service</button>
-            <button class="btn btn-xs btn-outline" data-forms-picker-target="categoryButton" data-category="judgment" data-action="click->forms-picker#selectCategory">Judgment</button>
+            <button class="btn btn-sm md:btn-xs btn-outline min-h-[44px] md:min-h-0" data-forms-picker-target="categoryButton" data-action="click->forms-picker#clearCategory">All</button>
+            <button class="btn btn-sm md:btn-xs btn-outline min-h-[44px] md:min-h-0" data-forms-picker-target="categoryButton" data-category="filing" data-action="click->forms-picker#selectCategory">Filing</button>
+            <button class="btn btn-sm md:btn-xs btn-outline min-h-[44px] md:min-h-0" data-forms-picker-target="categoryButton" data-category="service" data-action="click->forms-picker#selectCategory">Service</button>
+            <button class="btn btn-sm md:btn-xs btn-outline min-h-[44px] md:min-h-0" data-forms-picker-target="categoryButton" data-category="judgment" data-action="click->forms-picker#selectCategory">Judgment</button>
           </div>
 
           <%# Results with Turbo Frame %>

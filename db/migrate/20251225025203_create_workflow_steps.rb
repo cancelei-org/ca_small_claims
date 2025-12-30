@@ -19,6 +19,6 @@ class CreateWorkflowSteps < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :workflow_steps, [:workflow_id, :position], unique: true
+    add_index :workflow_steps, [ :workflow_id, :position ], unique: true
   end
 end

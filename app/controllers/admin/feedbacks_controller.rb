@@ -4,7 +4,7 @@ module Admin
   class FeedbacksController < BaseController
     include Pagy::Backend
 
-    before_action :set_feedback, only: [:show, :update, :acknowledge, :resolve]
+    before_action :set_feedback, only: [ :show, :update, :acknowledge, :resolve ]
 
     def index
       @pagy, @feedbacks = pagy(filtered_feedbacks.includes(:form_definition, :user).recent, limit: 20)

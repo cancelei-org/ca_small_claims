@@ -1,72 +1,78 @@
-import { Controller } from "@hotwired/stimulus"
-import { createDebouncedHandler, DEBOUNCE_DELAYS } from "../utilities/debounce"
-import { csrfToken } from "../utilities/csrf"
+import { Controller } from '@hotwired/stimulus';
+import { createDebouncedHandler, DEBOUNCE_DELAYS } from '../utilities/debounce';
+import { csrfToken } from '../utilities/csrf';
 
 // Handles form auto-save functionality
 export default class extends Controller {
-  static targets = ["status", "form"]
+  static targets = ['status', 'form'];
   static values = {
     saveUrl: String,
     debounceDelay: { type: Number, default: DEBOUNCE_DELAYS.NORMAL }
-  }
+  };
 
   connect() {
-    this.pendingChanges = false
-    this.debouncedSave = createDebouncedHandler(() => this.save())
-    console.log("Form controller connected")
+    this.pendingChanges = false;
+    this.debouncedSave = createDebouncedHandler(() => this.save());
+    console.log('Form controller connected');
   }
 
   disconnect() {
-    this.debouncedSave.cancel()
+    this.debouncedSave.cancel();
   }
 
-  fieldChanged(event) {
-    this.pendingChanges = true
-    this.updateStatus("saving")
-    this.debouncedSave.call(this.debounceDelayValue)
+  fieldChanged(_event) {
+    this.pendingChanges = true;
+    this.updateStatus('saving');
+    this.debouncedSave.call(this.debounceDelayValue);
   }
 
   async save() {
-    if (!this.pendingChanges) return
+    if (!this.pendingChanges) {
+      return;
+    }
 
-    const form = this.hasFormTarget ? this.formTarget : this.element
-    const formData = new FormData(form)
+    const form = this.hasFormTarget ? this.formTarget : this.element;
+    const formData = new FormData(form);
 
     try {
       const response = await fetch(this.saveUrlValue || form.action, {
-        method: "PATCH",
+        method: 'PATCH',
         body: formData,
         headers: {
-          "Accept": "application/json",
-          "X-CSRF-Token": csrfToken()
+          'Accept': 'application/json',
+          'X-CSRF-Token': csrfToken()
         }
-      })
+      });
 
       if (response.ok) {
-        this.pendingChanges = false
-        this.updateStatus("saved")
+        this.pendingChanges = false;
+        this.updateStatus('saved');
 
         // Dispatch event for PDF preview controller to refresh
-        document.dispatchEvent(new CustomEvent("form:saved", {
+        document.dispatchEvent(new CustomEvent('form:saved', {
           detail: { formId: form.id, timestamp: Date.now() }
-        }))
+        }));
       } else {
-        this.updateStatus("error")
-        console.error("Save failed:", response.statusText)
+        this.updateStatus('error');
+        console.error('Save failed:', response.statusText);
       }
     } catch (error) {
-      this.updateStatus("error")
-      console.error("Save error:", error)
+      this.updateStatus('error');
+      console.error('Save error:', error);
     }
   }
 
   updateStatus(status) {
     // Update all status targets (wizard and traditional views may both exist)
-    const statusElements = this.hasStatusTarget ? this.statusTargets : []
+    const statusElements = this.hasStatusTarget ? this.statusTargets : [];
 
-    let html = ""
+    if (statusElements.length === 0) {
+      return;
+    }
+
+    let html = '';
     switch (status) {
-      case "saving":
+      case 'saving':
         html = `
           <span class="text-base-content/50">
             <svg class="inline w-4 h-4 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
@@ -75,9 +81,9 @@ export default class extends Controller {
             </svg>
             Saving...
           </span>
-        `
-        break
-      case "saved":
+        `;
+        break;
+      case 'saved':
         html = `
           <span class="text-success">
             <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -85,9 +91,9 @@ export default class extends Controller {
             </svg>
             Saved just now
           </span>
-        `
-        break
-      case "error":
+        `;
+        break;
+      case 'error':
         html = `
           <span class="text-error">
             <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -95,18 +101,20 @@ export default class extends Controller {
             </svg>
             Save failed
           </span>
-        `
-        break
+        `;
+        break;
+      default:
+        break;
     }
 
-    statusElements.forEach(el => el.innerHTML = html)
+    statusElements.forEach(el => el.innerHTML = html);
   }
 
   // Warn user before leaving with unsaved changes
   beforeUnload(event) {
     if (this.pendingChanges) {
-      event.preventDefault()
-      event.returnValue = ""
+      event.preventDefault();
+      event.returnValue = '';
     }
   }
 }

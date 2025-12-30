@@ -49,3 +49,11 @@ test_output/
 
 # Cached S3 templates (downloaded on-demand)
 /tmp/cached_templates/
+
+# Added by flukebase_connect
+.flukebase-connect/
+
+# Test artifacts
+/test-results/
+/playwright-report/
+/tests/screenshots/

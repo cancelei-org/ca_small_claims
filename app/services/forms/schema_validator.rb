@@ -101,7 +101,7 @@ module Forms
               unless shared_key.include?(":")
                 collisions << {
                   key: shared_key,
-                  forms: [keys[shared_key], form_code]
+                  forms: [ keys[shared_key], form_code ]
                 }
               end
             end

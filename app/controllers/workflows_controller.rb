@@ -3,8 +3,8 @@
 class WorkflowsController < ApplicationController
   include SessionStorage
 
-  before_action :set_workflow, only: [:show, :step, :advance, :back, :complete]
-  before_action :set_engine, only: [:show, :step, :advance, :back, :complete]
+  before_action :set_workflow, only: [ :show, :step, :advance, :back, :complete ]
+  before_action :set_engine, only: [ :show, :step, :advance, :back, :complete ]
 
   def index
     @workflows = Workflow.active.includes(:workflow_steps).ordered

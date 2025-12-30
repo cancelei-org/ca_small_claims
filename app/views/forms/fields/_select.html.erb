@@ -1,6 +1,6 @@
 <div class="form-control w-full mb-4">
   <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
+    <span class="label-text font-medium text-base"><%= field.label || field.name.titleize %></span>
     <% if field.required %>
       <span class="label-text-alt text-error">*</span>
     <% end %>
@@ -11,7 +11,7 @@
     options_for_select(options, submission.field_value(field.name)),
     { include_blank: "Select..." },
     { required: field.required,
-      class: "select select-bordered w-full",
+      class: "select select-bordered w-full min-h-[48px] text-base",
       data: { action: "input->form#fieldChanged" } } %>
 
   <% if field.help_text.present? %>

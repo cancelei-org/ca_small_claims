@@ -38,7 +38,7 @@ class CreateFieldDefinitions < ActiveRecord::Migration[8.0]
       t.timestamps
     end
 
-    add_index :field_definitions, [:form_definition_id, :name], unique: true
+    add_index :field_definitions, [ :form_definition_id, :name ], unique: true
     add_index :field_definitions, :pdf_field_name
     add_index :field_definitions, :shared_field_key
   end
