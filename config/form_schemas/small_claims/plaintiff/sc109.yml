@@ -29,7 +29,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: case_number
+        shared_key: common:case_number
         width: half
 
   party_info:
@@ -41,7 +41,7 @@ sections:
         type: text
         label: "Plaintiff"
         required: true
-        shared_key: plaintiff_name
+        shared_key: common:plaintiff_name
         width: full
 
       - name: defendant_name

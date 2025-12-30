@@ -130,7 +130,53 @@ if Dir.exist?(schema_dir)
 end
 
 # =============================================================================
-# STEP 3: Load Workflows from YAML files
+# STEP 3: Non-fillable forms (PDFs without fillable form fields)
+# Must be loaded before workflows so workflow steps can reference them
+# =============================================================================
+puts "\n--- Loading Non-Fillable Forms ---"
+
+non_fillable_forms = [
+  { code: "SC-101", title: "Plaintiff's Claim and ORDER to Go to Small Claims Court (Spanish)", category: "plaintiff", pdf_filename: "sc101.pdf", description: "Spanish version - non-fillable" },
+  { code: "SC-103", title: "Application for Waiver of Court Fees and Costs", category: "fee_waiver", pdf_filename: "sc103.pdf", description: "Fee waiver application - non-fillable" },
+  { code: "SC-104", title: "Proof of Service (Small Claims) - Personal", category: "service", pdf_filename: "sc104.pdf", description: "Proof of personal service - non-fillable" },
+  { code: "SC-104A", title: "Proof of Service (Small Claims) - Certified Mail", category: "service", pdf_filename: "sc104a.pdf", description: "Proof of certified mail service - non-fillable" },
+  { code: "SC-104B", title: "Proof of Substituted Service (Small Claims)", category: "service", pdf_filename: "sc104b.pdf", description: "Proof of substituted service - non-fillable" },
+  { code: "SC-107", title: "Information for the Small Claims Plaintiff", category: "informational", pdf_filename: "sc107.pdf", description: "Informational guide for plaintiffs" },
+  { code: "SC-113A", title: "Information Sheet for Waiver of Court Fees and Costs", category: "informational", pdf_filename: "sc113a.pdf", description: "Information about fee waivers" },
+  { code: "SC-130", title: "Judgment (Small Claims)", category: "judgment", pdf_filename: "sc130.pdf", description: "Court judgment form - completed by court" },
+  { code: "SC-133", title: "Judgment Debtor's Statement of Assets", category: "judgment", pdf_filename: "sc133.pdf", description: "Asset statement - non-fillable" },
+  { code: "SC-134", title: "Information for the Judgment Creditor", category: "informational", pdf_filename: "sc134.pdf", description: "Informational guide for collecting judgments" },
+  { code: "SC-135", title: "Information for the Judgment Debtor", category: "informational", pdf_filename: "sc135.pdf", description: "Informational guide for debtors" },
+  { code: "SC-136", title: "Information About Payment Order After Small Claims Court", category: "informational", pdf_filename: "sc136.pdf", description: "Information about payment orders" },
+  { code: "SC-140", title: "Notice of Appeal", category: "appeal", pdf_filename: "sc140.pdf", description: "Appeal notice - non-fillable" },
+  { code: "SC-145", title: "Request for Postponement of Small Claims Trial", category: "pre_trial", pdf_filename: "sc145.pdf", description: "Postponement request - non-fillable" },
+  { code: "SC-200", title: "Plaintiff's Claim and ORDER to Go to Small Claims Court (Vehicle)", category: "plaintiff", pdf_filename: "sc200.pdf", description: "Vehicle claim form - non-fillable" },
+  { code: "SC-220", title: "Request to Make Payments (Small Claims)", category: "judgment", pdf_filename: "sc220.pdf", description: "Payment request - non-fillable" },
+  { code: "SC-224", title: "Request to Terminate or Modify Payment Order", category: "judgment", pdf_filename: "sc224.pdf", description: "Modify payment order - non-fillable" },
+  { code: "SC-500", title: "Information Sheet on Waiver of Hearing for Collection Cases", category: "informational", pdf_filename: "sc500.pdf", description: "Collection cases information" },
+  { code: "SC-501", title: "Request to Waive Court Hearing (Collections)", category: "collections", pdf_filename: "sc501.pdf", description: "Waive hearing request - non-fillable" },
+  { code: "SC-502", title: "Response to Request to Waive Court Hearing (Collections)", category: "collections", pdf_filename: "sc502.pdf", description: "Response form - non-fillable" },
+  { code: "SC-505", title: "Declaration of Plaintiff (Collections)", category: "collections", pdf_filename: "sc505.pdf", description: "Collections declaration - non-fillable" }
+]
+
+non_fillable_forms.each do |form_data|
+  form = FormDefinition.find_or_initialize_by(code: form_data[:code])
+  category = find_category_by_legacy(form_data[:category])
+
+  form.assign_attributes(
+    title: form_data[:title],
+    description: form_data[:description],
+    category: category,
+    pdf_filename: form_data[:pdf_filename],
+    fillable: false,
+    active: true
+  )
+  form.save!
+  puts "  Created/Updated non-fillable form: #{form.code} - #{form.title}"
+end
+
+# =============================================================================
+# STEP 4: Load Workflows from YAML files
 # =============================================================================
 puts "\n--- Loading Workflows ---"
 
@@ -174,51 +220,6 @@ if Dir.exist?(workflow_dir)
       end
     end
   end
-end
-
-# =============================================================================
-# STEP 4: Non-fillable forms (PDFs without fillable form fields)
-# =============================================================================
-puts "\n--- Loading Non-Fillable Forms ---"
-
-non_fillable_forms = [
-  { code: "SC-101", title: "Plaintiff's Claim and ORDER to Go to Small Claims Court (Spanish)", category: "plaintiff", pdf_filename: "sc101.pdf", description: "Spanish version - non-fillable" },
-  { code: "SC-103", title: "Application for Waiver of Court Fees and Costs", category: "fee_waiver", pdf_filename: "sc103.pdf", description: "Fee waiver application - non-fillable" },
-  { code: "SC-104", title: "Proof of Service (Small Claims) - Personal", category: "service", pdf_filename: "sc104.pdf", description: "Proof of personal service - non-fillable" },
-  { code: "SC-104A", title: "Proof of Service (Small Claims) - Certified Mail", category: "service", pdf_filename: "sc104a.pdf", description: "Proof of certified mail service - non-fillable" },
-  { code: "SC-104B", title: "Proof of Substituted Service (Small Claims)", category: "service", pdf_filename: "sc104b.pdf", description: "Proof of substituted service - non-fillable" },
-  { code: "SC-107", title: "Information for the Small Claims Plaintiff", category: "informational", pdf_filename: "sc107.pdf", description: "Informational guide for plaintiffs" },
-  { code: "SC-113A", title: "Information Sheet for Waiver of Court Fees and Costs", category: "informational", pdf_filename: "sc113a.pdf", description: "Information about fee waivers" },
-  { code: "SC-130", title: "Judgment (Small Claims)", category: "judgment", pdf_filename: "sc130.pdf", description: "Court judgment form - completed by court" },
-  { code: "SC-133", title: "Judgment Debtor's Statement of Assets", category: "judgment", pdf_filename: "sc133.pdf", description: "Asset statement - non-fillable" },
-  { code: "SC-134", title: "Information for the Judgment Creditor", category: "informational", pdf_filename: "sc134.pdf", description: "Informational guide for collecting judgments" },
-  { code: "SC-135", title: "Information for the Judgment Debtor", category: "informational", pdf_filename: "sc135.pdf", description: "Informational guide for debtors" },
-  { code: "SC-136", title: "Information About Payment Order After Small Claims Court", category: "informational", pdf_filename: "sc136.pdf", description: "Information about payment orders" },
-  { code: "SC-140", title: "Notice of Appeal", category: "appeal", pdf_filename: "sc140.pdf", description: "Appeal notice - non-fillable" },
-  { code: "SC-145", title: "Request for Postponement of Small Claims Trial", category: "pre_trial", pdf_filename: "sc145.pdf", description: "Postponement request - non-fillable" },
-  { code: "SC-200", title: "Plaintiff's Claim and ORDER to Go to Small Claims Court (Vehicle)", category: "plaintiff", pdf_filename: "sc200.pdf", description: "Vehicle claim form - non-fillable" },
-  { code: "SC-220", title: "Request to Make Payments (Small Claims)", category: "judgment", pdf_filename: "sc220.pdf", description: "Payment request - non-fillable" },
-  { code: "SC-224", title: "Request to Terminate or Modify Payment Order", category: "judgment", pdf_filename: "sc224.pdf", description: "Modify payment order - non-fillable" },
-  { code: "SC-500", title: "Information Sheet on Waiver of Hearing for Collection Cases", category: "informational", pdf_filename: "sc500.pdf", description: "Collection cases information" },
-  { code: "SC-501", title: "Request to Waive Court Hearing (Collections)", category: "collections", pdf_filename: "sc501.pdf", description: "Waive hearing request - non-fillable" },
-  { code: "SC-502", title: "Response to Request to Waive Court Hearing (Collections)", category: "collections", pdf_filename: "sc502.pdf", description: "Response form - non-fillable" },
-  { code: "SC-505", title: "Declaration of Plaintiff (Collections)", category: "collections", pdf_filename: "sc505.pdf", description: "Collections declaration - non-fillable" }
-]
-
-non_fillable_forms.each do |form_data|
-  form = FormDefinition.find_or_initialize_by(code: form_data[:code])
-  category = find_category_by_legacy(form_data[:category])
-
-  form.assign_attributes(
-    title: form_data[:title],
-    description: form_data[:description],
-    category: category,
-    pdf_filename: form_data[:pdf_filename],
-    fillable: false,
-    active: true
-  )
-  form.save!
-  puts "  Created/Updated non-fillable form: #{form.code} - #{form.title}"
 end
 
 # =============================================================================

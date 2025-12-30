@@ -30,7 +30,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: case_number
+        shared_key: common:case_number
         width: half
 
   server_info:

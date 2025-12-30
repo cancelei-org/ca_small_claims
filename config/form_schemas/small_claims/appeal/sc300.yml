@@ -45,7 +45,7 @@ sections:
         type: text
         label: "Superior Court of California, County of"
         required: true
-        shared_key: court_county
+        shared_key: common:court_county
         width: full
 
       - name: respondent
@@ -86,7 +86,7 @@ sections:
         type: text
         label: "Case number"
         required: true
-        shared_key: case_number
+        shared_key: common:case_number
         width: half
 
       - name: action_date

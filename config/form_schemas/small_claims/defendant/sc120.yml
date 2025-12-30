@@ -26,7 +26,7 @@ sections:
         label: "Superior Court of California, County of"
         placeholder: "Los Angeles"
         required: true
-        shared_key: court_county
+        shared_key: common:court_county
         width: full
 
       - name: case_number
@@ -34,7 +34,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: case_number
+        shared_key: common:case_number
         help_text: "Use the case number from the Plaintiff's Claim (SC-100) you received"
         width: half
 
@@ -282,7 +282,7 @@ sections:
         type: text
         label: "Your Full Name"
         required: true
-        shared_key: defendant_name
+        shared_key: common:defendant_name
         width: two_thirds
 
       - name: defendant1_phone
@@ -290,7 +290,7 @@ sections:
         type: tel
         label: "Phone"
         required: true
-        shared_key: defendant_phone
+        shared_key: common:defendant_phone
         width: third
 
       - name: defendant1_street
@@ -298,7 +298,7 @@ sections:
         type: text
         label: "Street Address"
         required: true
-        shared_key: defendant_street
+        shared_key: common:defendant_street
         width: full
 
       - name: defendant1_city
@@ -306,7 +306,7 @@ sections:
         type: text
         label: "City"
         required: true
-        shared_key: defendant_city
+        shared_key: common:defendant_city
         width: third
 
       - name: defendant1_state
@@ -315,7 +315,7 @@ sections:
         label: "State"
         required: true
         default: "CA"
-        shared_key: defendant_state
+        shared_key: common:defendant_state
         width: third
 
       - name: defendant1_zip
@@ -323,7 +323,7 @@ sections:
         type: text
         label: "ZIP"
         required: true
-        shared_key: defendant_zip
+        shared_key: common:defendant_zip
         width: third
 
       - name: defendant1_mail_street

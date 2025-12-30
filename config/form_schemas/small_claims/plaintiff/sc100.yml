@@ -52,7 +52,7 @@ sections:
         label: "Your Full Legal Name"
         placeholder: "First Middle Last"
         required: true
-        shared_key: plaintiff_name
+        shared_key: common:plaintiff_name
         width: full
 
       - name: plaintiff_street
@@ -60,7 +60,7 @@ sections:
         type: text
         label: "Street Address"
         required: true
-        shared_key: plaintiff_street
+        shared_key: common:plaintiff_street
         width: full
 
       - name: plaintiff_city
@@ -68,7 +68,7 @@ sections:
         type: text
         label: "City"
         required: true
-        shared_key: plaintiff_city
+        shared_key: common:plaintiff_city
         width: third
 
       - name: plaintiff_state
@@ -82,7 +82,7 @@ sections:
           - { value: "AZ", label: "Arizona" }
           - { value: "NV", label: "Nevada" }
           - { value: "OR", label: "Oregon" }
-        shared_key: plaintiff_state
+        shared_key: common:plaintiff_state
         width: third
 
       - name: plaintiff_zip
@@ -91,7 +91,7 @@ sections:
         label: "ZIP Code"
         required: true
         pattern: "^\\d{5}(-\\d{4})?$"
-        shared_key: plaintiff_zip
+        shared_key: common:plaintiff_zip
         width: third
 
       - name: plaintiff_phone
@@ -100,7 +100,7 @@ sections:
         label: "Phone Number"
         placeholder: "(555) 555-5555"
         required: true
-        shared_key: plaintiff_phone
+        shared_key: common:plaintiff_phone
         width: half
 
       - name: plaintiff_email
@@ -108,7 +108,7 @@ sections:
         type: email
         label: "Email Address"
         required: false
-        shared_key: plaintiff_email
+        shared_key: common:plaintiff_email
         width: half
 
   defendant_info:
