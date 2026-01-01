@@ -53,7 +53,7 @@ module Forms
     end
 
     def category_report(prefix)
-      prefixes = [prefix].flatten.map(&:upcase)
+      prefixes = [ prefix ].flatten.map(&:upcase)
       forms = find_pdfs_by_prefixes(prefixes)
 
       total = forms.size
@@ -243,7 +243,7 @@ module Forms
       form = FormDefinition.find_by(code: code)
       return 0 unless form
 
-      form.field_definitions.where.not(shared_field_key: [nil, ""]).count
+      form.field_definitions.where.not(shared_field_key: [ nil, "" ]).count
     end
 
     def html_template_exists?(code)

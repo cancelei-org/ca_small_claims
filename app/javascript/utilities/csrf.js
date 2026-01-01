@@ -25,8 +25,9 @@
  * @returns {string|null} - The CSRF token or null if not found
  */
 export function csrfToken() {
-  const metaTag = document.querySelector("meta[name='csrf-token']")
-  return metaTag ? metaTag.content : null
+  const metaTag = document.querySelector("meta[name='csrf-token']");
+
+  return metaTag ? metaTag.content : null;
 }
 
 /**
@@ -35,8 +36,9 @@ export function csrfToken() {
  * @returns {string|null} - The CSRF parameter name or null if not found
  */
 export function csrfParam() {
-  const metaTag = document.querySelector("meta[name='csrf-param']")
-  return metaTag ? metaTag.content : null
+  const metaTag = document.querySelector("meta[name='csrf-param']");
+
+  return metaTag ? metaTag.content : null;
 }
 
 /**
@@ -45,8 +47,9 @@ export function csrfParam() {
  * @returns {Object} - Headers object with X-CSRF-Token
  */
 export function csrfHeaders() {
-  const token = csrfToken()
-  return token ? { "X-CSRF-Token": token } : {}
+  const token = csrfToken();
+
+  return token ? { 'X-CSRF-Token': token } : {};
 }
 
 /**
@@ -56,14 +59,14 @@ export function csrfHeaders() {
  * @returns {FormData} - The modified FormData
  */
 export function addCsrfToFormData(formData) {
-  const param = csrfParam()
-  const token = csrfToken()
+  const param = csrfParam();
+  const token = csrfToken();
 
   if (param && token) {
-    formData.set(param, token)
+    formData.set(param, token);
   }
 
-  return formData
+  return formData;
 }
 
-export default csrfToken
+export default csrfToken;

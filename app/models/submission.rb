@@ -46,6 +46,25 @@ class Submission < ApplicationRecord
     Pdf::FormFiller.new(self).generate_flattened
   end
 
+  # Cache key for PDF generation - changes when form data changes
+  def pdf_cache_key
+    data_hash = Digest::MD5.hexdigest(form_data.to_json)
+    "pdf_cache/#{id}/#{data_hash}"
+  end
+
+  # Check if cached PDF is still valid
+  def pdf_cache_valid?
+    return false unless pdf_generated_at.present?
+
+    # Cache valid if generated after last update and within TTL
+    pdf_generated_at > updated_at && pdf_generated_at > 10.seconds.ago
+  end
+
+  # Mark PDF as generated (for cache tracking)
+  def mark_pdf_generated!
+    update_column(:pdf_generated_at, Time.current)
+  end
+
   def shared_data
     form_definition.field_definitions
       .where.not(shared_field_key: nil)

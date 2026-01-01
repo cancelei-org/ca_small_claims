@@ -52,7 +52,7 @@ RSpec.describe Utilities::PdftkResolver do
 
   describe ".available?" do
     it "returns a boolean" do
-      expect(described_class.available?).to be_in([true, false])
+      expect(described_class.available?).to be_in([ true, false ])
     end
 
     context "when pdftk exists and is executable" do
@@ -110,7 +110,7 @@ RSpec.describe Utilities::PdftkResolver do
     end
 
     it "includes boolean for available" do
-      expect(described_class.info[:available]).to be_in([true, false])
+      expect(described_class.info[:available]).to be_in([ true, false ])
     end
 
     it "includes string for path" do

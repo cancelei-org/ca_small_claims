@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { createDebouncedHandler, DEBOUNCE_DELAYS } from '../utilities/debounce';
+import { DEBOUNCE_DELAYS, createDebouncedHandler } from 'utilities/debounce';
 
 export default class extends Controller {
   static values = {

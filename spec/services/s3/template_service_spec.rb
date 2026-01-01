@@ -177,11 +177,29 @@ RSpec.describe S3::TemplateService, type: :service do
   end
 
   describe "#template_url" do
-    it "returns the correct S3 URL" do
-      url = service.template_url(test_pdf_filename)
+    context "when endpoint is configured" do
+      before do
+        allow(Rails.application.config).to receive(:s3_config).and_return(
+          endpoint: "https://s3.example.com",
+          bucket: configured_bucket,
+          prefix: configured_prefix
+        )
+      end
 
-      expect(url).to include(configured_bucket)
-      expect(url).to include("#{configured_prefix}/#{test_pdf_filename}")
+      it "returns the correct S3 URL" do
+        url = service.template_url(test_pdf_filename)
+
+        expect(url).to include(configured_bucket)
+        expect(url).to include("#{configured_prefix}/#{test_pdf_filename}")
+      end
+    end
+
+    context "when endpoint is not configured" do
+      it "returns nil" do
+        url = service.template_url(test_pdf_filename)
+
+        expect(url).to be_nil
+      end
     end
   end
 end

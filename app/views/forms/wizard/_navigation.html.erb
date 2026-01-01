@@ -51,7 +51,8 @@
     <% @wizard_fields.each_with_index do |field, idx| %>
       <button type="button"
               class="w-3 h-3 rounded-full transition-all duration-200 hover:scale-125
-                     <%= idx == 0 ? 'bg-primary' : 'bg-base-300 hover:bg-primary/50' %>"
+                     <%= idx == 0 ? 'bg-primary ring-2 ring-primary ring-offset-2' : 'bg-base-300 hover:bg-primary/50' %>"
+              data-wizard-target="dot"
               data-action="click->wizard#goTo"
               data-index="<%= idx %>"
               title="<%= field.label || field.name.titleize %>">

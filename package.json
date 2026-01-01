@@ -15,7 +15,7 @@
     "@eslint-community/eslint-plugin-eslint-comments": "^4.5.0",
     "@eslint/js": "^9.37.0",
     "@hotwired/stimulus": "^3.2.2",
-    "@playwright/test": "^1.56.0",
+    "@playwright/test": "^1.57.0",
     "@stylistic/eslint-plugin-js": "^3.1.0",
     "@swc/core": "^1.9.3",
     "@swc/jest": "^0.2.36",

@@ -44,7 +44,7 @@ module Forms
         # Also try without hyphens since schema files are named without them (e.g., sc100.yml not sc-100.yml)
         normalized_no_hyphen = normalized.delete("-")
 
-        [normalized, normalized_no_hyphen].each do |code_variant|
+        [ normalized, normalized_no_hyphen ].each do |code_variant|
           # Try flat path first for backward compatibility
           flat_path = SCHEMA_PATH.join("#{code_variant}.yml")
           return flat_path if File.exist?(flat_path)
@@ -145,7 +145,7 @@ module Forms
         end
 
         # Sort by page first, then by original extraction order (visual position)
-        all_fields.sort_by! { |f| [f[:page].to_i, f[:extraction_order]] }
+        all_fields.sort_by! { |f| [ f[:page].to_i, f[:extraction_order] ] }
 
         # Now sync with globally sorted positions
         all_fields.each_with_index do |entry, idx|

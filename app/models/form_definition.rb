@@ -1,6 +1,9 @@
 # frozen_string_literal: true
 
 class FormDefinition < ApplicationRecord
+  extend FriendlyId
+  friendly_id :code, use: [ :slugged, :history ]
+
   belongs_to :category, optional: true
 
   has_many :field_definitions, dependent: :destroy
@@ -57,7 +60,22 @@ class FormDefinition < ApplicationRecord
   end
 
   def to_param
-    code
+    slug.presence || code
+  end
+
+  # FriendlyId: Generate new slug when slug is blank or code changes
+  def should_generate_new_friendly_id?
+    slug.blank? || code_changed?
+  end
+
+  # FriendlyId: Normalize slug format (SC-100 → sc-100)
+  def normalize_friendly_id(input)
+    input.to_s.downcase.gsub(/[^a-z0-9\-]/, "-").gsub(/-+/, "-").gsub(/^-|-$/, "")
+  end
+
+  # PDF filename derived from slug (sc-100 → sc100.pdf)
+  def pdf_filename_from_slug
+    "#{slug.to_s.gsub('-', '')}.pdf"
   end
 
   # Returns the PDF generation strategy for this form

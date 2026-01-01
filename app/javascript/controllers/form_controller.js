@@ -1,13 +1,13 @@
 import { Controller } from '@hotwired/stimulus';
-import { createDebouncedHandler, DEBOUNCE_DELAYS } from '../utilities/debounce';
-import { csrfToken } from '../utilities/csrf';
+import { csrfToken } from 'utilities/csrf';
+import { DEBOUNCE_DELAYS, createDebouncedHandler } from 'utilities/debounce';
 
-// Handles form auto-save functionality
+// Handles form auto-save functionality with optimized debounce
 export default class extends Controller {
   static targets = ['status', 'form'];
   static values = {
     saveUrl: String,
-    debounceDelay: { type: Number, default: DEBOUNCE_DELAYS.NORMAL }
+    debounceDelay: { type: Number, default: DEBOUNCE_DELAYS.FAST } // Reduced from NORMAL for faster feedback
   };
 
   connect() {
@@ -49,9 +49,11 @@ export default class extends Controller {
         this.updateStatus('saved');
 
         // Dispatch event for PDF preview controller to refresh
-        document.dispatchEvent(new CustomEvent('form:saved', {
-          detail: { formId: form.id, timestamp: Date.now() }
-        }));
+        document.dispatchEvent(
+          new CustomEvent('form:saved', {
+            detail: { formId: form.id, timestamp: Date.now() }
+          })
+        );
       } else {
         this.updateStatus('error');
         console.error('Save failed:', response.statusText);
@@ -71,6 +73,7 @@ export default class extends Controller {
     }
 
     let html = '';
+
     switch (status) {
       case 'saving':
         html = `
@@ -107,7 +110,7 @@ export default class extends Controller {
         break;
     }
 
-    statusElements.forEach(el => el.innerHTML = html);
+    statusElements.forEach(el => (el.innerHTML = html));
   }
 
   // Warn user before leaving with unsaved changes

@@ -52,7 +52,7 @@ sections:
         label: "Your Full Legal Name"
         placeholder: "First Middle Last"
         required: true
-        shared_key: common:plaintiff_name
+        shared_key: plaintiff:name
         width: full
 
       - name: plaintiff_street
@@ -60,7 +60,7 @@ sections:
         type: text
         label: "Street Address"
         required: true
-        shared_key: common:plaintiff_street
+        shared_key: plaintiff:street
         width: full
 
       - name: plaintiff_city
@@ -68,7 +68,7 @@ sections:
         type: text
         label: "City"
         required: true
-        shared_key: common:plaintiff_city
+        shared_key: plaintiff:city
         width: third
 
       - name: plaintiff_state
@@ -82,7 +82,7 @@ sections:
           - { value: "AZ", label: "Arizona" }
           - { value: "NV", label: "Nevada" }
           - { value: "OR", label: "Oregon" }
-        shared_key: common:plaintiff_state
+        shared_key: plaintiff:state
         width: third
 
       - name: plaintiff_zip
@@ -91,7 +91,7 @@ sections:
         label: "ZIP Code"
         required: true
         pattern: "^\\d{5}(-\\d{4})?$"
-        shared_key: common:plaintiff_zip
+        shared_key: plaintiff:zip
         width: third
 
       - name: plaintiff_phone
@@ -100,7 +100,7 @@ sections:
         label: "Phone Number"
         placeholder: "(555) 555-5555"
         required: true
-        shared_key: common:plaintiff_phone
+        shared_key: plaintiff:phone
         width: half
 
       - name: plaintiff_email
@@ -108,7 +108,7 @@ sections:
         type: email
         label: "Email Address"
         required: false
-        shared_key: common:plaintiff_email
+        shared_key: plaintiff:email
         width: half
 
   defendant_info:
@@ -242,6 +242,17 @@ sections:
   additional_info:
     title: "Additional Information"
     fields:
+      - name: needs_fee_waiver
+        pdf_field_name: "NeedsFeeWaiver"
+        type: radio
+        label: "Do you need a fee waiver?"
+        required: true
+        options:
+          - { value: "yes", label: "Yes, I cannot afford the filing fee" }
+          - { value: "no", label: "No, I will pay the filing fee" }
+        help_text: "If you cannot afford the filing fee, you can request a fee waiver (Form SC-103)"
+        width: full
+
       - name: previous_claims
         pdf_field_name: "PreviousClaims"
         type: checkbox

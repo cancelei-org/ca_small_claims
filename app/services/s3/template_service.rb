@@ -126,7 +126,11 @@ module S3
 
     # Get S3 URL for a template (for debugging/verification)
     def template_url(pdf_filename)
-      "https://#{bucket}.#{Rails.application.config.s3_config[:endpoint].gsub('https://', '')}/#{template_key(pdf_filename)}"
+      endpoint = Rails.application.config.s3_config[:endpoint]
+      return nil unless endpoint
+
+      host = endpoint.gsub(%r{^https?://}, "")
+      "https://#{bucket}.#{host}/#{template_key(pdf_filename)}"
     end
 
     private

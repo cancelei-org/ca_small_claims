@@ -51,10 +51,10 @@
   </div>
 </div>
 
-<%# Main Content - Split Screen Layout %>
-<div class="flex flex-col lg:flex-row gap-6">
+<%# Main Content - CSS Grid Layout for Side-by-Side %>
+<div class="form-pdf-layout" data-controller="pdf-drawer">
   <%# Form Section (Left on Desktop) %>
-  <div class="w-full lg:w-1/2 xl:w-3/5">
+  <div class="form-scroll-container">
     <%= form_with model: @submission,
                   url: form_path(@form_definition.code),
                   method: :patch,
@@ -167,25 +167,51 @@
     <% end %>
   </div>
 
-  <%# PDF Preview Section (Right on Desktop, Hidden on Mobile) %>
-  <div class="hidden lg:block w-full lg:w-1/2 xl:w-2/5">
-    <%= render "forms/pdf_preview_panel", form_definition: @form_definition %>
+  <%# PDF Preview Section (Right on Desktop, Drawer on Mobile/Tablet) %>
+  <div class="pdf-preview-container hidden md:block"
+       data-pdf-drawer-target="panel">
+    <%= render PdfPreviewComponent.new(form_definition: @form_definition) %>
   </div>
 </div>
 
-<%# Mobile: Floating Preview Button %>
-<div class="lg:hidden fixed bottom-6 right-6 z-50">
-  <%= link_to preview_form_path(@form_definition.code),
-              target: "_blank",
-              class: "btn btn-primary btn-circle btn-lg shadow-xl hover:shadow-2xl transition-shadow",
-              title: "Preview PDF" do %>
+<%# Mobile/Tablet: PDF Preview Drawer %>
+<div class="md:hidden">
+  <%# Drawer Backdrop %>
+  <div class="pdf-drawer-backdrop hidden"
+       data-pdf-drawer-target="backdrop"
+       data-action="click->pdf-drawer#close"></div>
+
+  <%# Drawer Panel %>
+  <div class="pdf-drawer-panel"
+       data-pdf-drawer-target="drawer">
+    <div class="pdf-drawer-header">
+      <h3 class="font-semibold text-base-content">PDF Preview</h3>
+      <button type="button"
+              class="btn btn-ghost btn-sm btn-circle"
+              data-action="click->pdf-drawer#close"
+              aria-label="Close preview">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+    <div class="pdf-drawer-content">
+      <%= render PdfPreviewComponent.new(form_definition: @form_definition) %>
+    </div>
+  </div>
+
+  <%# Floating Preview Button %>
+  <button type="button"
+          class="btn btn-primary btn-circle btn-lg shadow-xl hover:shadow-2xl transition-shadow fixed bottom-6 right-6 z-40"
+          data-action="click->pdf-drawer#open"
+          aria-label="Open PDF preview">
     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
     </svg>
-  <% end %>
+  </button>
 </div>
 
 <%# Form Info Sidebar - Collapsed on smaller screens %>

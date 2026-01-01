@@ -36,7 +36,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: common:case_number
+        shared_key: case:number
         width: half
 
   attachment_info:

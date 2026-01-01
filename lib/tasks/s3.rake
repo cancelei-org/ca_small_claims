@@ -91,7 +91,7 @@ namespace :s3 do
   end
 
   desc "Download a single template for testing"
-  task :download_template, [:pdf_filename] => :environment do |_t, args|
+  task :download_template, [ :pdf_filename ] => :environment do |_t, args|
     pdf_filename = args[:pdf_filename] || "sc100.pdf"
 
     puts "Downloading #{pdf_filename}..."

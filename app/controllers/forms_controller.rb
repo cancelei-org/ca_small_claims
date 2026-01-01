@@ -89,7 +89,11 @@ class FormsController < ApplicationController
   private
 
   def set_form_definition
-    @form_definition = FormDefinition.find_by(code: params[:id].upcase) || FormDefinition.find(params[:id])
+    # FriendlyId lookup with fallback to code for backward compatibility
+    @form_definition = FormDefinition.friendly.find(params[:id])
+  rescue ActiveRecord::RecordNotFound
+    # Fallback to code lookup (handles uppercase codes like SC-100)
+    @form_definition = FormDefinition.find_by!(code: params[:id].upcase)
   end
 
   def submission_params

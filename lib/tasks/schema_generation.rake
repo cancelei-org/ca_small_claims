@@ -2,7 +2,7 @@
 
 namespace :schemas do
   desc "Generate YAML schema for a single form (e.g., rake schemas:generate[SC-100])"
-  task :generate, [:form_code] => :environment do |_t, args|
+  task :generate, [ :form_code ] => :environment do |_t, args|
     unless args[:form_code]
       puts "Usage: rake schemas:generate[FORM_CODE]"
       puts "Example: rake schemas:generate[SC-100]"
@@ -27,7 +27,7 @@ namespace :schemas do
   end
 
   desc "Generate schemas for all forms with a given prefix (e.g., rake schemas:generate_category[SC])"
-  task :generate_category, [:prefix] => :environment do |_t, args|
+  task :generate_category, [ :prefix ] => :environment do |_t, args|
     unless args[:prefix]
       puts "Usage: rake schemas:generate_category[PREFIX]"
       puts "Example: rake schemas:generate_category[SC]"
@@ -72,7 +72,7 @@ namespace :schemas do
   end
 
   desc "Analyze PDFs and generate fillability report for a prefix"
-  task :analyze, [:prefix] => :environment do |_t, args|
+  task :analyze, [ :prefix ] => :environment do |_t, args|
     unless args[:prefix]
       puts "Usage: rake schemas:analyze[PREFIX]"
       puts "Example: rake schemas:analyze[SC]"
@@ -125,7 +125,7 @@ namespace :schemas do
   end
 
   desc "Show detailed progress for a specific category"
-  task :progress_category, [:prefix] => :environment do |_t, args|
+  task :progress_category, [ :prefix ] => :environment do |_t, args|
     unless args[:prefix]
       puts "Usage: rake schemas:progress_category[PREFIX]"
       exit(1)
@@ -213,7 +213,7 @@ namespace :schemas do
   end
 
   desc "Add a form to manual review queue"
-  task :add_manual_review, [:form_code, :reason] => :environment do |_t, args|
+  task :add_manual_review, [ :form_code, :reason ] => :environment do |_t, args|
     unless args[:form_code] && args[:reason]
       puts "Usage: rake schemas:add_manual_review[FORM_CODE,'Reason for review']"
       exit(1)
@@ -225,7 +225,7 @@ namespace :schemas do
   end
 
   desc "Resolve a form from manual review queue"
-  task :resolve_manual_review, [:form_code] => :environment do |_t, args|
+  task :resolve_manual_review, [ :form_code ] => :environment do |_t, args|
     unless args[:form_code]
       puts "Usage: rake schemas:resolve_manual_review[FORM_CODE]"
       exit(1)
@@ -237,7 +237,7 @@ namespace :schemas do
   end
 
   desc "Rollback schemas for a category (DELETE from database)"
-  task :rollback_category, [:prefix] => :environment do |_t, args|
+  task :rollback_category, [ :prefix ] => :environment do |_t, args|
     unless args[:prefix]
       puts "Usage: rake schemas:rollback_category[PREFIX]"
       puts "WARNING: This will delete forms from the database!"
@@ -264,7 +264,7 @@ namespace :schemas do
   end
 
   desc "Full batch processing pipeline for a category"
-  task :batch_process, [:prefix] => :environment do |_t, args|
+  task :batch_process, [ :prefix ] => :environment do |_t, args|
     unless args[:prefix]
       puts "Usage: rake schemas:batch_process[PREFIX]"
       exit(1)

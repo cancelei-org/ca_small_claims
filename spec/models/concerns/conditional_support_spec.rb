@@ -28,7 +28,7 @@ RSpec.describe ConditionalSupport do
     end
 
     it "returns true when conditions has entries" do
-      model.conditions = [{ "field" => "status", "operator" => "equals", "value" => "active" }]
+      model.conditions = [ { "field" => "status", "operator" => "equals", "value" => "active" } ]
       expect(model.conditional?).to be true
     end
   end
@@ -43,7 +43,7 @@ RSpec.describe ConditionalSupport do
 
     context "with equals operator" do
       before do
-        model.conditions = [{ "field" => "status", "operator" => "equals", "value" => "active" }]
+        model.conditions = [ { "field" => "status", "operator" => "equals", "value" => "active" } ]
       end
 
       it "returns true when value matches" do
@@ -61,7 +61,7 @@ RSpec.describe ConditionalSupport do
 
     context "with not_equals operator" do
       before do
-        model.conditions = [{ "field" => "status", "operator" => "not_equals", "value" => "deleted" }]
+        model.conditions = [ { "field" => "status", "operator" => "not_equals", "value" => "deleted" } ]
       end
 
       it "returns true when value is different" do
@@ -75,7 +75,7 @@ RSpec.describe ConditionalSupport do
 
     context "with present operator" do
       before do
-        model.conditions = [{ "field" => "email", "operator" => "present" }]
+        model.conditions = [ { "field" => "email", "operator" => "present" } ]
       end
 
       it "returns true when field has a value" do
@@ -93,7 +93,7 @@ RSpec.describe ConditionalSupport do
 
     context "with blank operator" do
       before do
-        model.conditions = [{ "field" => "optional", "operator" => "blank" }]
+        model.conditions = [ { "field" => "optional", "operator" => "blank" } ]
       end
 
       it "returns true when field is blank" do
@@ -111,7 +111,7 @@ RSpec.describe ConditionalSupport do
 
     context "with greater_than operator" do
       before do
-        model.conditions = [{ "field" => "age", "operator" => "greater_than", "value" => "18" }]
+        model.conditions = [ { "field" => "age", "operator" => "greater_than", "value" => "18" } ]
       end
 
       it "returns true when value is greater" do
@@ -129,7 +129,7 @@ RSpec.describe ConditionalSupport do
 
     context "with less_than operator" do
       before do
-        model.conditions = [{ "field" => "items", "operator" => "less_than", "value" => "10" }]
+        model.conditions = [ { "field" => "items", "operator" => "less_than", "value" => "10" } ]
       end
 
       it "returns true when value is less" do
@@ -143,7 +143,7 @@ RSpec.describe ConditionalSupport do
 
     context "with includes operator" do
       before do
-        model.conditions = [{ "field" => "roles", "operator" => "includes", "value" => "admin" }]
+        model.conditions = [ { "field" => "roles", "operator" => "includes", "value" => "admin" } ]
       end
 
       it "returns true when array includes value" do
@@ -161,7 +161,7 @@ RSpec.describe ConditionalSupport do
 
     context "with not_includes operator" do
       before do
-        model.conditions = [{ "field" => "tags", "operator" => "not_includes", "value" => "blocked" }]
+        model.conditions = [ { "field" => "tags", "operator" => "not_includes", "value" => "blocked" } ]
       end
 
       it "returns true when array does not include value" do
@@ -175,7 +175,7 @@ RSpec.describe ConditionalSupport do
 
     context "with matches operator" do
       before do
-        model.conditions = [{ "field" => "email", "operator" => "matches", "value" => "@company.com$" }]
+        model.conditions = [ { "field" => "email", "operator" => "matches", "value" => "@company.com$" } ]
       end
 
       it "returns true when value matches pattern" do
@@ -210,7 +210,7 @@ RSpec.describe ConditionalSupport do
 
     context "with symbol keys in conditions" do
       before do
-        model.conditions = [{ field: "status", operator: "equals", value: "active" }]
+        model.conditions = [ { field: "status", operator: "equals", value: "active" } ]
       end
 
       it "handles symbol keys" do
@@ -220,7 +220,7 @@ RSpec.describe ConditionalSupport do
 
     context "with unknown operator" do
       before do
-        model.conditions = [{ "field" => "status", "operator" => "unknown_op", "value" => "x" }]
+        model.conditions = [ { "field" => "status", "operator" => "unknown_op", "value" => "x" } ]
       end
 
       it "returns true (permissive default)" do
@@ -230,7 +230,7 @@ RSpec.describe ConditionalSupport do
 
     context "with default operator (equals)" do
       before do
-        model.conditions = [{ "field" => "status", "value" => "active" }]
+        model.conditions = [ { "field" => "status", "value" => "active" } ]
       end
 
       it "uses equals when operator is not specified" do

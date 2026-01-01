@@ -22,7 +22,7 @@ module Utilities
   #
   class YamlLoader
     # Default permitted classes for YAML.safe_load
-    DEFAULT_PERMITTED_CLASSES = [Symbol, Date, Time, DateTime].freeze
+    DEFAULT_PERMITTED_CLASSES = [ Symbol, Date, Time, DateTime ].freeze
 
     # Default options for YAML loading
     DEFAULT_OPTIONS = {

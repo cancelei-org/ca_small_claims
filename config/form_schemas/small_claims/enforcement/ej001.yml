@@ -112,7 +112,7 @@ sections:
         type: text
         label: "Superior Court of California, County of"
         required: true
-        shared_key: common:court_county
+        shared_key: court:county
         width: full
 
       - name: court_street
@@ -152,7 +152,7 @@ sections:
         type: text
         label: "Plaintiff"
         required: true
-        shared_key: common:plaintiff_name
+        shared_key: plaintiff:name
         width: full
 
       - name: defendant
@@ -167,7 +167,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: common:case_number
+        shared_key: case:number
         width: half
 
       - name: is_amended

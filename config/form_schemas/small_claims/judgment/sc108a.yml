@@ -27,7 +27,7 @@ sections:
         label: "Superior Court of California, County of"
         placeholder: "Los Angeles"
         required: true
-        shared_key: common:court_county
+        shared_key: court:county
         width: full
 
       - name: case_number
@@ -35,7 +35,7 @@ sections:
         type: text
         label: "Case Number"
         required: true
-        shared_key: common:case_number
+        shared_key: case:number
         width: half
 
       - name: case_name

@@ -1,13 +1,11 @@
-<%# PDF Preview Panel - Live preview with auto-refresh %>
-<%# locals: form_definition %>
-
+<%# PDF Preview Component - Reusable live preview panel %>
 <div class="card bg-base-100 shadow-xl pdf-preview-card"
      data-controller="pdf-preview"
-     data-pdf-preview-url-value="<%= preview_form_path(form_definition.code) %>"
-     data-pdf-preview-debounce-delay-value="0.5"
-     data-pdf-preview-auto-refresh-value="true"
+     data-pdf-preview-url-value="<%= preview_url %>"
+     data-pdf-preview-debounce-delay-value="<%= debounce_delay %>"
+     data-pdf-preview-auto-refresh-value="<%= auto_refresh %>"
      role="region"
-     aria-label="PDF preview">
+     aria-label="PDF preview for <%= form_code %>">
 
   <%# Header %>
   <div class="card-body p-4 border-b border-base-200 flex-none">
@@ -21,13 +19,21 @@
       </h3>
 
       <div class="flex items-center gap-3">
+        <%# Status indicator %>
+        <span class="text-xs text-base-content/50 hidden sm:inline"
+              data-pdf-preview-target="statusText"
+              aria-live="polite">
+          Ready
+        </span>
+
         <%# Auto-refresh toggle %>
         <label class="flex items-center gap-2 cursor-pointer text-sm">
           <input type="checkbox"
                  class="toggle toggle-primary toggle-sm"
-                 checked
+                 <%= "checked" if auto_refresh %>
                  data-pdf-preview-target="autoRefreshToggle"
-                 data-action="change->pdf-preview#toggleAutoRefresh">
+                 data-action="change->pdf-preview#toggleAutoRefresh"
+                 aria-label="Auto-refresh preview">
           <span class="text-base-content/70 hidden sm:inline">Auto</span>
         </label>
 
@@ -35,8 +41,9 @@
         <button type="button"
                 class="btn btn-ghost btn-sm btn-circle"
                 data-action="click->pdf-preview#refresh"
-                title="Refresh preview">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                title="Refresh preview"
+                aria-label="Refresh PDF preview">
+          <svg class="w-4 h-4" data-pdf-preview-target="refreshIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
           </svg>
@@ -54,7 +61,7 @@
          aria-live="polite">
       <div class="flex flex-col items-center gap-3">
         <span class="loading loading-spinner loading-lg text-primary"></span>
-        <span class="text-sm text-base-content/70 font-medium" data-pdf-preview-target="statusText">Generating preview...</span>
+        <span class="text-sm text-base-content/70 font-medium">Updating preview...</span>
       </div>
     </div>
 
@@ -77,22 +84,22 @@
       </div>
     </div>
 
-    <%# PDF Iframe %>
-    <iframe id="pdf-preview-frame"
+    <%# PDF Iframe - No sandbox to allow browser's PDF viewer %>
+    <iframe id="pdf-preview-frame-<%= form_code.downcase %>"
             data-pdf-preview-target="frame"
             data-action="load->pdf-preview#handleLoad error->pdf-preview#handleError"
             class="w-full h-full border-0"
-            title="PDF Preview for <%= form_definition.code %>"
-            sandbox="allow-scripts allow-same-origin">
+            title="PDF Preview for <%= form_code %> - <%= form_title %>">
     </iframe>
   </div>
 
   <%# Footer Actions %>
   <div class="card-body p-4 border-t border-base-200 flex-none">
     <div class="flex gap-2">
-      <%= link_to preview_form_path(form_definition.code),
+      <%= link_to preview_url,
                   target: "_blank",
-                  class: "btn btn-outline btn-sm flex-1 gap-1" do %>
+                  class: "btn btn-outline btn-sm flex-1 gap-1",
+                  "aria-label": "Open PDF in new tab" do %>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
@@ -100,8 +107,9 @@
         <span class="hidden sm:inline">Open Full</span>
       <% end %>
 
-      <%= link_to download_form_path(form_definition.code),
-                  class: "btn btn-primary btn-sm flex-1 gap-1" do %>
+      <%= link_to download_url,
+                  class: "btn btn-primary btn-sm flex-1 gap-1",
+                  "aria-label": "Download PDF" do %>
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>

@@ -196,7 +196,7 @@ RSpec.describe Utilities::YamlLoader do
     end
 
     it "respects exclude patterns" do
-      result = described_class.load_directory_recursive(temp_dir, exclude: ["_shared/"])
+      result = described_class.load_directory_recursive(temp_dir, exclude: [ "_shared/" ])
 
       expect(result.keys).to contain_exactly("root", "subdir/nested")
       expect(result.keys).not_to include("_shared/shared")

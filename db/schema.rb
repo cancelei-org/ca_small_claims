@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_27_071456) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_31_073309) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,12 +70,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_27_071456) do
     t.integer "page_count"
     t.string "pdf_filename", null: false
     t.integer "position"
+    t.string "slug"
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.index ["active"], name: "index_form_definitions_on_active"
     t.index ["category"], name: "index_form_definitions_on_category"
     t.index ["category_id"], name: "index_form_definitions_on_category_id"
     t.index ["code"], name: "index_form_definitions_on_code", unique: true
+    t.index ["slug"], name: "index_form_definitions_on_slug", unique: true
   end
 
   create_table "form_feedbacks", force: :cascade do |t|
@@ -98,6 +100,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_27_071456) do
     t.index ["resolved_by_id"], name: "index_form_feedbacks_on_resolved_by_id"
     t.index ["status"], name: "index_form_feedbacks_on_status"
     t.index ["user_id"], name: "index_form_feedbacks_on_user_id"
+  end
+
+  create_table "friendly_id_slugs", force: :cascade do |t|
+    t.datetime "created_at"
+    t.string "scope"
+    t.string "slug", null: false
+    t.integer "sluggable_id", null: false
+    t.string "sluggable_type", limit: 50
+    t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
+    t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
+    t.index ["sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_id"
   end
 
   create_table "session_submissions", force: :cascade do |t|

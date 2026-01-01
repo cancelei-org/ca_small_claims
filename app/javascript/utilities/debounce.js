@@ -25,10 +25,10 @@
 
 // Standard debounce delays used across the application
 export const DEBOUNCE_DELAYS = {
-  FAST: 300,     // For quick interactions like search filtering
-  NORMAL: 1000,  // For form auto-save
-  SLOW: 1500     // For heavy operations like PDF refresh
-}
+  FAST: 300, // For quick interactions like search filtering
+  NORMAL: 1000, // For form auto-save
+  SLOW: 1500 // For heavy operations like PDF refresh
+};
 
 /**
  * Creates a debounced version of a function.
@@ -38,33 +38,33 @@ export const DEBOUNCE_DELAYS = {
  * @returns {Function} - Debounced function with a cancel() method
  */
 export function debounce(fn, delay = DEBOUNCE_DELAYS.NORMAL) {
-  let timeoutId = null
+  let timeoutId = null;
 
   const debouncedFn = function (...args) {
     if (timeoutId) {
-      clearTimeout(timeoutId)
+      clearTimeout(timeoutId);
     }
 
     timeoutId = setTimeout(() => {
-      fn.apply(this, args)
-      timeoutId = null
-    }, delay)
-  }
+      fn.apply(this, args);
+      timeoutId = null;
+    }, delay);
+  };
 
   // Allow canceling the pending debounced call
   debouncedFn.cancel = function () {
     if (timeoutId) {
-      clearTimeout(timeoutId)
-      timeoutId = null
+      clearTimeout(timeoutId);
+      timeoutId = null;
     }
-  }
+  };
 
   // Check if there's a pending call
   debouncedFn.isPending = function () {
-    return timeoutId !== null
-  }
+    return timeoutId !== null;
+  };
 
-  return debouncedFn
+  return debouncedFn;
 }
 
 /**
@@ -75,7 +75,7 @@ export function debounce(fn, delay = DEBOUNCE_DELAYS.NORMAL) {
  * @returns {Object} - Object with call(delay), cancel(), and isPending() methods
  */
 export function createDebouncedHandler(fn) {
-  let timeoutId = null
+  let timeoutId = null;
 
   return {
     /**
@@ -86,13 +86,13 @@ export function createDebouncedHandler(fn) {
      */
     call(delay = DEBOUNCE_DELAYS.NORMAL, ...args) {
       if (timeoutId) {
-        clearTimeout(timeoutId)
+        clearTimeout(timeoutId);
       }
 
       timeoutId = setTimeout(() => {
-        fn.apply(null, args)
-        timeoutId = null
-      }, delay)
+        fn.apply(null, args);
+        timeoutId = null;
+      }, delay);
     },
 
     /**
@@ -100,8 +100,8 @@ export function createDebouncedHandler(fn) {
      */
     cancel() {
       if (timeoutId) {
-        clearTimeout(timeoutId)
-        timeoutId = null
+        clearTimeout(timeoutId);
+        timeoutId = null;
       }
     },
 
@@ -111,9 +111,9 @@ export function createDebouncedHandler(fn) {
      * @returns {boolean}
      */
     isPending() {
-      return timeoutId !== null
+      return timeoutId !== null;
     }
-  }
+  };
 }
 
-export default debounce
+export default debounce;

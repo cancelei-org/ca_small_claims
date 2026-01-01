@@ -54,7 +54,7 @@ module Pdf
       end
 
       # Sort by page number extracted from field names
-      extracted.sort_by { |f| [f[:page] || 999, f[:name]] }
+      extracted.sort_by { |f| [ f[:page] || 999, f[:name] ] }
     rescue StandardError => e
       # pdftk failed (e.g., encrypted PDF) - will fallback to HexaPDF
       Rails.logger.debug "pdftk extraction failed, will try HexaPDF: #{e.message}"
@@ -133,11 +133,11 @@ module Pdf
     def sort_fields_by_position(fields)
       fields.sort_by do |f|
         page = f[:page] || 999
-        rect = f[:rect] || [0, 0, 0, 0]
+        rect = f[:rect] || [ 0, 0, 0, 0 ]
         # PDF Y coordinates: higher = higher on page, so negate for top-to-bottom sort
         y_pos = rect[3] ? -rect[3] : 0
         x_pos = rect[0] || 0
-        [page, y_pos, x_pos]
+        [ page, y_pos, x_pos ]
       end
     end
 

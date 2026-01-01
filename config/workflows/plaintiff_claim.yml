@@ -49,13 +49,12 @@ steps:
       If you cannot afford the filing fee, complete this form to request a fee waiver.
       You must provide information about your income and expenses.
     required: false
+    # Conditional step: Only show when user indicates they need fee waiver
+    # Note: Requires 'needs_fee_waiver' field in SC-100 to be set to 'yes'
     conditions:
-      show_when:
-        question: "Do you need a fee waiver?"
-        options:
-          - "Yes, I cannot afford the filing fee"
-          - "No, I will pay the filing fee"
-        show_if: "Yes, I cannot afford the filing fee"
+      - field: "needs_fee_waiver"
+        operator: "equals"
+        value: "yes"
     data_mappings:
       plaintiff_name: plaintiff_name
       plaintiff_street: plaintiff_street
