@@ -19,8 +19,8 @@ class AddSlugToFormDefinitions < ActiveRecord::Migration[8.1]
 
     safety_assured do
       add_index :friendly_id_slugs, :sluggable_id
-      add_index :friendly_id_slugs, [:slug, :sluggable_type], length: { slug: 140, sluggable_type: 50 }
-      add_index :friendly_id_slugs, [:slug, :sluggable_type, :scope], length: { slug: 70, sluggable_type: 50, scope: 70 }, unique: true
+      add_index :friendly_id_slugs, [ :slug, :sluggable_type ], length: { slug: 140, sluggable_type: 50 }
+      add_index :friendly_id_slugs, [ :slug, :sluggable_type, :scope ], length: { slug: 70, sluggable_type: 50, scope: 70 }, unique: true
     end
   end
 end

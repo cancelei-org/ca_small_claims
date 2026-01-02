@@ -7,15 +7,17 @@
 #   <%= render PdfPreviewComponent.new(form_definition: @form_definition) %>
 #
 class PdfPreviewComponent < ViewComponent::Base
-  attr_reader :form_definition, :auto_refresh, :debounce_delay
+  attr_reader :form_definition, :auto_refresh, :debounce_delay, :variant
 
   # @param form_definition [FormDefinition] The form to preview
   # @param auto_refresh [Boolean] Enable auto-refresh on form changes (default: true)
   # @param debounce_delay [Float] Debounce delay in seconds (default: 0.3)
-  def initialize(form_definition:, auto_refresh: true, debounce_delay: 0.3)
+  # @param variant [String] Unique identifier when multiple instances on same page (default: "desktop")
+  def initialize(form_definition:, auto_refresh: true, debounce_delay: 0.3, variant: "desktop")
     @form_definition = form_definition
     @auto_refresh = auto_refresh
     @debounce_delay = debounce_delay
+    @variant = variant
   end
 
   def preview_url
@@ -41,7 +43,9 @@ class PdfPreviewComponent < ViewComponent::Base
       data_controller: "pdf-preview",
       data_pdf_preview_url_value: preview_url,
       data_pdf_preview_debounce_delay_value: debounce_delay,
-      data_pdf_preview_auto_refresh_value: auto_refresh
+      data_pdf_preview_auto_refresh_value: auto_refresh,
+      data_pdf_preview_field_mappings_value: form_definition.field_coordinates.to_json,
+      data_pdf_preview_xray_mode_value: false
     }
   end
 end

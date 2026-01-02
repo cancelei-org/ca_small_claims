@@ -1,7 +1,12 @@
 import { Controller } from '@hotwired/stimulus';
+import { csrfToken } from 'utilities/csrf';
 import { DEBOUNCE_DELAYS, createDebouncedHandler } from 'utilities/debounce';
+import { StatusIndicator } from 'utils/status_indicator';
+
+// Handles user profile form updates
 
 export default class extends Controller {
+  static targets = ['status'];
   static values = {
     url: String,
     debounceDelay: { type: Number, default: DEBOUNCE_DELAYS.NORMAL }
@@ -9,6 +14,15 @@ export default class extends Controller {
 
   connect() {
     this.debouncedSave = createDebouncedHandler(() => this.performSave());
+
+    // Initialize status indicator with badge format
+    const statusEl = this.hasStatusTarget
+      ? this.statusTarget
+      : document.getElementById('profile-status');
+
+    if (statusEl) {
+      this.status = new StatusIndicator(statusEl, { format: 'badge' });
+    }
   }
 
   disconnect() {
@@ -16,8 +30,7 @@ export default class extends Controller {
   }
 
   save() {
-    // Show saving indicator
-    this.updateStatus('Saving...', 'saving');
+    this.status?.saving();
     this.debouncedSave.call(this.debounceDelayValue);
   }
 
@@ -43,28 +56,7 @@ export default class extends Controller {
       })
       .catch(error => {
         console.error('Profile save error:', error);
-        this.updateStatus('Failed to save', 'error');
+        this.status?.error('Failed to save');
       });
-  }
-
-  updateStatus(message, status) {
-    const statusEl = document.getElementById('profile-status');
-
-    if (statusEl) {
-      let badgeClass = 'badge-info';
-      let icon = '<span class="loading loading-spinner loading-xs"></span>';
-
-      if (status === 'success') {
-        badgeClass = 'badge-success';
-        icon =
-          '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg>';
-      } else if (status === 'error') {
-        badgeClass = 'badge-error';
-        icon =
-          '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-3 h-3"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>';
-      }
-
-      statusEl.innerHTML = `<div class="badge ${badgeClass} gap-1">${icon} ${message}</div>`;
-    }
   }
 }

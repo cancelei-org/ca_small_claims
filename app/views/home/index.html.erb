@@ -4,10 +4,10 @@
 <section class="hero py-8 lg:py-12 block">
   <div class="text-center mb-8">
     <h1 class="text-4xl lg:text-5xl font-bold mb-4">
-      California Small Claims Court Forms
+      <%= t("home.title") %>
     </h1>
     <p class="text-xl text-base-content/70 max-w-2xl mx-auto">
-      Fill out your court forms online, for free. Generate print-ready PDFs.
+      <%= t("home.subtitle") %>
     </p>
   </div>
 
@@ -19,15 +19,16 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-primary">
             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
           </svg>
-          Find a Form
+          <%= t("home.find_form.title") %>
         </h2>
-        <p class="text-sm text-base-content/70 mb-4">Search or browse all available forms</p>
+        <p class="text-sm text-base-content/70 mb-4"><%= t("home.find_form.description") %></p>
 
         <div data-controller="forms-picker" data-forms-picker-url-value="<%= forms_picker_home_path %>">
           <%# Search Input %>
           <div class="form-control mb-4">
             <input type="text"
-                   placeholder="Search forms (e.g., SC-100)"
+                   placeholder="<%= t("home.find_form.placeholder") %>"
+                   aria-label="<%= t("home.find_form.title") %>"
                    class="input input-bordered w-full min-h-[48px] text-base"
                    data-forms-picker-target="searchInput"
                    data-action="input->forms-picker#search">
@@ -48,7 +49,7 @@
         </div>
 
         <div class="card-actions justify-end mt-4">
-          <%= link_to "Browse All Forms", forms_path, class: "btn btn-primary btn-sm" %>
+          <%= link_to t("home.find_form.browse_all"), forms_path, class: "btn btn-primary min-h-[44px]" %>
         </div>
       </div>
     </div>
@@ -60,9 +61,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 text-secondary">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z" />
           </svg>
-          Step-by-Step Guides
+          <%= t("home.guides.title") %>
         </h2>
-        <p class="text-sm text-base-content/70 mb-4">Not sure which forms you need? Follow our guided workflows.</p>
+        <p class="text-sm text-base-content/70 mb-4"><%= t("home.guides.description") %></p>
 
         <div class="space-y-3">
           <% @featured_workflows.each do |workflow| %>
@@ -87,7 +88,7 @@
         </div>
 
         <div class="card-actions justify-end mt-4">
-          <%= link_to "View All Workflows", workflows_path, class: "btn btn-secondary btn-sm" %>
+          <%= link_to t("home.guides.view_all"), workflows_path, class: "btn btn-secondary min-h-[44px]" %>
         </div>
       </div>
     </div>
@@ -99,40 +100,40 @@
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
-          Save Your Progress
+          <%= t("home.save_progress.title") %>
         </h2>
-        <p class="text-sm opacity-90 mb-4">Create a free account to save your forms and access them from any device.</p>
+        <p class="text-sm opacity-90 mb-4"><%= t("home.save_progress.description") %></p>
 
         <ul class="space-y-2 mb-6">
           <li class="flex items-center gap-2 text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
-            Auto-save your progress
+            <%= t("home.save_progress.feature_auto_save") %>
           </li>
           <li class="flex items-center gap-2 text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
-            Access from any device
+            <%= t("home.save_progress.feature_access") %>
           </li>
           <li class="flex items-center gap-2 text-sm">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
               <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
             </svg>
-            Auto-fill common fields
+            <%= t("home.save_progress.feature_autofill") %>
           </li>
         </ul>
 
         <% if user_signed_in? %>
           <div class="card-actions">
-            <%= link_to "My Forms", submissions_path, class: "btn btn-outline border-primary-content text-primary-content hover:bg-primary-content hover:text-primary w-full" %>
+            <%= link_to t("navigation.my_forms"), submissions_path, class: "btn btn-outline border-primary-content text-primary-content hover:bg-primary-content hover:text-primary w-full min-h-[44px]" %>
           </div>
         <% else %>
           <div class="card-actions">
-            <%= link_to "Create Free Account", new_user_registration_path, class: "btn bg-base-100 text-primary hover:bg-base-200 w-full" %>
-            <p class="text-xs opacity-80 text-center w-full mt-2">
-              Already have an account? <%= link_to "Sign in", new_user_session_path, class: "underline" %>
+            <%= link_to t("home.save_progress.create_account"), new_user_registration_path, class: "btn bg-base-100 text-primary hover:bg-base-200 w-full min-h-[44px]" %>
+            <p class="text-sm opacity-80 text-center w-full mt-2">
+              <%= t("home.save_progress.already_have_account", link: link_to(t("navigation.sign_in"), new_user_session_path, class: "underline p-2")).html_safe %>
             </p>
           </div>
         <% end %>
@@ -146,20 +147,20 @@
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
     <div class="card bg-base-100 shadow border-l-4 border-primary">
       <div class="card-body">
-        <h2 class="card-title">Filing a Claim?</h2>
-        <p class="text-base-content/70">Start with the Plaintiff's Claim form (SC-100) to sue someone in small claims court.</p>
+        <h2 class="card-title"><%= t("home.filing_claim.title") %></h2>
+        <p class="text-base-content/70"><%= t("home.filing_claim.desc") %></p>
         <div class="card-actions justify-end">
-          <%= link_to "Start Your Claim", form_path("SC-100"), class: "btn btn-primary" %>
+          <%= link_to t("home.filing_claim.button"), form_path("SC-100"), class: "btn btn-primary" %>
         </div>
       </div>
     </div>
 
     <div class="card bg-base-100 shadow border-l-4 border-secondary">
       <div class="card-body">
-        <h2 class="card-title">Being Sued?</h2>
-        <p class="text-base-content/70">Use the Defendant's Claim form (SC-120) to file a counter-claim against the plaintiff.</p>
+        <h2 class="card-title"><%= t("home.being_sued.title") %></h2>
+        <p class="text-base-content/70"><%= t("home.being_sued.desc") %></p>
         <div class="card-actions justify-end">
-          <%= link_to "File Counter-Claim", form_path("SC-120"), class: "btn btn-secondary" %>
+          <%= link_to t("home.being_sued.button"), form_path("SC-120"), class: "btn btn-secondary" %>
         </div>
       </div>
     </div>
@@ -170,7 +171,7 @@
 <section class="py-8">
   <div class="card bg-base-100 shadow-xl">
     <div class="card-body">
-      <h2 class="text-2xl font-bold text-center mb-8">How It Works</h2>
+      <h2 class="text-2xl font-bold text-center mb-8"><%= t("home.how_it_works.title") %></h2>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         <div class="text-center">
@@ -179,8 +180,8 @@
               <span class="text-xl font-bold">1</span>
             </div>
           </div>
-          <h3 class="font-semibold mb-2">Choose Your Form</h3>
-          <p class="text-base-content/70 text-sm">Select from over 1,400 official California court forms.</p>
+          <h3 class="font-semibold mb-2"><%= t("home.how_it_works.step1_title") %></h3>
+          <p class="text-base-content/70 text-sm"><%= t("home.how_it_works.step1_desc") %></p>
         </div>
 
         <div class="text-center">
@@ -189,8 +190,8 @@
               <span class="text-xl font-bold">2</span>
             </div>
           </div>
-          <h3 class="font-semibold mb-2">Fill It Out Online</h3>
-          <p class="text-base-content/70 text-sm">Complete the form in your browser. Your progress is automatically saved.</p>
+          <h3 class="font-semibold mb-2"><%= t("home.how_it_works.step2_title") %></h3>
+          <p class="text-base-content/70 text-sm"><%= t("home.how_it_works.step2_desc") %></p>
         </div>
 
         <div class="text-center">
@@ -199,8 +200,8 @@
               <span class="text-xl font-bold">3</span>
             </div>
           </div>
-          <h3 class="font-semibold mb-2">Download & Print</h3>
-          <p class="text-base-content/70 text-sm">Generate a PDF that matches the official court form, ready to file.</p>
+          <h3 class="font-semibold mb-2"><%= t("home.how_it_works.step3_title") %></h3>
+          <p class="text-base-content/70 text-sm"><%= t("home.how_it_works.step3_desc") %></p>
         </div>
       </div>
     </div>
@@ -209,7 +210,7 @@
 
 <%# Browse by Category %>
 <section class="py-8">
-  <h2 class="text-2xl font-bold mb-6">Browse by Category</h2>
+  <h2 class="text-2xl font-bold mb-6"><%= t("home.browse_by_category") %></h2>
 
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
     <% @categories.each do |category| %>
@@ -229,12 +230,12 @@
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
     </svg>
     <div>
-      <h3 class="font-bold">Important Disclaimer</h3>
+      <h3 class="font-bold"><%= t("home.disclaimer_title") %></h3>
       <p class="text-sm">
-        This tool helps you fill out court forms but does not provide legal advice.
-        For legal questions about your case, consult with an attorney or visit the
-        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link">California Courts Self-Help Center</a>.
+        <%= t("home.disclaimer_body", link: link_to(t("home.self_help_center"), "https://selfhelp.courts.ca.gov/small-claims", target: "_blank", class: "link")).html_safe %>
       </p>
     </div>
   </div>
 </section>
+
+<%= render "shared/smart_resume" %>

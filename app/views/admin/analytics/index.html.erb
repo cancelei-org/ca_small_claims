@@ -1,0 +1,130 @@
+<% content_for :title, "Analytics - Admin" %>
+
+<div class="mb-6 md:mb-8">
+  <h1 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Analytics</h1>
+  <p class="text-sm md:text-base text-base-content/70">Insights into platform usage and form performance.</p>
+</div>
+
+<%# Stats Cards - Horizontal scroll on mobile, grid on desktop %>
+<div class="overflow-x-auto pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:overflow-visible mb-6 md:mb-8" tabindex="0" role="region" aria-label="Analytics statistics">
+  <div class="flex md:grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6 min-w-max md:min-w-0">
+    <!-- Completion Rate -->
+    <div class="stats shadow bg-base-100 flex-shrink-0 w-[160px] md:w-auto">
+      <div class="stat p-4 md:p-6">
+        <div class="stat-title text-xs md:text-sm">Completion Rate</div>
+        <div class="stat-value text-primary text-2xl md:text-4xl"><%= @completion_rate %>%</div>
+        <div class="stat-desc text-xs">Drafts vs Completed</div>
+      </div>
+    </div>
+
+    <!-- Total Submissions -->
+    <div class="stats shadow bg-base-100 flex-shrink-0 w-[160px] md:w-auto">
+      <div class="stat p-4 md:p-6">
+        <div class="stat-title text-xs md:text-sm">Total Submissions</div>
+        <div class="stat-value text-secondary text-2xl md:text-4xl"><%= Submission.count %></div>
+        <div class="stat-desc text-xs">All time</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Mobile hint for scrolling stats %>
+<p class="text-xs text-base-content/50 text-center md:hidden -mt-4 mb-4">
+  Swipe to see all stats
+</p>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+  <!-- Daily Activity Chart - Collapsible on mobile -->
+  <details class="md:open group" open>
+    <summary class="md:hidden flex items-center justify-between p-4 bg-base-100 shadow rounded-lg cursor-pointer min-h-[56px] list-none">
+      <span class="flex items-center gap-2 font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-primary">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+        </svg>
+        Daily Activity
+      </span>
+      <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </summary>
+
+    <div class="card bg-base-100 shadow mt-2 md:mt-0">
+      <div class="card-body p-4 md:p-6">
+        <h2 class="card-title mb-4 hidden md:flex">Daily Activity (Last 14 Days)</h2>
+
+        <div class="h-48 md:h-64 flex items-end gap-1 md:gap-2">
+          <% max_val = @daily_submissions.values.max || 1 %>
+          <% @daily_submissions.each do |date, count| %>
+            <% height = (count.to_f / max_val * 100).round %>
+            <div class="flex-1 flex flex-col items-center group relative">
+              <div class="w-full bg-primary/20 hover:bg-primary/40 active:bg-primary/50 transition-colors rounded-t-sm relative min-h-[4px]" style="height: <%= [height, 2].max %>%">
+                <div class="opacity-0 group-hover:opacity-100 absolute -top-8 left-1/2 -translate-x-1/2 bg-base-300 text-xs px-2 py-1 rounded shadow pointer-events-none whitespace-nowrap z-10">
+                  <%= count %>
+                </div>
+              </div>
+              <div class="text-[8px] md:text-[10px] text-base-content/50 mt-2 -rotate-45 origin-top-left translate-y-2"><%= date %></div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </details>
+
+  <!-- Popular Forms - Collapsible on mobile -->
+  <details class="md:open group" open>
+    <summary class="md:hidden flex items-center justify-between p-4 bg-base-100 shadow rounded-lg cursor-pointer min-h-[56px] list-none">
+      <span class="flex items-center gap-2 font-semibold">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-secondary">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+        </svg>
+        Popular Forms
+        <% if @popular_forms.any? %>
+          <span class="badge badge-ghost badge-sm"><%= @popular_forms.count %></span>
+        <% end %>
+      </span>
+      <svg class="w-5 h-5 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+      </svg>
+    </summary>
+
+    <div class="card bg-base-100 shadow mt-2 md:mt-0">
+      <div class="card-body p-4 md:p-6">
+        <h2 class="card-title mb-4 hidden md:flex">Popular Forms</h2>
+
+        <%# Mobile: Simple list; Desktop: Table %>
+        <div class="md:hidden space-y-2">
+          <% @popular_forms.each_with_index do |(code, count), index| %>
+            <div class="flex items-center justify-between p-3 bg-base-200 rounded-lg">
+              <div class="flex items-center gap-3">
+                <span class="badge badge-primary badge-sm w-6 h-6 p-0 flex items-center justify-center"><%= index + 1 %></span>
+                <span class="font-medium"><%= code %></span>
+              </div>
+              <span class="font-mono text-sm"><%= count %></span>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="hidden md:block overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Code</th>
+                <th class="text-right">Submissions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @popular_forms.each_with_index do |(code, count), index| %>
+                <tr>
+                  <th><%= index + 1 %></th>
+                  <td><%= code %></td>
+                  <td class="text-right font-mono"><%= count %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </details>
+</div>

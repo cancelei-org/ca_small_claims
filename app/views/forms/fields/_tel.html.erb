@@ -1,21 +1,13 @@
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium text-base"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
-
+<% prefix ||= nil %>
+<%= field_wrapper(field, prefix: prefix) do %>
   <%= form.telephone_field field.name,
     value: submission.field_value(field.name),
     placeholder: field.placeholder || "(555) 555-5555",
     required: field.required,
-    class: "input input-bordered w-full min-h-[48px] text-base",
-    data: { action: "input->form#fieldChanged" } %>
-
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
-  <% end %>
-</div>
+    class: standard_input_class,
+    id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+    data: field_data_attributes.merge(
+      action: "input->form#fieldChanged input->input-format#format"
+    ),
+    **field_aria_attributes(field, prefix: prefix) %>
+<% end %>

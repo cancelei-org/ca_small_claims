@@ -166,20 +166,14 @@ namespace :import do
 
     # Check for active forms without categories
     orphan_forms = FormDefinition.active.where(category_id: nil)
-    if orphan_forms.any?
-      issues << "#{orphan_forms.count} active forms without category_id"
-    end
+    issues << "#{orphan_forms.count} active forms without category_id" if orphan_forms.any?
 
     # Check for missing PDF files (only active forms)
     missing_pdfs = []
     FormDefinition.active.find_each do |form|
-      unless form.pdf_exists?
-        missing_pdfs << form.code
-      end
+      missing_pdfs << form.code unless form.pdf_exists?
     end
-    if missing_pdfs.any?
-      issues << "#{missing_pdfs.count} active forms with missing PDF files"
-    end
+    issues << "#{missing_pdfs.count} active forms with missing PDF files" if missing_pdfs.any?
 
     # Check for fillable forms without fields (only active forms)
     fillable_without_fields = FormDefinition.active.where(fillable: true)
@@ -188,9 +182,7 @@ namespace :import do
                                             .having("COUNT(field_definitions.id) = 0")
                                             .count
                                             .count
-    if fillable_without_fields.positive?
-      issues << "#{fillable_without_fields} active fillable forms without field definitions"
-    end
+    issues << "#{fillable_without_fields} active fillable forms without field definitions" if fillable_without_fields.positive?
 
     # Print results
     inactive_count = FormDefinition.where(active: false).count

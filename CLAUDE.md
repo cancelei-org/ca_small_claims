@@ -111,3 +111,28 @@ Comprehensive guides in `/docs/guides/`:
 - `backend/pdf-processing.md` - PDF handling details
 - `testing/testing-guide.md` - Testing reference
 - `development/development-reference.md` - Daily workflow
+
+## Experimental Features (Not Yet Wired)
+
+The following features have code implemented but are not connected to the UI. Tests are skipped where applicable.
+
+| Feature | Files | Status |
+|---------|-------|--------|
+| **PDF X-Ray Mode** | `pdf_preview_controller.js` | Overlay highlighting of PDF fields - needs UI integration |
+| **Voice Dictation** | `dictation_controller.js` | Speech-to-text for form fields - needs UI buttons |
+| **i18n Session Persistence** | `application_controller.rb` | Language choice should persist across navigation |
+| **Offline Support** | `offline_storage.js`, `offline_indicator_controller.js` | PWA offline mode - UI messaging not finalized (indicator wired but hidden) |
+| **Conditional Fields** | `conditional_controller.js` | Show/hide fields based on other field values |
+| **Autofill Service** | `autofill_controller.js`, `app/services/autofill/` | Auto-populate fields from previous submissions |
+| **Form Validation** | `validation_controller.js` | Client-side validation beyond HTML5 |
+| **Input Formatting** | `input_format_controller.js` | Auto-format phone numbers, SSN, etc. |
+| **Pull to Refresh** | `pull_refresh_controller.js` | Mobile pull-to-refresh gesture |
+| **Repeating Fields** | `repeating_controller.js` | Add/remove repeating field groups |
+| **Download Manager** | `download_controller.js` | Enhanced PDF download handling |
+| **Form Controller** | `form_controller.js` | Base form behavior (may be superseded by wizard) |
+| **Profile Controller** | `profile_controller.js` | User profile interactions |
+
+To enable an experimental feature:
+1. Wire the Stimulus controller to the appropriate view
+2. Remove the `skip:` from the corresponding spec (if applicable)
+3. Ensure tests pass

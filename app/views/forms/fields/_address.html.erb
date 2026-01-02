@@ -1,23 +1,102 @@
-<%# Address Field - Multi-line address input %>
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
+<%# Address Field - Structured address input with Street, City, State, ZIP %>
+<%= field_wrapper(field) do %>
+  <div data-controller="address"
+       data-action="input->address#fieldChanged"
+       class="space-y-3">
 
-  <%= form.text_area field.name,
-    value: submission.field_value(field.name),
-    placeholder: field.placeholder || "Enter address...",
-    required: field.required,
-    rows: 3,
-    class: "textarea textarea-bordered w-full",
-    data: { action: "input->form#fieldChanged" } %>
+    <%# Hidden combined field for form submission %>
+    <%= form.hidden_field field.name,
+      value: submission.field_value(field.name),
+      data: { address_target: "combined" } %>
 
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
-  <% end %>
-</div>
+    <%# Street Address Line 1 %>
+    <div>
+      <label class="label py-1">
+        <span class="label-text text-sm">Street Address</span>
+      </label>
+      <input type="text"
+             name="<%= field.name %>_street1"
+             placeholder="123 Main Street"
+             class="<%= standard_input_class %>"
+             autocomplete="address-line1"
+             <%= "required" if field.required %>
+             data-address-target="street1"
+             data-action="input->address#fieldChanged">
+    </div>
+
+    <%# Street Address Line 2 (optional) %>
+    <div>
+      <label class="label py-1">
+        <span class="label-text text-sm text-base-content/70">Apt, Suite, Unit (optional)</span>
+      </label>
+      <input type="text"
+             name="<%= field.name %>_street2"
+             placeholder="Apt 4B"
+             class="<%= standard_input_class %>"
+             autocomplete="address-line2"
+             data-address-target="street2"
+             data-action="input->address#fieldChanged">
+    </div>
+
+    <%# City, State, ZIP row %>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <%# City %>
+      <div class="col-span-2 sm:col-span-2">
+        <label class="label py-1">
+          <span class="label-text text-sm">City</span>
+        </label>
+        <input type="text"
+               name="<%= field.name %>_city"
+               placeholder="Los Angeles"
+               class="<%= standard_input_class %>"
+               autocomplete="address-level2"
+               <%= "required" if field.required %>
+               data-address-target="city"
+               data-action="input->address#fieldChanged">
+      </div>
+
+      <%# State %>
+      <div>
+        <label class="label py-1">
+          <span class="label-text text-sm">State</span>
+        </label>
+        <select name="<%= field.name %>_state"
+                class="<%= standard_select_class %>"
+                autocomplete="address-level1"
+                <%= "required" if field.required %>
+                data-address-target="state"
+                data-action="change->address#fieldChanged">
+          <option value="">--</option>
+          <option value="CA" selected>CA</option>
+          <option value="AZ">AZ</option>
+          <option value="NV">NV</option>
+          <option value="OR">OR</option>
+          <option value="WA">WA</option>
+          <option value="OTHER">Other</option>
+        </select>
+      </div>
+
+      <%# ZIP Code %>
+      <div>
+        <label class="label py-1">
+          <span class="label-text text-sm">ZIP</span>
+        </label>
+        <input type="text"
+               name="<%= field.name %>_zip"
+               placeholder="90001"
+               maxlength="10"
+               inputmode="numeric"
+               pattern="[0-9]{5}(-[0-9]{4})?"
+               class="<%= standard_input_class %>"
+               autocomplete="postal-code"
+               <%= "required" if field.required %>
+               data-address-target="zip"
+               data-action="input->address#formatZip">
+      </div>
+    </div>
+
+    <p class="text-xs text-base-content/50">
+      California addresses are pre-selected. For out-of-state addresses, select "Other".
+    </p>
+  </div>
+<% end %>

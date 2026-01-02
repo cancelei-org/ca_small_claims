@@ -257,9 +257,7 @@ module Forms
       base_name = @classifier.sanitize_name(pdf_name)
 
       # Handle duplicate field names with position suffix
-      if field_positions[base_name].positive?
-        base_name = "#{base_name}_#{field_positions[base_name] + 1}"
-      end
+      base_name = "#{base_name}_#{field_positions[base_name] + 1}" if field_positions[base_name].positive?
 
       field_type = classify_field_type(field)
       return nil unless VALID_FIELD_TYPES.include?(field_type)
@@ -285,9 +283,7 @@ module Forms
       end
 
       # Mark PII fields
-      if @classifier.pii_field?(pdf_name)
-        @warnings << "PII field detected: #{base_name}"
-      end
+      @warnings << "PII field detected: #{base_name}" if @classifier.pii_field?(pdf_name)
 
       definition
     end

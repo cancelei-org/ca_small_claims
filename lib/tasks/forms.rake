@@ -78,9 +78,7 @@ namespace :forms do
     missing = []
 
     FormDefinition.find_each do |form|
-      unless form.pdf_exists?
-        missing << { code: form.code, file: form.pdf_filename }
-      end
+      missing << { code: form.code, file: form.pdf_filename } unless form.pdf_exists?
     end
 
     if missing.any?

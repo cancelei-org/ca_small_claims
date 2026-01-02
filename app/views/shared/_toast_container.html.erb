@@ -1,0 +1,15 @@
+<div data-controller="toast" class="toast toast-end z-50">
+  <div data-toast-target="container" class="flex flex-col gap-2">
+    <% flash.each do |key, value| %>
+      <% type = key == 'notice' ? 'success' : (key == 'alert' ? 'error' : 'info') %>
+      <div class="alert alert-<%= type %> shadow-lg mb-2 animate-fade-in" data-controller="dismissable">
+        <div>
+          <span><%= value %></span>
+        </div>
+        <div class="flex-none">
+          <button class="btn btn-sm btn-ghost" aria-label="Close" data-action="click->dismissable#close">✕</button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

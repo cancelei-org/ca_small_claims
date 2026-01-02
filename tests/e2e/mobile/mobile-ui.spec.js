@@ -253,13 +253,20 @@ test.describe('Mobile UI Rendering', () => {
       console.log('Buttons too small on form page:', smallButtons);
     }
 
-    // Check if buttons wrap properly on mobile
-    const buttonContainer = await page
-      .locator('.bg-gray-50.border-t')
-      .boundingBox();
+    // Check if buttons wrap properly on mobile (optional check)
+    const buttonContainerLocator = page.locator(
+      '.bg-gray-50.border-t, .form-actions, footer'
+    );
+    const count = await buttonContainerLocator.count();
 
-    if (buttonContainer) {
-      console.log('Button container height:', buttonContainer.height);
+    if (count > 0) {
+      const buttonContainer = await buttonContainerLocator
+        .first()
+        .boundingBox();
+
+      if (buttonContainer) {
+        console.log('Button container height:', buttonContainer.height);
+      }
     }
   });
 });

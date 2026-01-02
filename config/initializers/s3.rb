@@ -12,6 +12,4 @@ Rails.application.config.s3_config = {
 }
 
 # Validate S3 credentials on boot in production
-if Rails.env.production? && Rails.application.config.s3_config[:access_key_id].blank?
-  Rails.logger.warn "S3 credentials not configured - PDF generation will fail if USE_S3_STORAGE=true"
-end
+Rails.logger.warn "S3 credentials not configured - PDF generation will fail if USE_S3_STORAGE=true" if Rails.env.production? && Rails.application.config.s3_config[:access_key_id].blank?

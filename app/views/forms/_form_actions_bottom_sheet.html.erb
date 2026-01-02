@@ -1,0 +1,172 @@
+<%# Form Actions Bottom Sheet - Mobile only %>
+<%#
+  Provides touch-optimized actions for:
+  - Save draft
+  - Preview PDF
+  - Download PDF
+
+  Supports swipe-to-dismiss gesture.
+%>
+
+<div class="md:hidden" data-controller="bottom-sheet">
+  <%# Backdrop %>
+  <div class="bottom-sheet-backdrop hidden"
+       data-bottom-sheet-target="backdrop"
+       data-action="click->bottom-sheet#close"></div>
+
+  <%# Bottom Sheet Panel %>
+  <div class="bottom-sheet"
+       data-bottom-sheet-target="sheet"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="form-actions-title"
+       aria-hidden="true">
+
+    <%# Drag Handle %>
+    <div class="bottom-sheet-handle" data-bottom-sheet-target="handle">
+      <div class="bottom-sheet-handle-bar"></div>
+    </div>
+
+    <%# Header %>
+    <div class="bottom-sheet-header">
+      <h2 id="form-actions-title" class="bottom-sheet-title">Form Actions</h2>
+      <button type="button"
+              class="btn btn-ghost btn-circle btn-sm min-h-[44px] min-w-[44px]"
+              data-action="click->bottom-sheet#close"
+              aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <%# Content %>
+    <div class="bottom-sheet-content" data-bottom-sheet-target="content">
+      <%# Completion Status %>
+      <div class="flex items-center justify-between mb-4 px-1">
+        <span class="text-sm text-base-content/70">Form Progress</span>
+        <div class="flex items-center gap-2">
+          <div class="radial-progress text-primary text-xs"
+               style="--value:<%= submission.completion_percentage %>; --size:2rem; --thickness:3px;"
+               role="progressbar"
+               aria-valuenow="<%= submission.completion_percentage %>"
+               aria-valuemin="0"
+               aria-valuemax="100">
+            <%= submission.completion_percentage %>%
+          </div>
+        </div>
+      </div>
+
+      <%# Primary Actions %>
+      <div class="bottom-sheet-actions">
+        <%# Save Draft %>
+        <button type="button"
+                class="bottom-sheet-action"
+                data-action="click->form#save click->bottom-sheet#close"
+                aria-describedby="save-desc">
+          <div class="bottom-sheet-action-icon primary">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path>
+            </svg>
+          </div>
+          <div class="bottom-sheet-action-text">
+            <div class="bottom-sheet-action-title">Save Draft</div>
+            <div class="bottom-sheet-action-desc" id="save-desc">Save your progress to continue later</div>
+          </div>
+          <svg class="w-5 h-5 bottom-sheet-action-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        </button>
+
+        <%# Preview PDF %>
+        <%= link_to preview_form_path(form_definition.code),
+                    target: "_blank",
+                    class: "bottom-sheet-action",
+                    data: { action: "click->bottom-sheet#close" },
+                    "aria-describedby": "preview-desc" do %>
+          <div class="bottom-sheet-action-icon info">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+          </div>
+          <div class="bottom-sheet-action-text">
+            <div class="bottom-sheet-action-title">Preview PDF</div>
+            <div class="bottom-sheet-action-desc" id="preview-desc">View filled form in new tab</div>
+          </div>
+          <svg class="w-5 h-5 bottom-sheet-action-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+          </svg>
+        <% end %>
+
+        <%# Download PDF %>
+        <%= link_to download_form_path(form_definition.code),
+                    class: "bottom-sheet-action",
+                    data: {
+                      controller: "download",
+                      action: "click->bottom-sheet#close"
+                    },
+                    "aria-describedby": "download-desc" do %>
+          <div class="bottom-sheet-action-icon success">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+            </svg>
+          </div>
+          <div class="bottom-sheet-action-text">
+            <div class="bottom-sheet-action-title">Download PDF</div>
+            <div class="bottom-sheet-action-desc" id="download-desc">Get your completed form</div>
+          </div>
+          <svg class="w-5 h-5 bottom-sheet-action-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+          </svg>
+        <% end %>
+      </div>
+
+      <div class="bottom-sheet-divider"></div>
+
+      <%# Secondary Actions %>
+      <div class="bottom-sheet-secondary-actions">
+        <%# Open PDF Drawer (if exists) %>
+        <button type="button"
+                class="bottom-sheet-secondary-action"
+                data-action="click->pdf-drawer#open click->bottom-sheet#close">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <span>Live Preview</span>
+        </button>
+
+        <%# Help Link %>
+        <a href="https://selfhelp.courts.ca.gov/small-claims"
+           target="_blank"
+           class="bottom-sheet-secondary-action">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+          </svg>
+          <span>Get Help</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <%# Floating Action Button to open bottom sheet %>
+  <div class="form-actions-fab">
+    <button type="button"
+            class="btn btn-primary shadow-xl gap-2 px-4 min-h-[56px]"
+            data-action="click->bottom-sheet#open"
+            aria-label="Open form actions menu"
+            aria-haspopup="dialog">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"></path>
+      </svg>
+      <span>Actions</span>
+    </button>
+  </div>
+</div>

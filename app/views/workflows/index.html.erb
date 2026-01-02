@@ -1,46 +1,46 @@
-<% content_for :title, "Guided Workflows - CA Small Claims Court" %>
+<% content_for :title, "#{t("workflows.title")} - CA Small Claims Court" %>
 
 <div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-900 mb-2">Guided Workflows</h1>
-  <p class="text-gray-600">Step-by-step guides to help you complete all the forms you need.</p>
+  <h1 class="text-3xl font-bold text-base-content mb-2"><%= t("workflows.title") %></h1>
+  <p class="text-base-content/70"><%= t("workflows.subtitle") %></p>
 </div>
 
 <% if @workflows.any? %>
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
     <% @workflows.each do |workflow| %>
-      <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow">
-        <div class="p-6">
+      <div class="card bg-base-100 shadow-md hover:shadow-lg transition-shadow">
+        <div class="card-body p-6">
           <div class="flex items-center mb-4">
             <div class="flex-shrink-0">
-              <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-blue-100">
-                <svg class="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-primary/10">
+                <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
                 </svg>
               </span>
             </div>
             <div class="ml-4">
-              <h2 class="text-lg font-semibold text-gray-900"><%= workflow.name %></h2>
+              <h2 class="card-title text-base-content"><%= workflow.name %></h2>
               <% if workflow.category.present? %>
-                <span class="text-sm text-gray-500"><%= workflow.category.name %></span>
+                <span class="text-sm text-base-content/60"><%= workflow.category.name %></span>
               <% end %>
             </div>
           </div>
 
           <% if workflow.description.present? %>
-            <p class="text-gray-600 text-sm mb-4"><%= workflow.description %></p>
+            <p class="text-base-content/70 text-sm mb-4"><%= workflow.description %></p>
           <% end %>
 
-          <div class="flex items-center justify-between">
-            <div class="flex items-center text-sm text-gray-500">
+          <div class="flex items-center justify-between mt-auto">
+            <div class="flex items-center text-sm text-base-content/60">
               <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
               </svg>
-              <%= workflow.total_steps %> forms
+              <%= t("workflows.step_count", count: workflow.total_steps) %>
             </div>
 
-            <%= link_to workflow_path(workflow), class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium text-sm" do %>
-              Start Workflow
-              <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <%= link_to workflow_path(workflow), class: "btn btn-primary btn-sm gap-2" do %>
+              <%= t("workflows.start_button") %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
             <% end %>
@@ -48,18 +48,18 @@
         </div>
 
         <!-- Forms in this workflow -->
-        <div class="px-6 pb-4">
-          <div class="border-t pt-4">
-            <p class="text-xs font-medium text-gray-500 uppercase mb-2">Included Forms</p>
+        <div class="px-6 pb-6 pt-0">
+          <div class="border-t border-base-200 pt-4">
+            <p class="text-xs font-medium text-base-content/50 uppercase mb-2"><%= t("workflows.included_forms") %></p>
             <div class="flex flex-wrap gap-2">
               <% workflow.form_definitions.limit(4).each do |form| %>
-                <span class="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
+                <span class="badge badge-ghost badge-sm">
                   <%= form.code %>
                 </span>
               <% end %>
               <% if workflow.form_definitions.count > 4 %>
-                <span class="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                  +<%= workflow.form_definitions.count - 4 %> more
+                <span class="badge badge-ghost badge-sm">
+                  +<%= workflow.form_definitions.count - 4 %> <%= t("workflows.more_count") %>
                 </span>
               <% end %>
             </div>
@@ -69,12 +69,10 @@
     <% end %>
   </div>
 <% else %>
-  <div class="text-center py-12 bg-white rounded-lg shadow">
-    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-    </svg>
-    <h3 class="mt-2 text-sm font-medium text-gray-900">No workflows available yet</h3>
-    <p class="mt-1 text-sm text-gray-500">Check back soon or browse individual forms.</p>
-    <%= link_to "Browse Forms", forms_path, class: "mt-4 inline-block text-blue-600 hover:text-blue-800" %>
-  </div>
+  <%= render "shared/empty_state",
+    icon: "clipboard",
+    title: t("workflows.empty.title"),
+    message: t("workflows.empty.message"),
+    action_path: forms_path,
+    action_text: t("workflows.empty.action") %>
 <% end %>

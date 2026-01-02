@@ -39,9 +39,7 @@ class SubmissionsController < ApplicationController
   def set_submission
     @submission = Submission.find(params[:id])
 
-    unless can_access_submission?(@submission)
-      redirect_to submissions_path, alert: "Submission not found."
-    end
+    redirect_to submissions_path, alert: "Submission not found." unless can_access_submission?(@submission)
   end
 
   # Override PdfHandling concern method

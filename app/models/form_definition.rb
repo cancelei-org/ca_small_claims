@@ -21,8 +21,22 @@ class FormDefinition < ApplicationRecord
   scope :by_category, ->(cat) { joins(:category).where(categories: { slug: cat }) }
   scope :by_category_id, ->(id) { where(category_id: id) }
   scope :ordered, -> { order(:position, :code) }
+  scope :by_popularity, -> {
+    left_joins(:submissions, :session_submissions)
+      .group(:id)
+      .order(Arel.sql("COUNT(submissions.id) + COUNT(session_submissions.id) DESC"))
+  }
+  scope :popular, ->(limit = 5) {
+    by_popularity.limit(limit)
+  }
   scope :fillable_forms, -> { where(fillable: true) }
   scope :non_fillable_forms, -> { where(fillable: false) }
+  scope :search, ->(query) {
+    return all if query.blank?
+
+    term = "%#{query.downcase}%"
+    where("LOWER(code) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?", term, term, term)
+  }
 
   # Legacy constant for backward compatibility during migration
   LEGACY_CATEGORIES = %w[filing service pre_trial judgment post_judgment special info plaintiff defendant enforcement appeal collections informational fee_waiver].freeze
@@ -75,7 +89,7 @@ class FormDefinition < ApplicationRecord
 
   # PDF filename derived from slug (sc-100 → sc100.pdf)
   def pdf_filename_from_slug
-    "#{slug.to_s.gsub('-', '')}.pdf"
+    "#{slug.to_s.delete('-')}.pdf"
   end
 
   # Returns the PDF generation strategy for this form
@@ -89,7 +103,7 @@ class FormDefinition < ApplicationRecord
   def html_template_path
     return nil if fillable?
 
-    normalized_code = code.downcase.gsub("-", "")
+    normalized_code = code.downcase.delete("-")
     Rails.root.join("app/views/pdf_templates/small_claims/#{normalized_code}.html.erb")
   end
 
@@ -105,6 +119,37 @@ class FormDefinition < ApplicationRecord
     fillable? ? pdf_exists? : html_template_exists?
   end
 
+  # Returns total usage count (submissions + session submissions)
+  def usage_count
+    submissions.count + session_submissions.count
+  end
+
+  # Returns true if this form is in the top N most popular forms
+  def popular?(threshold: 5)
+    self.class.active.popular(threshold).pluck(:id).include?(id)
+  end
+
+  # Returns recommended forms based on category and common workflows
+  def recommended_next_forms(limit: 3)
+    # Get forms from same category excluding self
+    same_category = self.class.active.where(category_id: category_id)
+                        .where.not(id: id)
+                        .by_popularity
+                        .limit(limit)
+                        .to_a
+
+    return same_category if same_category.size >= limit
+
+    # Supplement with popular forms from other categories
+    remaining = limit - same_category.size
+    other_popular = self.class.active.where.not(id: id)
+                        .where.not(id: same_category.map(&:id))
+                        .popular(remaining)
+                        .to_a
+
+    same_category + other_popular
+  end
+
   # Returns feedback statistics for this form
   def feedback_stats
     {
@@ -118,6 +163,30 @@ class FormDefinition < ApplicationRecord
   # Returns true if this form has pending feedback that needs attention
   def needs_attention?
     form_feedbacks.pending.exists? || form_feedbacks.low_rated.unresolved.exists?
+  end
+
+  # Returns coordinates for all fields in the form for X-Ray mode
+  def field_coordinates
+    metadata["field_coordinates"] ||= extract_field_coordinates
+  end
+
+  def extract_field_coordinates
+    return {} unless pdf_exists?
+
+    extractor = Pdf::FieldExtractor.new(pdf_path)
+    fields = extractor.extract
+
+    coords = fields.each_with_object({}) do |f, hash|
+      next unless f[:rect]
+      hash[f[:name]] = {
+        page: f[:page],
+        rect: f[:rect], # [x1, y1, x2, y2]
+        type: f[:type]
+      }
+    end
+
+    update_column(:metadata, metadata.merge("field_coordinates" => coords))
+    coords
   end
 
   private

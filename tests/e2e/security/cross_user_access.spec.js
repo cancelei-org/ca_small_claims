@@ -261,30 +261,30 @@ test.describe('Cross-User Data Access Security', () => {
       page,
       login
     }) => {
-      // Login as user A and generate a PDF
+      // Login as user A and create a submission
       await login('user_a@example.com');
-      await page.goto('/test_only/create_submission_with_pdf?form_type=SC-100');
+      await page.goto('/test_only/create_submission?form_type=SC-100');
 
-      // Get the PDF download URL
-      const pdfUrl = await page.getAttribute(
-        '[data-testid="pdf-download-link"]',
-        'href'
+      // Get the submission ID from URL
+      const url = page.url();
+      const submissionId = url.split('/').pop();
+
+      // Login as user B
+      await login('user_b@example.com');
+
+      // Try to access user A's PDF download
+      const response = await page.goto(
+        `/submissions/${submissionId}/download_pdf`
       );
 
-      if (pdfUrl) {
-        // Login as user B
-        await login('user_b@example.com');
+      // Should be denied (redirect to submissions or 404)
+      const isDenied =
+        response.status() === 403 ||
+        response.status() === 404 ||
+        (page.url().includes('/submissions') &&
+          !page.url().includes(submissionId));
 
-        // Try to download user A's PDF
-        const response = await page.goto(pdfUrl);
-
-        // Should be denied
-        expect(
-          response.status() === 403 ||
-            response.status() === 404 ||
-            response.status() === 401
-        ).toBeTruthy();
-      }
+      expect(isDenied).toBeTruthy();
     });
   });
 
@@ -296,18 +296,18 @@ test.describe('Cross-User Data Access Security', () => {
       // Login as any user
       await login('user_a@example.com');
 
-      // Access categories page
-      await page.goto('/categories');
+      // Access forms page (which shows categories)
+      await page.goto('/forms');
 
-      // Should be able to view categories
-      const response = await page.request.get('/categories');
+      // Should be able to view forms/categories
+      const response = await page.request.get('/forms');
 
       expect(response.status()).toBe(200);
 
-      // Categories should be visible
+      // Forms and categories should be visible
       const content = await page.content();
 
-      expect(content).toMatch(/category|form|small claims/i);
+      expect(content).toMatch(/form|small claims|SC-/i);
     });
 
     test('Users can only start forms they have access to', async ({

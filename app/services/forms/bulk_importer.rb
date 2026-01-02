@@ -75,9 +75,7 @@ module Forms
       forms_data.each_with_index do |form_data, index|
         import_single_form(form_data)
 
-        if (index + 1) % @options[:batch_size] == 0
-          log "  Progress: #{index + 1}/#{total} forms processed..."
-        end
+        log "  Progress: #{index + 1}/#{total} forms processed..." if (index + 1) % @options[:batch_size] == 0
       end
     end
 
@@ -316,14 +314,13 @@ module Forms
       log "PDFs skipped: #{@stats[:pdfs_skipped]}"
       log "Errors: #{@stats[:errors]}"
 
-      if @errors.any?
+      return unless @errors.any?
         log ""
         log "First #{[ @errors.count, 10 ].min} errors:"
         @errors.first(10).each do |error|
           log "  - #{error[:context]}: #{error[:error]}"
         end
         log "  ... and #{@errors.count - 10} more" if @errors.count > 10
-      end
     end
   end
 end

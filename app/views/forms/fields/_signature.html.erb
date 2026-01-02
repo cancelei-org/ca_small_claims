@@ -1,28 +1,18 @@
 <%# Signature Field - Basic text field for typed signature %>
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
-
-  <div class="flex flex-col gap-2">
+<% prefix ||= nil %>
+<%= field_wrapper(field, prefix: prefix) do %>
+  <div class="border-2 border-dashed border-base-300 rounded-lg p-4 bg-base-200 text-center">
+    <div class="font-signature text-2xl mb-2 text-base-content/30 italic">
+      <%= submission.field_value(field.name).presence || "Sign Here" %>
+    </div>
     <%= form.text_field field.name,
       value: submission.field_value(field.name),
-      placeholder: "Type your full legal name",
       required: field.required,
-      class: "input input-bordered w-full font-signature italic",
-      data: { action: "input->form#fieldChanged" } %>
-
-    <p class="text-xs text-base-content/50">
-      By typing your name above, you are providing your electronic signature.
-    </p>
+      placeholder: "Type your full name to sign",
+      class: "#{standard_input_class} font-signature text-xl",
+      id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+      data: field_data_attributes,
+      **field_aria_attributes(field, prefix: prefix) %>
+    <p class="text-[10px] uppercase tracking-widest text-base-content/40 mt-2">Digital Signature</p>
   </div>
-
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
-  <% end %>
-</div>
+<% end %>

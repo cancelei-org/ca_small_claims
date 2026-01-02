@@ -1,10 +1,19 @@
+<%# Auto-save status indicator - dynamically updated by StatusIndicator JS %>
+<%# aria-live and aria-atomic are set by JavaScript for dynamic updates %>
 <% if saved_at.present? %>
-  <span class="text-success">
-    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <span class="text-success" role="status">
+    <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
     </svg>
+    <span class="sr-only">Form saved</span>
     Saved <%= time_ago_in_words(saved_at) %> ago
+    <span class="text-xs text-base-content/40 ml-1" title="<%= saved_at.strftime('%I:%M %p') %>">
+      (<%= saved_at.strftime('%I:%M %p') %>)
+    </span>
   </span>
 <% else %>
-  <span class="text-base-content/50">Not saved yet</span>
+  <span class="text-base-content/50" role="status">
+    <span class="sr-only">Form has not been saved yet</span>
+    Not saved yet
+  </span>
 <% end %>

@@ -1,29 +1,266 @@
 import { Controller } from '@hotwired/stimulus';
 import { csrfToken } from 'utilities/csrf';
 import { DEBOUNCE_DELAYS, createDebouncedHandler } from 'utilities/debounce';
+import { SYNC_STATUS, getOfflineStorage } from 'utils/offline_storage';
+import { StatusIndicator } from 'utils/status_indicator';
 
-// Handles form auto-save functionality with optimized debounce
+// Handles form auto-save functionality with optimized debounce and offline support
 export default class extends Controller {
-  static targets = ['status', 'form'];
+  static targets = ['status', 'form', 'syncIndicator'];
   static values = {
     saveUrl: String,
-    debounceDelay: { type: Number, default: DEBOUNCE_DELAYS.FAST } // Reduced from NORMAL for faster feedback
+    debounceDelay: { type: Number, default: 300 }
   };
 
   connect() {
+    this.trackActivity();
+
     this.pendingChanges = false;
+    this.isOffline = !navigator.onLine;
+    this.isSyncing = false;
+    this.offlineStorage = getOfflineStorage();
     this.debouncedSave = createDebouncedHandler(() => this.save());
-    console.log('Form controller connected');
+
+    // Initialize status indicator if target exists with retry callback
+    if (this.hasStatusTarget) {
+      this.status = new StatusIndicator(this.statusTargets, {
+        onRetry: () => this.retrySave()
+      });
+    }
+
+    // Handle online/offline events
+    this.boundHandleOnline = this.handleOnline.bind(this);
+    this.boundHandleOffline = this.handleOffline.bind(this);
+    window.addEventListener('online', this.boundHandleOnline);
+    window.addEventListener('offline', this.boundHandleOffline);
+
+    // Listen for sync status updates
+    this.boundUpdateSyncIndicator = this.updateSyncIndicator.bind(this);
+    document.addEventListener(
+      'offline:sync-status',
+      this.boundUpdateSyncIndicator
+    );
+
+    // Update initial offline indicator state
+    this.updateOfflineIndicator();
+
+    // Sync any pending offline data on connect
+    if (navigator.onLine) {
+      this.syncOfflineData();
+    }
   }
 
   disconnect() {
     this.debouncedSave.cancel();
+    window.removeEventListener('online', this.boundHandleOnline);
+    window.removeEventListener('offline', this.boundHandleOffline);
+    document.removeEventListener(
+      'offline:sync-status',
+      this.boundUpdateSyncIndicator
+    );
+  }
+
+  handleOnline() {
+    this.isOffline = false;
+    this.updateOfflineIndicator();
+    this.status?.info('Back online. Syncing...');
+    this.syncOfflineData();
+  }
+
+  handleOffline() {
+    this.isOffline = true;
+    this.updateOfflineIndicator();
+    this.status?.warning('You are offline');
+  }
+
+  updateOfflineIndicator() {
+    // Dispatch event for offline indicator controller
+    document.dispatchEvent(
+      new CustomEvent('offline:status-change', {
+        detail: { isOffline: this.isOffline, isSyncing: this.isSyncing }
+      })
+    );
+  }
+
+  updateSyncIndicator(event) {
+    const { pendingCount, isSyncing } = event.detail;
+
+    this.isSyncing = isSyncing;
+
+    if (this.hasSyncIndicatorTarget) {
+      if (pendingCount > 0) {
+        this.syncIndicatorTarget.textContent = `${pendingCount} pending`;
+        this.syncIndicatorTarget.classList.remove('hidden');
+      } else {
+        this.syncIndicatorTarget.classList.add('hidden');
+      }
+    }
+  }
+
+  trackActivity() {
+    const match = window.location.pathname.match(/\/forms\/([A-Z0-9-]+)/iu);
+
+    if (match) {
+      const [, code] = match;
+      const activity = {
+        code,
+        path: window.location.pathname,
+        timestamp: Date.now()
+      };
+
+      localStorage.setItem('last_form_activity', JSON.stringify(activity));
+    }
+  }
+
+  highlightField(event) {
+    let fieldName = event.target.name;
+    const match = fieldName.match(/submission\[(.+)\]/);
+
+    if (match) {
+      fieldName = match[1];
+    }
+    document.dispatchEvent(
+      new CustomEvent('form:highlight-field', { detail: { fieldName } })
+    );
+  }
+
+  clearHighlight() {
+    document.dispatchEvent(new CustomEvent('form:clear-highlight'));
+  }
+
+  retrySave() {
+    this.pendingChanges = true;
+    this.save();
   }
 
   fieldChanged(_event) {
     this.pendingChanges = true;
-    this.updateStatus('saving');
-    this.debouncedSave.call(this.debounceDelayValue);
+
+    if (this.isOffline) {
+      this.saveLocally();
+    } else {
+      this.status?.saving();
+      this.debouncedSave.call(this.debounceDelayValue);
+    }
+  }
+
+  async saveLocally() {
+    const form = this.hasFormTarget ? this.formTarget : this.element;
+    const formData = new FormData(form);
+
+    // Handle duplicate names (Wizard + Traditional views)
+    // We want to prioritize non-empty values
+    const data = {};
+
+    for (const [key, value] of formData.entries()) {
+      if (value || !data[key]) {
+        data[key] = value;
+      }
+    }
+
+    // Save to IndexedDB/localStorage
+    const saved = await this.offlineStorage.save(
+      window.location.pathname,
+      data,
+      SYNC_STATUS.PENDING
+    );
+
+    if (saved) {
+      this.status?.warning('Saved locally (offline)');
+      this.pendingChanges = false;
+
+      // Update sync indicator
+      this.notifySyncStatus();
+    } else {
+      this.status?.error('Failed to save locally');
+    }
+  }
+
+  async notifySyncStatus() {
+    const pendingCount = await this.offlineStorage.getPendingCount();
+
+    document.dispatchEvent(
+      new CustomEvent('offline:sync-status', {
+        detail: { pendingCount, isSyncing: this.isSyncing }
+      })
+    );
+  }
+
+  async syncOfflineData() {
+    // First check for legacy localStorage format
+    const legacyKey = `offline_data_${window.location.pathname}`;
+    const legacyData = localStorage.getItem(legacyKey);
+
+    if (legacyData) {
+      try {
+        const { data } = JSON.parse(legacyData);
+
+        this.isSyncing = true;
+        this.status?.info('Syncing offline data...');
+
+        const success = await this.performSave(data);
+
+        if (success) {
+          localStorage.removeItem(legacyKey);
+          this.status?.saved('Synced to cloud');
+        }
+        this.isSyncing = false;
+        this.updateOfflineIndicator();
+
+        return;
+      } catch (e) {
+        console.error('Legacy offline sync failed', e);
+      }
+    }
+
+    // Sync from IndexedDB/new format
+    const record = await this.offlineStorage.load(window.location.pathname);
+
+    if (record && record.status === SYNC_STATUS.PENDING) {
+      this.isSyncing = true;
+      this.updateOfflineIndicator();
+      this.status?.info('Syncing to cloud...');
+
+      try {
+        await this.offlineStorage.updateStatus(
+          window.location.pathname,
+          SYNC_STATUS.SYNCING
+        );
+
+        const success = await this.performSave(record.formData);
+
+        if (success) {
+          await this.offlineStorage.delete(window.location.pathname);
+          this.status?.saved('Synced to cloud');
+
+          // Dispatch sync complete event
+          document.dispatchEvent(
+            new CustomEvent('offline:sync-complete', {
+              detail: { pathname: window.location.pathname }
+            })
+          );
+        } else {
+          await this.offlineStorage.updateStatus(
+            window.location.pathname,
+            SYNC_STATUS.PENDING,
+            true // increment attempts
+          );
+          this.status?.error('Sync failed. Will retry.');
+        }
+      } catch (e) {
+        console.error('Offline sync failed', e);
+        await this.offlineStorage.updateStatus(
+          window.location.pathname,
+          SYNC_STATUS.ERROR,
+          true
+        );
+        this.status?.error('Sync failed');
+      }
+
+      this.isSyncing = false;
+      this.updateOfflineIndicator();
+      this.notifySyncStatus();
+    }
   }
 
   async save() {
@@ -33,6 +270,29 @@ export default class extends Controller {
 
     const form = this.hasFormTarget ? this.formTarget : this.element;
     const formData = new FormData(form);
+    const data = Object.fromEntries(formData.entries());
+
+    const success = await this.performSave(data);
+
+    if (success) {
+      this.pendingChanges = false;
+      this.status?.saved('Saved to cloud');
+
+      document.dispatchEvent(
+        new CustomEvent('form:saved', {
+          detail: { formId: form.id, timestamp: Date.now() }
+        })
+      );
+    } else if (this.isOffline) {
+      this.saveLocally();
+    }
+  }
+
+  async performSave(data) {
+    const form = this.hasFormTarget ? this.formTarget : this.element;
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => formData.append(key, value));
 
     try {
       const response = await fetch(this.saveUrlValue || form.action, {
@@ -44,76 +304,25 @@ export default class extends Controller {
         }
       });
 
-      if (response.ok) {
-        this.pendingChanges = false;
-        this.updateStatus('saved');
+      if (!response.ok) {
+        this.status?.error('Save failed');
 
-        // Dispatch event for PDF preview controller to refresh
-        document.dispatchEvent(
-          new CustomEvent('form:saved', {
-            detail: { formId: form.id, timestamp: Date.now() }
-          })
-        );
-      } else {
-        this.updateStatus('error');
-        console.error('Save failed:', response.statusText);
+        return false;
       }
+
+      return true;
     } catch (error) {
-      this.updateStatus('error');
-      console.error('Save error:', error);
+      // Check if we went offline during the request
+      if (!navigator.onLine) {
+        this.isOffline = true;
+        this.updateOfflineIndicator();
+      }
+      this.status?.error('Connection error');
+
+      return false;
     }
   }
 
-  updateStatus(status) {
-    // Update all status targets (wizard and traditional views may both exist)
-    const statusElements = this.hasStatusTarget ? this.statusTargets : [];
-
-    if (statusElements.length === 0) {
-      return;
-    }
-
-    let html = '';
-
-    switch (status) {
-      case 'saving':
-        html = `
-          <span class="text-base-content/50">
-            <svg class="inline w-4 h-4 mr-1 animate-spin" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Saving...
-          </span>
-        `;
-        break;
-      case 'saved':
-        html = `
-          <span class="text-success">
-            <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-            </svg>
-            Saved just now
-          </span>
-        `;
-        break;
-      case 'error':
-        html = `
-          <span class="text-error">
-            <svg class="inline w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-            Save failed
-          </span>
-        `;
-        break;
-      default:
-        break;
-    }
-
-    statusElements.forEach(el => (el.innerHTML = html));
-  }
-
-  // Warn user before leaving with unsaved changes
   beforeUnload(event) {
     if (this.pendingChanges) {
       event.preventDefault();

@@ -1,0 +1,165 @@
+<% content_for :title, "Accessibility Statement - CA Small Claims Forms" %>
+
+<div class="max-w-3xl mx-auto">
+  <h1 class="text-3xl font-bold text-base-content mb-6">Accessibility Statement</h1>
+
+  <div class="prose prose-lg max-w-none">
+    <p class="text-lg">
+      California Small Claims Forms is committed to ensuring digital accessibility for people with disabilities.
+      We continually improve the user experience for everyone and apply relevant accessibility standards.
+    </p>
+
+    <h2>Conformance Status</h2>
+    <p>
+      This website strives to conform to the
+      <a href="https://www.w3.org/WAI/standards-guidelines/wcag/" target="_blank" rel="noopener">
+        Web Content Accessibility Guidelines (WCAG) 2.1 Level AA
+      </a>.
+      These guidelines explain how to make web content more accessible for people with disabilities
+      and more user-friendly for everyone.
+    </p>
+
+    <h2>Accessibility Features</h2>
+    <p>We have implemented the following accessibility features:</p>
+
+    <h3>Navigation & Structure</h3>
+    <ul>
+      <li>Skip-to-content link for keyboard users</li>
+      <li>Consistent navigation structure across all pages</li>
+      <li>Logical heading hierarchy (h1, h2, h3)</li>
+      <li>Descriptive page titles</li>
+      <li>Keyboard navigation for all interactive elements</li>
+    </ul>
+
+    <h3>Visual Design</h3>
+    <ul>
+      <li>High contrast theme option for users with low vision (WCAG AAA compliant)</li>
+      <li>Color contrast ratios that meet WCAG AA standards (4.5:1 for text)</li>
+      <li>Text resizing up to 200% without loss of content</li>
+      <li>Responsive design that works on all screen sizes</li>
+      <li>Reduced motion mode for users with vestibular disorders - automatically respects system preferences and can be manually enabled in theme settings</li>
+    </ul>
+
+    <h3>Forms & Inputs</h3>
+    <ul>
+      <li>All form fields have associated labels</li>
+      <li>Clear error messages with suggestions for correction</li>
+      <li>Inline validation feedback</li>
+      <li>Minimum touch target sizes of 44x44 pixels</li>
+      <li>Auto-save functionality to prevent data loss</li>
+    </ul>
+
+    <h3>Screen Reader Support</h3>
+    <ul>
+      <li>ARIA labels and roles for complex components</li>
+      <li>Live regions for dynamic content updates (auto-save status, validation messages)</li>
+      <li>Descriptive link text</li>
+      <li>Alternative text for images</li>
+    </ul>
+
+    <h3>Keyboard Accessibility</h3>
+    <ul>
+      <li>All functionality available via keyboard</li>
+      <li>Visible focus indicators</li>
+      <li>Focus management for modals and drawers</li>
+      <li>Keyboard shortcuts for common actions (Cmd/Ctrl+K for command bar)</li>
+      <li>Escape key to close modals and go back in wizard</li>
+    </ul>
+
+    <h2>Assistive Technology Compatibility</h2>
+    <p>This website is designed to be compatible with:</p>
+    <ul>
+      <li>Screen readers (NVDA, JAWS, VoiceOver)</li>
+      <li>Screen magnification software</li>
+      <li>Speech recognition software</li>
+      <li>Keyboard-only navigation</li>
+    </ul>
+
+    <h2>Known Limitations</h2>
+    <p>
+      While we strive for full accessibility, some content may have limitations:
+    </p>
+    <ul>
+      <li>
+        <strong>PDF Downloads:</strong> Generated PDF forms follow the official court form layout,
+        which may have accessibility limitations. We recommend using the on-screen form view when possible.
+      </li>
+      <li>
+        <strong>Third-party Content:</strong> Some external links may lead to websites that do not
+        meet the same accessibility standards.
+      </li>
+    </ul>
+
+    <h2>Feedback</h2>
+    <p>
+      We welcome your feedback on the accessibility of this website. If you encounter accessibility
+      barriers or have suggestions for improvement, please contact us:
+    </p>
+    <ul>
+      <li>
+        <strong>Email:</strong>
+        <a href="mailto:accessibility@example.com">accessibility@example.com</a>
+      </li>
+      <li>
+        <strong>Use the feedback form:</strong> Click the "Feedback" button available on any form page
+      </li>
+      <li>
+        <strong>GitHub Issues:</strong>
+        <a href="https://github.com/example/ca-small-claims/issues" target="_blank" rel="noopener">
+          Report an accessibility issue
+        </a>
+      </li>
+    </ul>
+
+    <h2>Enforcement Procedure</h2>
+    <p>
+      If you are not satisfied with our response to your accessibility concern, you may file a complaint with:
+    </p>
+    <ul>
+      <li>
+        <a href="https://www.ada.gov/file-a-complaint/" target="_blank" rel="noopener">
+          U.S. Department of Justice ADA Complaint Portal
+        </a>
+      </li>
+      <li>
+        <a href="https://www.dor.ca.gov/Home/CivilRights" target="_blank" rel="noopener">
+          California Department of Rehabilitation
+        </a>
+      </li>
+    </ul>
+
+    <h2>Technical Specifications</h2>
+    <p>
+      Accessibility of this website relies on the following technologies:
+    </p>
+    <ul>
+      <li>HTML5</li>
+      <li>WAI-ARIA</li>
+      <li>CSS</li>
+      <li>JavaScript</li>
+    </ul>
+    <p>
+      These technologies are relied upon for conformance with WCAG 2.1 accessibility standards.
+    </p>
+
+    <h2>Assessment Approach</h2>
+    <p>
+      We assess the accessibility of this website through:
+    </p>
+    <ul>
+      <li>Automated testing with axe-core accessibility engine</li>
+      <li>Manual keyboard navigation testing</li>
+      <li>Screen reader testing with VoiceOver</li>
+      <li>Color contrast analysis</li>
+      <li>Continuous integration accessibility checks</li>
+    </ul>
+
+    <div class="mt-8 p-4 bg-base-200 rounded-lg">
+      <p class="text-sm text-base-content/70">
+        <strong>Last Updated:</strong> <%= Date.today.strftime("%B %Y") %>
+        <br>
+        This statement was prepared based on a self-assessment carried out by the development team.
+      </p>
+    </div>
+  </div>
+</div>

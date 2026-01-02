@@ -1,0 +1,71 @@
+<%# Keyboard Shortcuts Help Modal %>
+<div data-controller="modal">
+  <dialog id="keyboard-shortcuts-modal"
+          class="modal"
+          aria-labelledby="keyboard-shortcuts-title"
+          aria-modal="true"
+          role="dialog"
+          data-modal-target="dialog">
+    <div class="modal-box max-w-md">
+      <h3 id="keyboard-shortcuts-title" class="font-bold text-lg mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path>
+      </svg>
+      Keyboard Shortcuts
+    </h3>
+
+    <div class="space-y-3">
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Save form</span>
+        <kbd class="kbd kbd-sm">Ctrl</kbd> + <kbd class="kbd kbd-sm">S</kbd>
+      </div>
+
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Preview PDF</span>
+        <kbd class="kbd kbd-sm">Ctrl</kbd> + <kbd class="kbd kbd-sm">P</kbd>
+      </div>
+
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Download PDF</span>
+        <kbd class="kbd kbd-sm">Ctrl</kbd> + <kbd class="kbd kbd-sm">D</kbd>
+      </div>
+
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Show this help</span>
+        <kbd class="kbd kbd-sm">Ctrl</kbd> + <kbd class="kbd kbd-sm">/</kbd>
+      </div>
+
+      <div class="divider text-xs text-base-content/50">Wizard Mode</div>
+
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Next field</span>
+        <kbd class="kbd kbd-sm">→</kbd> or <kbd class="kbd kbd-sm">↓</kbd>
+      </div>
+
+      <div class="flex justify-between items-center py-2 border-b border-base-200">
+        <span class="text-base-content/70">Previous field</span>
+        <kbd class="kbd kbd-sm">←</kbd> or <kbd class="kbd kbd-sm">↑</kbd>
+      </div>
+
+      <div class="flex justify-between items-center py-2">
+        <span class="text-base-content/70">Close dialogs</span>
+        <kbd class="kbd kbd-sm">Esc</kbd>
+      </div>
+    </div>
+
+    <p class="text-xs text-base-content/50 mt-4">
+      Use <kbd class="kbd kbd-xs">Cmd</kbd> instead of <kbd class="kbd kbd-xs">Ctrl</kbd> on Mac
+    </p>
+
+    <div class="modal-action">
+      <form method="dialog">
+        <button class="btn btn-sm">Close</button>
+      </form>
+    </div>
+  </div>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Close keyboard shortcuts">close</button>
+    </form>
+  </dialog>
+</div>

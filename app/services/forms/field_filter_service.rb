@@ -19,9 +19,7 @@ module Forms
     def wizard_fields(skip_filled: false)
       fields = visible_fields
 
-      if skip_filled && user.present?
-        fields = fields.reject { |field| field_has_value?(field) }
-      end
+      fields = fields.reject { |field| field_has_value?(field) } if skip_filled && user.present?
 
       # Ensure conditional trigger fields are included even if filtered out
       ensure_conditional_triggers(fields)

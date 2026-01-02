@@ -7,7 +7,7 @@ class FormsController < ApplicationController
   before_action :set_form_definition, only: [ :show, :update, :preview, :download, :toggle_wizard ]
 
   def index
-    @forms = FormDefinition.active.includes(:category).ordered
+    @forms = FormDefinition.active.includes(:category)
     @categories = Category.active.where.not(parent_id: nil).ordered
 
     if params[:category].present?
@@ -15,11 +15,19 @@ class FormsController < ApplicationController
       @current_category = Category.find_by(slug: params[:category])
     end
 
-    if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
-      @forms = @forms.where("LOWER(title) LIKE ? OR LOWER(code) LIKE ? OR LOWER(description) LIKE ?",
-        search_term, search_term, search_term)
+    @forms = @forms.search(params[:search]) if params[:search].present?
+
+    # Sort by popularity or default order
+    @sort_by = params[:sort] || "default"
+    @forms = case @sort_by
+    when "popular"
+      @forms.by_popularity
+    else
+      @forms.ordered
     end
+
+    # Get popular form IDs for badges (top 5 most used)
+    @popular_form_ids = FormDefinition.active.popular(5).pluck(:id)
   end
 
   def show
@@ -31,12 +39,11 @@ class FormsController < ApplicationController
     @wizard_mode = wizard_mode_enabled?
     @skip_filled = skip_filled_enabled?
 
-    if @wizard_mode
+    return unless @wizard_mode
       filter_service = Forms::FieldFilterService.new(@form_definition, @submission, current_user)
       @wizard_fields = filter_service.wizard_fields(skip_filled: @skip_filled)
       @total_wizard_fields = filter_service.wizard_field_count(skip_filled: false)
       @filled_count = filter_service.filled_fields.count
-    end
   end
 
   def toggle_wizard

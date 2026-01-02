@@ -123,9 +123,7 @@ module Pdf
         next unless annots
 
         # Check if this page contains the widget
-        if annots.any? { |a| a&.value == widget.value rescue false }
-          return idx + 1
-        end
+        return idx + 1 if annots.any? { |a| a&.value == widget.value rescue false }
       end
       nil
     end

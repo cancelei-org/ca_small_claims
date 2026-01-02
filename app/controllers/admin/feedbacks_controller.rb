@@ -9,7 +9,7 @@ module Admin
     def index
       @pagy, @feedbacks = pagy(filtered_feedbacks.includes(:form_definition, :user).recent, limit: 20)
       @pending_count = FormFeedback.pending.count
-      @forms = FormDefinition.joins(:form_feedbacks).distinct.order(:code)
+      @forms = FormDefinition.joins(:form_feedbacks).select(:id, :code).distinct.order(:code)
     end
 
     def show
@@ -88,13 +88,9 @@ module Admin
       feedbacks = feedbacks.by_issue_type(params[:issue_type]) if params[:issue_type].present?
       feedbacks = feedbacks.where(rating: params[:rating]) if params[:rating].present?
 
-      if params[:date_from].present?
-        feedbacks = feedbacks.where("created_at >= ?", Date.parse(params[:date_from]).beginning_of_day)
-      end
+      feedbacks = feedbacks.where("created_at >= ?", Date.parse(params[:date_from]).beginning_of_day) if params[:date_from].present?
 
-      if params[:date_to].present?
-        feedbacks = feedbacks.where("created_at <= ?", Date.parse(params[:date_to]).end_of_day)
-      end
+      feedbacks = feedbacks.where("created_at <= ?", Date.parse(params[:date_to]).end_of_day) if params[:date_to].present?
 
       feedbacks
     end

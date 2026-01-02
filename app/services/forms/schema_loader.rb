@@ -98,7 +98,7 @@ module Forms
 
         # Try without underscores/hyphens
         normalized = category_string.to_s.split("/").last&.gsub(/[_-]/, "")
-        Category.where("LOWER(REPLACE(REPLACE(slug, '-', ''), '_', '')) = ?", normalized&.downcase).first
+        Category.where("LOWER(REPLACE(REPLACE(slug, '-', ''), '_', '')) = ?", normalized&.downcase).take
       end
 
       private

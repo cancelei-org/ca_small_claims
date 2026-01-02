@@ -26,9 +26,7 @@ module Utilities
       code = code.to_s.strip
 
       # Already has hyphen - just upcase and clean
-      if code.include?("-")
-        return code.upcase.gsub(/[^A-Z0-9-]/, "")
-      end
+      return code.upcase.gsub(/[^A-Z0-9-]/, "") if code.include?("-")
 
       # Remove any non-alphanumeric characters and extract components
       clean_code = code.gsub(/[^A-Za-z0-9]/, "")
@@ -87,24 +85,14 @@ module Utilities
     end
 
     # Instance method for convenience when used as a dependency
-    def normalize(code)
-      self.class.normalize(code)
-    end
+    delegate :normalize, to: :class
 
-    def from_filename(filename)
-      self.class.from_filename(filename)
-    end
+    delegate :from_filename, to: :class
 
-    def to_filename(code)
-      self.class.to_filename(code)
-    end
+    delegate :to_filename, to: :class
 
-    def extract_prefix(code)
-      self.class.extract_prefix(code)
-    end
+    delegate :extract_prefix, to: :class
 
-    def extract_number(code)
-      self.class.extract_number(code)
-    end
+    delegate :extract_number, to: :class
   end
 end

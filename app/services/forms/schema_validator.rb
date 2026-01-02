@@ -138,16 +138,12 @@ module Forms
       end
 
       REQUIRED_FORM_KEYS.each do |key|
-        if form_data[key.to_sym].nil? && form_data[key].nil?
-          @errors << "Missing required form key: #{key}"
-        end
+        @errors << "Missing required form key: #{key}" if form_data[key.to_sym].nil? && form_data[key].nil?
       end
 
       # Validate category exists
       category = form_data[:category] || form_data["category"]
-      if category && !Category.exists?(slug: category)
-        @warnings << "Category '#{category}' not found in database"
-      end
+      @warnings << "Category '#{category}' not found in database" if category && !Category.exists?(slug: category)
     end
 
     def validate_sections(sections)
@@ -179,16 +175,12 @@ module Forms
 
       # Check required keys
       REQUIRED_FIELD_KEYS.each do |key|
-        if field[key.to_sym].nil?
-          @errors << "Field missing required key '#{key}': #{field.inspect}"
-        end
+        @errors << "Field missing required key '#{key}': #{field.inspect}" if field[key.to_sym].nil?
       end
 
       # Validate field type
       field_type = field[:type]&.to_s
-      unless field_type.nil? || VALID_FIELD_TYPES.include?(field_type)
-        @errors << "Invalid field type '#{field_type}' for field '#{field[:name]}'"
-      end
+      @errors << "Invalid field type '#{field_type}' for field '#{field[:name]}'" unless field_type.nil? || VALID_FIELD_TYPES.include?(field_type)
 
       # Check for duplicate field names
       name = field[:name]
@@ -200,9 +192,7 @@ module Forms
 
       # Validate shared key format (recommend namespacing)
       shared_key = field[:shared_key]
-      if shared_key && !shared_key.include?(":")
-        @warnings << "Unnamespaced shared_key '#{shared_key}' in field '#{name}' (consider using 'common:#{shared_key}')"
-      end
+      @warnings << "Unnamespaced shared_key '#{shared_key}' in field '#{name}' (consider using 'common:#{shared_key}')" if shared_key && !shared_key.include?(":")
     end
 
     def validate_pdf_exists(pdf_filename)

@@ -4,6 +4,7 @@ const configAckamaBase = require('eslint-config-ackama');
 const configAckamaJest = require('eslint-config-ackama/jest');
 const pluginJestDOM = require('eslint-plugin-jest-dom');
 const pluginTestingLibrary = require('eslint-plugin-testing-library');
+const pluginSonarjs = require('eslint-plugin-sonarjs');
 const globals = require('globals');
 
 /** @type {import('eslint').Linter.FlatConfig[]} */
@@ -11,6 +12,8 @@ const config = [
   { files: ['**/*.{js,jsx,cjs,mjs}'] },
   { ignores: ['tmp/*', 'app/assets/builds/*'] },
   ...configAckamaBase,
+  // SonarJS recommended rules for code quality and DRY
+  pluginSonarjs.configs.recommended,
   {
     ignores: [
       'config/webpack/*',
@@ -33,7 +36,42 @@ const config = [
       // Allow anonymous default exports for Stimulus controllers (common pattern)
       'import/no-anonymous-default-export': 'off',
       // Allow nested ternary in some cases
-      'no-nested-ternary': 'warn'
+      'no-nested-ternary': 'warn',
+
+      // ===========================================
+      // DRY (Don't Repeat Yourself) Rules
+      // ===========================================
+
+      // Detect identical functions - key DRY rule
+      'sonarjs/no-identical-functions': 'warn',
+
+      // Detect duplicate string literals (3+ occurrences)
+      'sonarjs/no-duplicate-string': ['warn', { threshold: 3 }],
+
+      // Detect copy-pasted code blocks
+      'sonarjs/no-duplicated-branches': 'warn',
+
+      // Cognitive complexity - encourages breaking down complex functions
+      'sonarjs/cognitive-complexity': ['warn', 15],
+
+      // Detect collapsible if statements
+      'sonarjs/no-collapsible-if': 'warn',
+
+      // Detect redundant boolean expressions
+      'sonarjs/no-redundant-boolean': 'warn',
+
+      // Detect identical conditions in if-else chains
+      'sonarjs/no-identical-conditions': 'error',
+
+      // Detect unused collection elements
+      'sonarjs/no-collection-size-mischeck': 'error',
+
+      // Prefer object literal over switch for simple mappings
+      'sonarjs/prefer-object-literal': 'warn',
+
+      // Disable overly strict SonarJS rules not related to DRY
+      'sonarjs/public-static-readonly': 'off',  // Too strict for Stimulus
+      'sonarjs/void-use': 'off'                 // void is used for intentional side effects
     }
   },
   {

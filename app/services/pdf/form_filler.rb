@@ -15,10 +15,7 @@ module Pdf
       cached_generate { strategy.generate }
     end
 
-    def generate_flattened
-      # Flattened PDFs are for download, always generate fresh
-      strategy.generate_flattened
-    end
+    delegate :generate_flattened, to: :strategy
 
     private
 

@@ -19,7 +19,7 @@ class Workflow < ApplicationRecord
   LEGACY_CATEGORIES = %w[plaintiff defendant post_judgment appeal].freeze
 
   def first_step
-    workflow_steps.first
+    workflow_steps.order(:position).first
   end
 
   def step_at(position)
@@ -27,11 +27,11 @@ class Workflow < ApplicationRecord
   end
 
   def next_step(current_position)
-    workflow_steps.where("position > ?", current_position).first
+    workflow_steps.where("position > ?", current_position).order(:position).first
   end
 
   def previous_step(current_position)
-    workflow_steps.where("position < ?", current_position).last
+    workflow_steps.where("position < ?", current_position).order(:position).last
   end
 
   def total_steps

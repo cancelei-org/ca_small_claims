@@ -1,50 +1,50 @@
 <% content_for :title, "#{@workflow.name} - Step #{@progress[:current_step]}" %>
 
 <div class="mb-6">
-  <%= link_to "← Back to Workflows", workflows_path, class: "text-blue-600 hover:text-blue-800" %>
+  <%= link_to "← Back to Workflows", workflows_path, class: "link link-primary no-underline hover:underline" %>
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
   <!-- Sidebar with Steps -->
   <div class="lg:col-span-1">
-    <div class="bg-white rounded-lg shadow p-4 sticky top-4">
-      <h2 class="font-semibold text-gray-900 mb-4"><%= @workflow.name %></h2>
+    <div class="card bg-base-100 shadow p-4 sticky top-4">
+      <h2 class="font-semibold text-base-content mb-4"><%= @workflow.name %></h2>
 
       <!-- Progress Bar -->
       <div class="mb-6">
-        <div class="flex justify-between text-sm text-gray-600 mb-1">
+        <div class="flex justify-between text-sm text-base-content/70 mb-1">
           <span>Progress</span>
           <span><%= @progress[:percentage] %>%</span>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-2">
-          <div class="bg-blue-600 h-2 rounded-full transition-all" style="width: <%= @progress[:percentage] %>%"></div>
+        <div class="w-full bg-base-200 rounded-full h-2">
+          <div class="bg-primary h-2 rounded-full transition-all" style="width: <%= @progress[:percentage] %>%"></div>
         </div>
       </div>
 
       <!-- Steps List -->
       <nav class="space-y-2">
         <% @progress[:steps].each_with_index do |step, index| %>
-          <div class="flex items-center space-x-3 p-2 rounded-md <%= step[:status] == 'draft' ? 'bg-blue-50' : '' %>">
+          <div class="flex items-center space-x-3 p-2 rounded-md <%= step[:status] == 'draft' ? 'bg-primary/10' : '' %>">
             <div class="flex-shrink-0">
               <% if step[:status] == 'completed' %>
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-green-100">
-                  <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-success/20">
+                  <svg class="h-4 w-4 text-success" fill="currentColor" viewBox="0 0 20 20">
                     <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                   </svg>
                 </span>
               <% elsif step[:status] == 'draft' %>
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-blue-600 text-white text-xs font-medium">
+                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-primary text-primary-content text-xs font-medium">
                   <%= index + 1 %>
                 </span>
               <% else %>
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-gray-200 text-gray-500 text-xs font-medium">
+                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-base-200 text-base-content/50 text-xs font-medium">
                   <%= index + 1 %>
                 </span>
               <% end %>
             </div>
             <div class="flex-1 min-w-0">
-              <p class="text-sm font-medium text-gray-900 truncate"><%= step[:form_code] %></p>
-              <p class="text-xs text-gray-500 truncate"><%= step[:name] %></p>
+              <p class="text-sm font-medium text-base-content truncate"><%= step[:form_code] %></p>
+              <p class="text-xs text-base-content/70 truncate"><%= step[:name] %></p>
             </div>
           </div>
         <% end %>
@@ -55,19 +55,19 @@
   <!-- Main Form Area -->
   <div class="lg:col-span-3">
     <% if @current_submission && @form_definition %>
-      <div class="bg-white rounded-lg shadow">
-        <div class="p-6 border-b">
+      <div class="card bg-base-100 shadow">
+        <div class="card-body p-6 border-b border-base-200">
           <div class="flex items-center justify-between">
             <div>
-              <span class="text-sm text-gray-500">Step <%= @progress[:current_step] %> of <%= @progress[:total_steps] %></span>
-              <h1 class="text-2xl font-bold text-gray-900"><%= @form_definition.code %></h1>
-              <p class="text-gray-600"><%= @form_definition.title %></p>
+              <span class="text-sm text-base-content/70">Step <%= @progress[:current_step] %> of <%= @progress[:total_steps] %></span>
+              <h1 class="text-2xl font-bold text-base-content"><%= @form_definition.code %></h1>
+              <p class="text-base-content/70"><%= @form_definition.title %></p>
             </div>
           </div>
 
           <% if @current_step&.instructions.present? %>
-            <div class="mt-4 p-4 bg-blue-50 rounded-md">
-              <p class="text-sm text-blue-700"><%= @current_step.instructions %></p>
+            <div class="mt-4 p-4 bg-info/10 rounded-md border border-info/20">
+              <p class="text-sm text-info-content/80"><%= @current_step.instructions %></p>
             </div>
           <% end %>
         </div>
@@ -75,8 +75,10 @@
         <%= form_with model: @current_submission, url: step_workflow_path(@workflow), method: :patch, local: true do |f| %>
           <div class="p-6 space-y-6">
             <% @form_definition.sections.each do |section_name, fields| %>
-              <div class="border-b pb-6 last:border-b-0 last:pb-0">
-                <h2 class="text-lg font-semibold text-gray-900 mb-4 capitalize"><%= section_name.to_s.titleize %></h2>
+              <div class="border-b border-base-200 pb-6 last:border-b-0 last:pb-0">
+                <% if section_name.present? && section_name != "none" %>
+                  <h2 class="text-lg font-semibold text-base-content mb-4 capitalize"><%= section_name.to_s.titleize %></h2>
+                <% end %>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <% fields.each do |field| %>
@@ -89,16 +91,16 @@
             <% end %>
 
             <% if @field_definitions.empty? %>
-              <div class="text-center py-8 text-gray-500">
+              <div class="text-center py-8 text-base-content/50">
                 <p>This form's fields haven't been configured yet.</p>
               </div>
             <% end %>
           </div>
 
-          <div class="p-6 bg-gray-50 border-t flex items-center justify-between">
+          <div class="p-6 bg-base-200 border-t border-base-300 flex items-center justify-between rounded-b-lg">
             <div>
               <% if @progress[:current_step] > 1 %>
-                <%= link_to back_workflow_path(@workflow), method: :post, class: "inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50" do %>
+                <%= link_to back_workflow_path(@workflow), method: :post, class: "btn btn-outline" do %>
                   <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                   </svg>
@@ -108,9 +110,9 @@
             </div>
 
             <div class="flex space-x-4">
-              <%= f.submit "Save Progress", name: "save", class: "px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 cursor-pointer" %>
+              <%= f.submit "Save Progress", name: "save", class: "btn btn-ghost" %>
 
-              <%= button_to advance_workflow_path(@workflow), method: :post, params: { submission: {} }, class: "inline-flex items-center px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium" do %>
+              <%= button_to advance_workflow_path(@workflow), method: :post, params: { submission: {} }, class: "btn btn-primary" do %>
                 <% if @progress[:current_step] == @progress[:total_steps] %>
                   Complete Workflow
                 <% else %>
@@ -125,9 +127,9 @@
         <% end %>
       </div>
     <% else %>
-      <div class="bg-white rounded-lg shadow p-8 text-center">
-        <p class="text-gray-500">Unable to load workflow step.</p>
-        <%= link_to "Start Over", workflow_path(@workflow), class: "mt-4 inline-block text-blue-600" %>
+      <div class="card bg-base-100 shadow p-8 text-center">
+        <p class="text-base-content/70">Unable to load workflow step.</p>
+        <%= link_to "Start Over", workflow_path(@workflow), class: "btn btn-link" %>
       </div>
     <% end %>
   </div>

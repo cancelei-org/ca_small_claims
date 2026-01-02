@@ -1,11 +1,15 @@
 <% content_for :title, "#{@form_definition.code} - #{@form_definition.title}" %>
+<% content_for :description, "Fill out #{@form_definition.code} - #{@form_definition.title} online. Free California Small Claims Court form with guided wizard." %>
 
-<%# Wrap entire page content in view-toggle controller for proper target scope %>
-<div data-controller="view-toggle">
+<%# Wrap entire page content in view-toggle, keyboard-shortcuts, and pdf-drawer controllers %>
+<div data-controller="view-toggle keyboard-shortcuts pdf-drawer"
+     data-keyboard-shortcuts-save-url-value="<%= form_path(@form_definition.code) %>"
+     data-keyboard-shortcuts-preview-url-value="<%= preview_form_path(@form_definition.code) %>"
+     data-keyboard-shortcuts-download-url-value="<%= download_form_path(@form_definition.code) %>">
 
 <%# Back Link %>
 <div class="mb-4">
-  <%= link_to forms_path, class: "inline-flex items-center gap-1 text-primary hover:text-primary-focus transition-colors" do %>
+  <%= link_to forms_path, class: "inline-flex items-center gap-1 text-primary hover:text-primary-focus transition-colors min-h-[44px] py-2" do %>
     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
     </svg>
@@ -52,7 +56,7 @@
 </div>
 
 <%# Main Content - CSS Grid Layout for Side-by-Side %>
-<div class="form-pdf-layout" data-controller="pdf-drawer">
+<div class="form-pdf-layout">
   <%# Form Section (Left on Desktop) %>
   <div class="form-scroll-container">
     <%= form_with model: @submission,
@@ -61,8 +65,9 @@
                   local: false,
                   id: "main-form",
                   data: {
-                    controller: "form",
-                    form_save_url_value: form_path(@form_definition.code)
+                    controller: "form validation",
+                    form_save_url_value: form_path(@form_definition.code),
+                    validation_target: "form"
                   } do |f| %>
 
       <%# Wizard Mode Container %>
@@ -111,10 +116,10 @@
                             class: "btn btn-outline btn-primary" do %>
                   Preview PDF
                 <% end %>
-                <%= link_to download_form_path(@form_definition.code),
-                            class: "btn btn-success" do %>
-                  Download PDF
-                <% end %>
+                <%= render "shared/download_button",
+                    path: download_form_path(@form_definition.code),
+                    text: "Download PDF",
+                    class: "btn btn-success" %>
               </div>
             </div>
           </div>
@@ -143,7 +148,7 @@
           <div class="flex gap-3">
             <%= link_to preview_form_path(@form_definition.code),
                         target: "_blank",
-                        class: "btn btn-outline btn-sm gap-1" do %>
+                        class: "btn btn-outline gap-1 sm:btn-sm" do %>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -153,14 +158,10 @@
               Preview
             <% end %>
 
-            <%= link_to download_form_path(@form_definition.code),
-                        class: "btn btn-success btn-sm gap-1" do %>
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
-              </svg>
-              Download
-            <% end %>
+            <%= render "shared/download_button",
+                path: download_form_path(@form_definition.code),
+                text: "Download",
+                class: "btn btn-success sm:btn-sm" %>
           </div>
         </div>
       </div>
@@ -187,7 +188,7 @@
     <div class="pdf-drawer-header">
       <h3 class="font-semibold text-base-content">PDF Preview</h3>
       <button type="button"
-              class="btn btn-ghost btn-sm btn-circle"
+              class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px]"
               data-action="click->pdf-drawer#close"
               aria-label="Close preview">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,23 +197,15 @@
       </button>
     </div>
     <div class="pdf-drawer-content">
-      <%= render PdfPreviewComponent.new(form_definition: @form_definition) %>
+      <%= render PdfPreviewComponent.new(form_definition: @form_definition, variant: "mobile") %>
     </div>
   </div>
-
-  <%# Floating Preview Button %>
-  <button type="button"
-          class="btn btn-primary btn-circle btn-lg shadow-xl hover:shadow-2xl transition-shadow fixed bottom-6 right-6 z-40"
-          data-action="click->pdf-drawer#open"
-          aria-label="Open PDF preview">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-    </svg>
-  </button>
 </div>
+
+<%# Mobile: Form Actions Bottom Sheet with swipe-to-dismiss %>
+<%= render "forms/form_actions_bottom_sheet",
+           form_definition: @form_definition,
+           submission: @submission %>
 
 <%# Form Info Sidebar - Collapsed on smaller screens %>
 <details class="lg:hidden mt-6 collapse collapse-arrow bg-base-100 shadow rounded-lg">
@@ -251,7 +244,41 @@
   </div>
 </details>
 
+<%# Recommended Next Forms %>
+<% recommended = @form_definition.recommended_next_forms(limit: 3) %>
+<% if recommended.any? %>
+  <div class="mt-8">
+    <h2 class="text-lg font-semibold text-base-content mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
+      </svg>
+      Recommended Next Forms
+    </h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <% recommended.each do |form| %>
+        <%= link_to form_path(form.code),
+            class: "card bg-base-100 shadow hover:shadow-md transition-shadow" do %>
+          <div class="card-body p-4">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary font-bold text-xs shrink-0">
+                <%= form.code.gsub(/[A-Z]+-/, "") %>
+              </span>
+              <div class="min-w-0">
+                <p class="font-medium text-base-content text-sm"><%= form.code %></p>
+                <p class="text-xs text-base-content/70 line-clamp-1"><%= form.title %></p>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>
+
 <%# Floating Feedback Button %>
 <%= render "shared/feedback_button", form_definition: @form_definition %>
+
+<%# Keyboard Shortcuts Modal %>
+<%= render "shared/keyboard_shortcuts_modal" %>
 
 </div><%# Close view-toggle controller wrapper %>

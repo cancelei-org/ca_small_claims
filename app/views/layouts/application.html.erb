@@ -9,28 +9,112 @@
       })();
     </script>
 
+    <%# Motion preference initialization - runs before page paint %>
+    <script>
+      (function() {
+        var motionPref = localStorage.getItem('motion-preference');
+        if (motionPref === 'reduce') {
+          document.documentElement.classList.add('reduce-motion');
+        } else if (motionPref === 'normal') {
+          document.documentElement.classList.add('force-motion');
+        }
+      })();
+    </script>
+
+    <%# Page title %>
     <title><%= content_for(:title) || "California Small Claims Court Forms" %></title>
+
+    <%# Essential meta tags %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Free online tool to fill out California Small Claims Court forms. Generate print-ready PDFs for your court case.">
+    <meta name="description" content="<%= content_for(:description) || "Free online tool to fill out California Small Claims Court forms. Generate print-ready PDFs for your court case." %>">
+    <meta name="keywords" content="California small claims court, court forms, SC-100, legal forms, PDF generator, self-help legal">
+    <meta name="author" content="CA Small Claims Forms">
+    <meta name="robots" content="index, follow">
+
+    <%# PWA meta tags %>
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="CA Small Claims">
     <meta name="application-name" content="CA Small Claims Forms">
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#570df8">
+
+    <%# Open Graph / Facebook %>
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:title" content="<%= content_for(:title) || "California Small Claims Court Forms" %>">
+    <meta property="og:description" content="<%= content_for(:description) || "Free online tool to fill out California Small Claims Court forms. Generate print-ready PDFs for your court case." %>">
+    <meta property="og:image" content="<%= asset_url('og-image.png') rescue '/og-image.png' %>">
+    <meta property="og:site_name" content="CA Small Claims Forms">
+    <meta property="og:locale" content="en_US">
+
+    <%# Twitter Card %>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= content_for(:title) || "California Small Claims Court Forms" %>">
+    <meta name="twitter:description" content="<%= content_for(:description) || "Free online tool to fill out California Small Claims Court forms." %>">
+    <meta name="twitter:image" content="<%= asset_url('og-image.png') rescue '/og-image.png' %>">
+
+    <%# Canonical URL %>
+    <link rel="canonical" href="<%= request.original_url.split('?').first %>">
+
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
     <%= yield :head %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
+    <%# Favicons %>
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+    <link rel="manifest" href="/manifest.json">
 
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+
+    <%# High Contrast Theme Overrides for WCAG AAA Compliance %>
+    <style>
+      /* Override opacity-based text in high contrast themes */
+      [data-theme="high-contrast-light"] [class*="opacity-"],
+      [data-theme="high-contrast-light"] [class*="/60"],
+      [data-theme="high-contrast-light"] [class*="/50"],
+      [data-theme="high-contrast-light"] [class*="/70"] {
+        opacity: 1 !important;
+        color: #000000 !important;
+      }
+      [data-theme="high-contrast-light"] a {
+        color: #0000ee !important;
+      }
+      [data-theme="high-contrast-dark"] [class*="opacity-"],
+      [data-theme="high-contrast-dark"] [class*="/60"],
+      [data-theme="high-contrast-dark"] [class*="/50"],
+      [data-theme="high-contrast-dark"] [class*="/70"] {
+        opacity: 1 !important;
+        color: #ffffff !important;
+      }
+      [data-theme="high-contrast-dark"] a {
+        color: #6db3f2 !important;
+      }
+      /* Enhanced focus for high contrast */
+      [data-theme="high-contrast-light"] *:focus-visible {
+        outline: 3px solid #000000 !important;
+        outline-offset: 2px;
+      }
+      [data-theme="high-contrast-dark"] *:focus-visible {
+        outline: 3px solid #ffffff !important;
+        outline-offset: 2px;
+      }
+    </style>
   </head>
 
   <body class="min-h-screen bg-base-100 text-base-content">
+    <%# Skip to content link for keyboard users - visible only on focus %>
+    <a href="#main-content"
+       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-content focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-focus">
+      Skip to main content
+    </a>
+
     <!-- Navigation -->
-    <nav class="navbar bg-primary text-primary-content shadow-lg">
+    <nav class="navbar bg-primary text-primary-content shadow-lg" aria-label="Main navigation">
       <div class="navbar-start">
         <%= link_to root_path, class: "btn btn-ghost normal-case text-xl gap-2" do %>
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -42,13 +126,24 @@
 
       <div class="navbar-center hidden lg:flex">
         <ul class="menu menu-horizontal px-1">
-          <li><%= link_to "Forms", forms_path %></li>
-          <li><%= link_to "Workflows", workflows_path %></li>
-          <li><%= link_to "My Forms", submissions_path %></li>
+          <li><%= link_to t("navigation.forms"), forms_path %></li>
+          <li><%= link_to t("navigation.workflows"), workflows_path %></li>
+          <li><%= link_to t("navigation.my_forms"), submissions_path %></li>
         </ul>
       </div>
 
       <div class="navbar-end gap-2">
+        <%# Language Switcher %>
+        <div class="dropdown dropdown-end">
+          <div tabindex="0" role="button" class="btn btn-ghost btn-circle" aria-label="Change language">
+            <span class="text-sm font-bold uppercase"><%= I18n.locale %></span>
+          </div>
+          <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-32">
+            <li><%= link_to "English", url_for(locale: :en) %></li>
+            <li><%= link_to "Español", url_for(locale: :es) %></li>
+          </ul>
+        </div>
+
         <%# Theme Toggle Button %>
         <button type="button"
                 class="btn btn-ghost btn-circle min-w-[44px] min-h-[44px]"
@@ -70,17 +165,17 @@
             </div>
             <ul tabindex="0" class="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-52">
               <li class="menu-title"><%= current_user.display_name %></li>
-              <li><%= link_to "My Profile", profile_path %></li>
-              <li><%= link_to "My Forms", submissions_path %></li>
+              <li><%= link_to t("navigation.my_profile"), profile_path %></li>
+              <li><%= link_to t("navigation.my_forms"), submissions_path %></li>
               <% if current_user.admin? %>
-                <li><%= link_to "Admin Dashboard", admin_root_path %></li>
+                <li><%= link_to t("navigation.admin"), admin_root_path %></li>
               <% end %>
-              <li><%= link_to "Sign Out", destroy_user_session_path, data: { turbo_method: :delete } %></li>
+              <li><%= link_to t("navigation.sign_out"), destroy_user_session_path, data: { turbo_method: :delete } %></li>
             </ul>
           </div>
         <% else %>
-          <%= link_to "Sign In", new_user_session_path, class: "btn btn-ghost btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
-          <%= link_to "Register", new_user_registration_path, class: "btn btn-secondary btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
+          <%= link_to t("navigation.sign_in"), new_user_session_path, class: "btn btn-ghost btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
+          <%= link_to t("navigation.register"), new_user_registration_path, class: "btn btn-secondary btn-sm md:btn-md min-h-[44px] text-sm md:text-base" %>
         <% end %>
 
         <%# Mobile menu button %>
@@ -91,9 +186,9 @@
             </svg>
           </div>
           <ul tabindex="0" class="menu dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-56">
-            <li><%= link_to "Forms", forms_path, class: "text-base py-3 min-h-[44px]" %></li>
-            <li><%= link_to "Workflows", workflows_path, class: "text-base py-3 min-h-[44px]" %></li>
-            <li><%= link_to "My Forms", submissions_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to t("navigation.forms"), forms_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to t("navigation.workflows"), workflows_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to t("navigation.my_forms"), submissions_path, class: "text-base py-3 min-h-[44px]" %></li>
             <li>
               <button type="button"
                       data-controller="theme"
@@ -102,7 +197,7 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                 </svg>
-                Theme
+                <%= t("buttons.theme") %>
               </button>
             </li>
           </ul>
@@ -134,31 +229,34 @@
     <% end %>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
+    <main id="main-content" class="container mx-auto px-4 py-8" tabindex="-1">
       <%= yield %>
     </main>
 
     <!-- Footer -->
     <footer class="footer footer-center p-6 md:p-10 bg-base-200 text-base-content mt-auto">
-      <nav class="flex flex-col sm:flex-row gap-4 text-base">
-        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link link-hover min-h-[44px] flex items-center">CA Courts Self-Help</a>
-        <a href="https://www.courts.ca.gov/forms.htm" target="_blank" class="link link-hover min-h-[44px] flex items-center">Official Court Forms</a>
-        <%= link_to "Help & FAQ", help_path, class: "link link-hover min-h-[44px] flex items-center" %>
+      <nav class="flex flex-col sm:flex-row gap-4 text-base" aria-label="Secondary navigation">
+        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link link-hover min-h-[44px] flex items-center"><%= t("footer.self_help") %></a>
+        <a href="https://www.courts.ca.gov/forms.htm" target="_blank" class="link link-hover min-h-[44px] flex items-center"><%= t("footer.official_forms") %></a>
+        <%= link_to t("footer.help"), help_path, class: "link link-hover min-h-[44px] flex items-center" %>
+        <%= link_to t("footer.accessibility", default: "Accessibility"), accessibility_path, class: "link link-hover min-h-[44px] flex items-center" %>
       </nav>
-      <aside class="text-center">
-        <p class="text-sm md:text-base">
-          A free, open-source tool to help Californians fill out Small Claims Court forms online.
+      <div class="text-center">
+        <p class="text-base md:text-lg">
+          <%= t("footer.about_tool") %>
           <br class="hidden sm:block">
-          <span class="block sm:inline">This tool provides form assistance only. It is not legal advice. Consult an attorney for legal questions.</span>
+          <span class="block sm:inline"><%= t("footer.disclaimer") %></span>
         </p>
-        <p class="text-xs md:text-sm mt-2 opacity-60">
-          Open source software released under the MIT License.
-          <%= link_to "View on GitHub", "https://github.com/example/ca-small-claims", target: "_blank", class: "link" %>
+        <p class="text-sm md:text-base mt-2 text-base-content/60">
+          <%= t("footer.license") %>
+          <%= link_to t("footer.view_on_github"), "https://github.com/example/ca-small-claims", target: "_blank", class: "link inline-block py-3 min-h-[44px]" %>
         </p>
-      </aside>
+      </div>
     </footer>
 
     <%# Theme Selector Modal - globally available %>
     <%= render "shared/theme_modal" %>
+    <%= render "shared/command_bar" %>
+    <%= render "shared/toast_container" %>
   </body>
 </html>

@@ -1,16 +1,23 @@
 import { Controller } from '@hotwired/stimulus';
+import { ModalUtils } from 'utils/modal_behavior';
 
 export default class extends Controller {
   static targets = ['modal', 'form', 'button'];
 
   connect() {
-    // Handle ESC key to close modal
-    this.handleEscape = this.handleEscape.bind(this);
-    document.addEventListener('keydown', this.handleEscape);
+    this._cleanupEscape = ModalUtils.setupEscapeKey(() => {
+      if (this.isOpen()) {
+        this.close();
+      }
+    });
   }
 
   disconnect() {
-    document.removeEventListener('keydown', this.handleEscape);
+    this._cleanupEscape?.();
+  }
+
+  isOpen() {
+    return this.hasModalTarget && this.modalTarget.open;
   }
 
   open(event) {
@@ -26,16 +33,6 @@ export default class extends Controller {
     }
     if (this.hasModalTarget) {
       this.modalTarget.close();
-    }
-  }
-
-  handleEscape(event) {
-    if (
-      event.key === 'Escape' &&
-      this.hasModalTarget &&
-      this.modalTarget.open
-    ) {
-      this.close();
     }
   }
 

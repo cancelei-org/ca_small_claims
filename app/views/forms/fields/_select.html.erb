@@ -1,22 +1,31 @@
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium text-base"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
-
+<% prefix ||= nil %>
+<%= field_wrapper(field, prefix: prefix) do %>
   <% options = field.options.map { |opt| [opt["label"] || opt[:label], opt["value"] || opt[:value]] } %>
-  <%= form.select field.name,
-    options_for_select(options, submission.field_value(field.name)),
-    { include_blank: "Select..." },
-    { required: field.required,
-      class: "select select-bordered w-full min-h-[48px] text-base",
-      data: { action: "input->form#fieldChanged" } } %>
+  <% searchable = options.length >= 5 %>
 
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
+  <% if searchable %>
+    <%# Searchable select for long option lists %>
+    <div data-controller="searchable-select"
+         data-searchable-select-placeholder-value="Type to filter..."
+         data-searchable-select-no-results-value="No matching options">
+      <%= form.select field.name,
+        options_for_select(options, submission.field_value(field.name)),
+        { include_blank: "Select..." },
+        { required: field.required,
+          class: standard_select_class,
+          id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+          data: field_data_attributes.merge(searchable_select_target: "select"),
+          **field_aria_attributes(field, prefix: prefix) } %>
+    </div>
+  <% else %>
+    <%# Standard select for short option lists %>
+    <%= form.select field.name,
+      options_for_select(options, submission.field_value(field.name)),
+      { include_blank: "Select..." },
+      { required: field.required,
+        class: standard_select_class,
+        id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+        data: field_data_attributes,
+        **field_aria_attributes(field, prefix: prefix) } %>
   <% end %>
-</div>
+<% end %>

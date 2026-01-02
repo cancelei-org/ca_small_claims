@@ -168,8 +168,6 @@ module Utilities
       self.class.load_directory_recursive(dir_path, **options)
     end
 
-    def valid?(file_path)
-      self.class.valid?(file_path)
-    end
+    delegate :valid?, to: :class
   end
 end

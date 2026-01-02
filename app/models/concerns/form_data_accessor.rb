@@ -19,9 +19,7 @@ module FormDataAccessor
   included do
     # Ensure form_data is initialized as an empty hash if nil
     # Only register callback for ActiveRecord models
-    if respond_to?(:after_initialize)
-      after_initialize :initialize_form_data, if: :new_record?
-    end
+    after_initialize :initialize_form_data, if: :new_record? if respond_to?(:after_initialize)
   end
 
   # Retrieves a single field value from form_data

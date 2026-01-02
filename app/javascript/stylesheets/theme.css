@@ -300,6 +300,76 @@ body {
   }
 }
 
+/* ============================================
+   Color Contrast Fixes - WCAG 2.1 AA Compliance
+   ============================================ */
+
+/* Override DaisyUI light theme error color for better contrast
+   Original #ff627d has 2.83:1 contrast on white
+   #dc2626 (red-600) has 4.63:1 contrast - meets WCAG AA
+   Override the CSS custom property used by DaisyUI */
+:root,
+[data-theme="light"],
+[data-theme="cupcake"],
+[data-theme="emerald"],
+[data-theme="corporate"],
+[data-theme="garden"] {
+  --er: 220 38 38; /* red-600 in oklch-compatible RGB for DaisyUI */
+}
+
+/* Direct class override as fallback for any edge cases */
+.text-error {
+  color: oklch(0.577 0.245 27.325) !important; /* red-600 equivalent */
+}
+
+/* ============================================
+   High Contrast Theme Overrides
+   Ensure WCAG AAA compliance (7:1 contrast ratio)
+   ============================================ */
+
+/* Override opacity utilities in high contrast mode to maintain contrast */
+[data-theme="high-contrast-light"] .opacity-50,
+[data-theme="high-contrast-light"] .opacity-60,
+[data-theme="high-contrast-light"] .opacity-70,
+[data-theme="high-contrast-light"] .text-base-content\/50,
+[data-theme="high-contrast-light"] .text-base-content\/60,
+[data-theme="high-contrast-light"] .text-base-content\/70 {
+  opacity: 1 !important;
+  color: #000000 !important;
+}
+
+[data-theme="high-contrast-dark"] .opacity-50,
+[data-theme="high-contrast-dark"] .opacity-60,
+[data-theme="high-contrast-dark"] .opacity-70,
+[data-theme="high-contrast-dark"] .text-base-content\/50,
+[data-theme="high-contrast-dark"] .text-base-content\/60,
+[data-theme="high-contrast-dark"] .text-base-content\/70 {
+  opacity: 1 !important;
+  color: #ffffff !important;
+}
+
+/* Ensure links are visible in high contrast themes */
+[data-theme="high-contrast-light"] a:not(.btn) {
+  color: #0000ee;
+  text-decoration: underline;
+}
+
+[data-theme="high-contrast-dark"] a:not(.btn) {
+  color: #6db3f2;
+  text-decoration: underline;
+}
+
+/* Enhanced focus indicators for high contrast */
+[data-theme="high-contrast-light"] *:focus-visible {
+  outline: 3px solid #000000 !important;
+  outline-offset: 2px;
+}
+
+[data-theme="high-contrast-dark"] *:focus-visible {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px;
+}
+
 /* Print styles */
 @media print {
   .no-print {

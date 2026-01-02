@@ -1,0 +1,37 @@
+<%#
+  Download Button with Loading Indicator
+
+  Usage:
+    <%= render "shared/download_button",
+      path: download_form_path(@form_definition.code),
+      text: "Download PDF",
+      loading_text: "Generating...",
+      class: "btn btn-success",
+      icon: true %>
+%>
+<%
+  path ||= "#"
+  text ||= "Download"
+  loading_text ||= "Generating..."
+  btn_class ||= local_assigns[:class] || "btn btn-success"
+  icon ||= true
+%>
+
+<%= link_to path,
+    class: "#{btn_class} gap-1",
+    data: {
+      controller: "download",
+      action: "click->download#start"
+    } do %>
+  <% if icon %>
+    <svg data-download-target="icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+    </svg>
+  <% end %>
+  <span data-download-target="text"><%= text %></span>
+  <span data-download-target="loading" class="hidden flex items-center gap-1">
+    <span class="loading loading-spinner loading-xs"></span>
+    <%= loading_text %>
+  </span>
+<% end %>

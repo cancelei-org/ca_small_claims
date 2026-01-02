@@ -1,25 +1,13 @@
-<%# Number Field %>
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
-
+<% prefix ||= nil %>
+<%= field_wrapper(field, prefix: prefix) do %>
   <%= form.number_field field.name,
     value: submission.field_value(field.name),
     placeholder: field.placeholder,
     required: field.required,
-    min: field.min_value,
-    max: field.max_value,
-    step: field.step || "any",
-    class: "input input-bordered w-full",
-    data: { action: "input->form#fieldChanged" } %>
-
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
-  <% end %>
-</div>
+    min: field.min_length,
+    max: field.max_length,
+    class: standard_input_class,
+    id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+    data: field_data_attributes,
+    **field_aria_attributes(field, prefix: prefix) %>
+<% end %>

@@ -1,12 +1,25 @@
 <%# Wizard Progress Bar %>
 <%# Uses @wizard_fields, @total_wizard_fields, @filled_count from controller %>
 
+<%
+  # Calculate progress values for ARIA
+  wizard_total = @wizard_fields&.count || 0
+  current_step = 1
+  progress_percent = wizard_total > 0 ? (current_step.to_f / wizard_total * 100).round : 0
+%>
+
 <div class="mb-6">
-  <%# Progress Bar %>
-  <div class="w-full bg-base-200 rounded-full h-3 mb-3 overflow-hidden">
+  <%# Progress Bar with ARIA support %>
+  <div class="w-full bg-base-200 rounded-full h-3 mb-3 overflow-hidden"
+       role="progressbar"
+       aria-valuenow="<%= progress_percent %>"
+       aria-valuemin="0"
+       aria-valuemax="100"
+       aria-label="Form completion progress: <%= progress_percent %>% complete, question <%= current_step %> of <%= wizard_total %>"
+       data-wizard-target="progressContainer">
     <div class="bg-gradient-to-r from-primary to-primary/80 h-3 rounded-full transition-all duration-500 ease-out"
          data-wizard-target="progress"
-         style="width: <%= @wizard_fields.present? ? (1.0 / @wizard_fields.count * 100).round : 0 %>%">
+         style="width: <%= progress_percent %>%">
     </div>
   </div>
 
@@ -20,9 +33,21 @@
       <span class="text-base-content/50">questions</span>
     </div>
 
-    <%# Auto-save Status %>
-    <div id="autosave-status" class="text-base-content/70" data-form-target="status">
-      <%= render partial: "shared/autosave_status", locals: { saved_at: @submission.updated_at } %>
+    <%# Offline & Sync Status %>
+    <div class="flex items-center gap-3">
+      <%# Offline Indicator %>
+      <div data-controller="offline-indicator" class="hidden">
+        <div class="flex items-center gap-1">
+          <span data-offline-indicator-target="icon"></span>
+          <span data-offline-indicator-target="status"></span>
+          <span data-offline-indicator-target="badge" class="hidden"></span>
+        </div>
+      </div>
+
+      <%# Auto-save Status %>
+      <div id="autosave-status" class="text-base-content/70" data-form-target="status">
+        <%= render partial: "shared/autosave_status", locals: { saved_at: @submission.updated_at } %>
+      </div>
     </div>
   </div>
 

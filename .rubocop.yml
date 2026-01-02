@@ -11,8 +11,163 @@ AllCops:
     - 'vendor/**/*'
     - 'tmp/**/*'
     - 'log/**/*'
-# Overwrite or add rules to create your own house style
-#
-# # Use `[a, [b, c]]` not `[ a, [ b, c ] ]`
-# Layout/SpaceInsideArrayLiteralBrackets:
-#   Enabled: false
+
+# ===========================================
+# DRY (Don't Repeat Yourself) Rules
+# ===========================================
+
+# Encourage small, focused methods (max 15 lines)
+Metrics/MethodLength:
+  Enabled: true
+  Max: 15
+  CountComments: false
+  CountAsOne: ['array', 'hash', 'heredoc']
+  Exclude:
+    - 'db/migrate/**/*'
+    - 'spec/**/*'
+
+# Limit class length to encourage splitting large classes
+Metrics/ClassLength:
+  Enabled: true
+  Max: 150
+  CountComments: false
+  CountAsOne: ['array', 'hash', 'heredoc']
+  Exclude:
+    - 'spec/**/*'
+
+# Limit ABC complexity (Assignment, Branch, Condition)
+Metrics/AbcSize:
+  Enabled: true
+  Max: 20
+  CountRepeatedAttributes: false
+  Exclude:
+    - 'db/migrate/**/*'
+    - 'spec/**/*'
+
+# Limit cyclomatic complexity
+Metrics/CyclomaticComplexity:
+  Enabled: true
+  Max: 8
+  Exclude:
+    - 'spec/**/*'
+
+# Limit perceived complexity
+Metrics/PerceivedComplexity:
+  Enabled: true
+  Max: 10
+  Exclude:
+    - 'spec/**/*'
+
+# Encourage small blocks (max 15 lines)
+Metrics/BlockLength:
+  Enabled: true
+  Max: 15
+  CountComments: false
+  CountAsOne: ['array', 'hash', 'heredoc']
+  Exclude:
+    - 'spec/**/*'
+    - 'config/routes.rb'
+    - 'config/environments/**/*'
+    - 'lib/tasks/**/*'
+    - 'db/migrate/**/*'
+  AllowedMethods:
+    - 'describe'
+    - 'context'
+    - 'it'
+    - 'shared_examples'
+    - 'configure'
+    - 'draw'
+
+# Limit parameter count - too many params often means refactor needed
+Metrics/ParameterLists:
+  Enabled: true
+  Max: 4
+  CountKeywordArgs: true
+  MaxOptionalParameters: 2
+
+# Detect duplicate method calls that could be extracted
+Lint/DuplicateMethods:
+  Enabled: true
+
+# Detect duplicate hash keys
+Style/DuplicateHashKey:
+  Enabled: true
+
+# Prefer guard clauses to reduce nesting
+Style/GuardClause:
+  Enabled: true
+  MinBodyLength: 3
+
+# Prefer compact style for simple conditionals
+Style/IfUnlessModifier:
+  Enabled: true
+
+# Detect redundant return statements
+Style/RedundantReturn:
+  Enabled: true
+  AllowMultipleReturnValues: true
+
+# Prefer symbols over strings for hash keys (reduces duplication)
+Style/StringHashKeys:
+  Enabled: false  # Can be strict if you want
+
+# Encourage extracting magic numbers to constants
+Style/NumericLiterals:
+  Enabled: true
+  MinDigits: 5
+
+# Detect when same condition is repeated in if/elsif chain
+Lint/DuplicateBranch:
+  Enabled: true
+
+# Detect duplicate case conditions
+Lint/DuplicateCaseCondition:
+  Enabled: true
+
+# Detect duplicate require statements
+Lint/DuplicateRequire:
+  Enabled: true
+
+# ===========================================
+# Rails-specific DRY Rules
+# ===========================================
+
+# Encourage using scopes for query logic
+Rails/Delegate:
+  Enabled: true
+
+# Detect duplicate validation options
+Rails/UniqueValidationWithoutIndex:
+  Enabled: true
+
+# Prefer presence validation over custom presence checks
+Rails/Presence:
+  Enabled: true
+
+# Encourage use of pluck over map for single columns
+Rails/Pluck:
+  Enabled: true
+
+# Detect duplicate eager loading
+Rails/RedundantActiveRecordAllMethod:
+  Enabled: true
+
+# Encourage extracted view helpers
+Rails/HelperInstanceVariable:
+  Enabled: true
+
+# ===========================================
+# Performance rules (often indicate DRY issues)
+# ===========================================
+
+# Detect repeated method calls in loops
+Performance/MethodObjectAsBlock:
+  Enabled: true
+
+# Prefer count over size.zero?
+Performance/Count:
+  Enabled: true
+
+# Detect string concatenation that could be interpolation
+Performance/StringReplacement:
+  Enabled: true

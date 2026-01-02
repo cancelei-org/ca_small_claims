@@ -5,7 +5,7 @@ FactoryBot.define do
     sequence(:code) { |n| "TEST-#{n}" }
     sequence(:title) { |n| "Test Form #{n}" }
     description { "A test form for specs" }
-    pdf_filename { "#{code.downcase.gsub('-', '')}.pdf" }
+    pdf_filename { "#{code.downcase.delete('-')}.pdf" }
     fillable { true }
     active { true }
     position { 1 }

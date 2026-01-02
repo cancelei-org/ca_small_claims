@@ -32,9 +32,7 @@ module Pdf
         # just copy the original PDF since there's nothing to fill
         original_path = form_definition.pdf_path.to_s
 
-        unless File.exist?(original_path)
-          raise "Original PDF not found: #{original_path}"
-        end
+        raise "Original PDF not found: #{original_path}" unless File.exist?(original_path)
 
         FileUtils.cp(original_path, output_path)
         update_generation_timestamp
@@ -56,7 +54,7 @@ module Pdf
 
       def html_template_path
         # Convert form code like "INT-200" to "int200"
-        normalized_code = form_definition.code.downcase.gsub("-", "")
+        normalized_code = form_definition.code.downcase.delete("-")
         "pdf_templates/small_claims/#{normalized_code}"
       end
 

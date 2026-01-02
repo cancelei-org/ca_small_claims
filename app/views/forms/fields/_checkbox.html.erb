@@ -1,22 +1,28 @@
-<div class="form-control mb-4">
-  <label class="label cursor-pointer justify-start gap-3 min-h-[48px]">
+<%# Checkbox has a different layout - label wraps input %>
+<% prefix ||= nil %>
+<div class="form-control mb-4" data-field-name="<%= field.name %>">
+  <label class="label cursor-pointer justify-start gap-3 min-h-[48px]" for="<%= [ prefix, field.name.parameterize, "input" ].compact.join("-") %>">
     <%= form.check_box field.name,
       { checked: submission.field_value(field.name) == "1" || submission.field_value(field.name) == true,
         class: "checkbox checkbox-primary w-6 h-6",
-        data: { action: "input->form#fieldChanged" } },
+        id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+        data: field_data_attributes,
+        "aria-required": field.required ? "true" : nil,
+        "aria-describedby": [field.help_text.present? ? field_help_id(field, prefix: prefix) : nil, field_error_id(field, prefix: prefix)].compact.join(" ") },
       "1", "0" %>
-
     <span class="label-text w-[calc(100%-2.25rem)] text-wrap text-base">
       <%= field.label || field.name.titleize %>
       <% if field.required %>
-        <span class="text-error">*</span>
+        <span class="text-error" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
       <% end %>
     </span>
   </label>
 
   <% if field.help_text.present? %>
-    <label class="label pt-0 w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
+    <%= field_help_text(field.help_text, field_help_id(field, prefix: prefix)) %>
   <% end %>
+
+  <%# Error container for accessibility %>
+  <%= field_error_container(field, prefix: prefix) %>
 </div>

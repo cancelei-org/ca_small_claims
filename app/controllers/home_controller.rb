@@ -13,10 +13,7 @@ class HomeController < ApplicationController
   def forms_picker
     @forms = FormDefinition.active.ordered
 
-    if params[:search].present?
-      search_term = "%#{params[:search].downcase}%"
-      @forms = @forms.where("LOWER(code) LIKE ? OR LOWER(title) LIKE ?", search_term, search_term)
-    end
+    @forms = @forms.search(params[:search]) if params[:search].present?
 
     @forms = @forms.by_category(params[:category]) if params[:category].present?
     @forms = @forms.limit(12)
@@ -39,5 +36,8 @@ class HomeController < ApplicationController
   end
 
   def help
+  end
+
+  def accessibility
   end
 end

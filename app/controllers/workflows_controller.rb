@@ -9,9 +9,7 @@ class WorkflowsController < ApplicationController
   def index
     @workflows = Workflow.active.includes(:workflow_steps).ordered
 
-    if params[:category].present?
-      @workflows = @workflows.by_category(params[:category])
-    end
+    @workflows = @workflows.by_category(params[:category]) if params[:category].present?
   end
 
   def show
@@ -29,14 +27,13 @@ class WorkflowsController < ApplicationController
     @form_definition = @current_submission&.form_definition
     @field_definitions = @form_definition&.field_definitions&.by_position || []
 
-    if request.patch? && @current_submission
+    return unless request.patch? && @current_submission
       @current_submission.update_fields(submission_params)
 
       respond_to do |format|
         format.turbo_stream
         format.html { redirect_to workflow_path(@workflow) }
       end
-    end
   end
 
   def advance

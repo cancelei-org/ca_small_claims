@@ -291,6 +291,40 @@
   box-shadow: none;
 }
 
+/* Responsive drawer - full width on very small screens */
+@media (max-width: 500px) {
+  .pdf-drawer-panel {
+    max-width: 100%;
+  }
+}
+
+/* Safe area padding for iOS notch/home indicator */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pdf-drawer-panel {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Floating PDF preview button - safe area aware */
+.pdf-preview-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  z-index: 40;
+  /* Safe area for iOS */
+  bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+  right: max(1.5rem, env(safe-area-inset-right, 1.5rem));
+}
+
+/* Prevent FAB from overlapping form inputs on small screens */
+@media (max-height: 600px) {
+  .pdf-preview-fab {
+    bottom: 0.75rem;
+    right: 0.75rem;
+    transform: scale(0.9);
+  }
+}
+
 /* Preview loading pulse */
 .preview-loading-pulse {
   animation: previewPulse 1.5s ease-in-out infinite;
@@ -366,16 +400,65 @@
 }
 
 /* ============================================
-   Reduced Motion Preferences
+   Mobile Safe Area & Small Screen Optimizations
    ============================================ */
 
+@media (max-width: 767px) {
+  /* Ensure fixed floating buttons respect safe areas on modern mobile devices */
+  .btn-circle.fixed.bottom-6.right-6 {
+    bottom: 1.5rem; /* Fallback */
+    bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    right: 1.5rem; /* Fallback */
+    right: calc(1.5rem + env(safe-area-inset-right, 0px));
+  }
+
+  .btn-circle.fixed.bottom-24.right-6 {
+    bottom: 6rem; /* Fallback */
+    bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+    right: 1.5rem; /* Fallback */
+    right: calc(1.5rem + env(safe-area-inset-right, 0px));
+  }
+}
+
+@media (max-width: 500px) {
+  /* Full width drawer on very small screens */
+  .pdf-drawer-panel {
+    max-width: 100%;
+  }
+
+  /* Compact header for small screens */
+  .pdf-drawer-header {
+    padding: 0.75rem 1rem;
+  }
+
+  .pdf-drawer-header h3 {
+    font-size: 1rem;
+  }
+
+  /* Reduce padding in drawer content if needed */
+  .pdf-drawer-content .pdf-preview-card {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+}
+
+/* ============================================
+   Reduced Motion Preferences
+   ============================================
+   Respects both system preference AND user override.
+   User can override via localStorage ('motion-preference').
+   CSS class 'reduce-motion' added to <html> by motion controller.
+*/
+
+/* System preference: prefers-reduced-motion */
 @media (prefers-reduced-motion: reduce) {
+  /* Wizard animations */
   .wizard-card,
   .wizard-flip-exit,
   .wizard-flip-enter,
   .wizard-card-active {
     animation: none !important;
-    transition: opacity 0.15s ease !important;
+    transition: opacity 0.1s ease !important;
   }
 
   .wizard-flip-exit {
@@ -386,9 +469,193 @@
     opacity: 1;
   }
 
-  /* Keep progress bar transition */
+  /* Progress bar - keep minimal transition */
   .wizard-progress-bar {
-    transition: width 0.15s ease;
+    transition: width 0.1s ease;
+  }
+
+  /* Toast animations */
+  #toast-container > div {
+    animation: none !important;
+    transition: opacity 0.1s ease !important;
+    transform: none !important;
+  }
+
+  /* Modal/drawer animations */
+  .pdf-drawer-backdrop,
+  .pdf-drawer-panel {
+    transition: opacity 0.1s ease !important;
+    transform: none !important;
+  }
+
+  .pdf-drawer-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Details/expandable sections */
+  details > div {
+    animation: none !important;
+  }
+
+  /* Generic transition reduction */
+  .transition,
+  .transition-all,
+  .transition-transform,
+  .transition-opacity,
+  .transition-colors {
+    transition-duration: 0.1s !important;
+  }
+
+  /* Disable all keyframe animations globally */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.1s !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Shake animation on error - disable */
+  .wizard-card .input-error {
+    animation: none !important;
+  }
+
+  /* Pulse animation - disable */
+  .preview-loading-pulse {
+    animation: none !important;
+    opacity: 0.7;
+  }
+
+  /* Nav dot scaling - disable */
+  .wizard-nav-dot-active {
+    transform: none !important;
+  }
+
+  /* Tooltip transitions - minimal */
+  .tooltip-hint::after,
+  .tooltip-hint::before {
+    transition: opacity 0.1s !important;
+  }
+}
+
+/* User override class: .reduce-motion on <html> */
+/* This allows users to force reduced motion even if OS setting is off */
+html.reduce-motion {
+  /* Wizard animations */
+  .wizard-card,
+  .wizard-flip-exit,
+  .wizard-flip-enter,
+  .wizard-card-active {
+    animation: none !important;
+    transition: opacity 0.1s ease !important;
+  }
+
+  .wizard-flip-exit {
+    opacity: 0;
+  }
+
+  .wizard-flip-enter {
+    opacity: 1;
+  }
+
+  /* Progress bar */
+  .wizard-progress-bar {
+    transition: width 0.1s ease;
+  }
+
+  /* Toast animations */
+  #toast-container > div {
+    animation: none !important;
+    transition: opacity 0.1s ease !important;
+    transform: none !important;
+  }
+
+  /* Modal/drawer */
+  .pdf-drawer-backdrop,
+  .pdf-drawer-panel {
+    transition: opacity 0.1s ease !important;
+  }
+
+  .pdf-drawer-panel {
+    transform: translateX(100%);
+  }
+
+  .pdf-drawer-panel.open {
+    transform: translateX(0) !important;
+  }
+
+  /* Details/expandable */
+  details > div {
+    animation: none !important;
+  }
+
+  /* Global animation reduction */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.1s !important;
+    scroll-behavior: auto !important;
+  }
+
+  .wizard-card .input-error {
+    animation: none !important;
+  }
+
+  .preview-loading-pulse {
+    animation: none !important;
+    opacity: 0.7;
+  }
+
+  .wizard-nav-dot-active {
+    transform: none !important;
+  }
+
+  .tooltip-hint::after,
+  .tooltip-hint::before {
+    transition: opacity 0.1s !important;
+  }
+}
+
+/* Inverse: User wants motion enabled even when OS says reduce */
+/* Class 'force-motion' on <html> restores animations */
+@media (prefers-reduced-motion: reduce) {
+  html.force-motion {
+    /* Re-enable specific animations */
+    .wizard-card-active {
+      animation: wizardCardEnter 0.4s ease-out forwards;
+    }
+
+    .wizard-flip-exit.wizard-flip-next {
+      animation: flipExitNext 0.5s ease-in-out forwards;
+    }
+
+    .wizard-flip-enter.wizard-flip-next {
+      animation: flipEnterNext 0.5s ease-in-out forwards;
+    }
+
+    .wizard-flip-exit.wizard-flip-prev {
+      animation: flipExitPrev 0.5s ease-in-out forwards;
+    }
+
+    .wizard-flip-enter.wizard-flip-prev {
+      animation: flipEnterPrev 0.5s ease-in-out forwards;
+    }
+
+    /* Re-enable transitions */
+    *,
+    *::before,
+    *::after {
+      animation-duration: revert !important;
+      animation-iteration-count: revert !important;
+      transition-duration: revert !important;
+    }
+
+    .wizard-progress-bar {
+      transition: width 0.3s ease-out;
+    }
   }
 }
 
@@ -453,4 +720,601 @@
   padding: 0.125rem 0.375rem;
   font-size: 0.75rem;
   font-family: var(--font-mono);
+}
+
+/* ============================================
+   Toast Notifications
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-out forwards;
+}
+
+/* ============================================
+   Print Styles
+   ============================================ */
+
+@media print {
+  /* Hide navigation and interactive elements */
+  nav.navbar,
+  footer,
+  .btn,
+  .dropdown,
+  .modal,
+  .alert,
+  .toast,
+  .pdf-drawer-panel,
+  .pdf-drawer-backdrop,
+  .pdf-preview-container,
+  [data-controller="feedback"],
+  [data-controller="theme"],
+  [data-controller="pdf-drawer"],
+  .toggle,
+  .checkbox,
+  details.collapse,
+  button[aria-label="Open PDF preview"] {
+    display: none !important;
+  }
+
+  /* Reset backgrounds and colors for print */
+  body,
+  .bg-base-100,
+  .bg-base-200,
+  .bg-primary {
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Remove shadows and borders */
+  .shadow,
+  .shadow-lg,
+  .shadow-xl,
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+
+  /* Full width layout */
+  .container {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .form-pdf-layout {
+    display: block !important;
+  }
+
+  .form-scroll-container {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  /* Show all form fields */
+  #wizard-container,
+  #traditional-container {
+    display: block !important;
+    opacity: 1 !important;
+    height: auto !important;
+  }
+
+  /* Hide wizard navigation */
+  .wizard-cards-container,
+  [data-wizard-target="navigation"],
+  [data-wizard-target="progressBar"] {
+    display: none !important;
+  }
+
+  /* Show traditional form for printing */
+  #traditional-container {
+    display: block !important;
+  }
+
+  #wizard-container {
+    display: none !important;
+  }
+
+  /* Form field styling for print */
+  .form-control {
+    page-break-inside: avoid;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .input,
+  .select,
+  .textarea {
+    border: 1px solid #333 !important;
+    background: white !important;
+    min-height: 2rem;
+  }
+
+  /* Section headers */
+  .text-xl,
+  .text-2xl {
+    font-size: 14pt !important;
+    font-weight: bold;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Labels */
+  .label-text {
+    font-size: 10pt !important;
+    font-weight: 600;
+  }
+
+  /* Page breaks */
+  .card {
+    page-break-inside: avoid;
+  }
+
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+
+  /* Print header */
+  @page {
+    margin: 1in;
+    size: letter;
+  }
+
+  /* Add print header with form info */
+  body::before {
+    content: "California Small Claims Court Form";
+    display: block;
+    font-size: 12pt;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid black;
+  }
+}
+
+/* ============================================
+   Tooltip Styles
+   ============================================ */
+
+.tooltip-hint {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+}
+
+.tooltip-hint::after {
+  content: attr(data-tip);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.5rem 0.75rem;
+  background: oklch(var(--n));
+  color: oklch(var(--nc));
+  font-size: 0.75rem;
+  line-height: 1.4;
+  border-radius: 0.375rem;
+  white-space: normal;
+  max-width: 200px;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+  pointer-events: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.tooltip-hint::before {
+  content: "";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: oklch(var(--n));
+  margin-bottom: -12px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 100;
+}
+
+.tooltip-hint:hover::after,
+.tooltip-hint:hover::before,
+.tooltip-hint:focus::after,
+.tooltip-hint:focus::before {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Tooltip icon */
+.tooltip-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-left: 0.25rem;
+  color: oklch(var(--bc) / 0.5);
+  transition: color 0.2s;
+}
+
+.tooltip-hint:hover .tooltip-icon {
+  color: oklch(var(--p));
+}
+
+/* ============================================
+   High Contrast Theme - WCAG AAA Compliance
+   ============================================ */
+
+/* Override all opacity-based text utilities in high contrast mode */
+[data-theme="high-contrast-light"] [class*="opacity-"] {
+  opacity: 1 !important;
+}
+
+[data-theme="high-contrast-light"] p,
+[data-theme="high-contrast-light"] span,
+[data-theme="high-contrast-light"] a,
+[data-theme="high-contrast-light"] div,
+[data-theme="high-contrast-light"] li,
+[data-theme="high-contrast-light"] td,
+[data-theme="high-contrast-light"] th,
+[data-theme="high-contrast-light"] label {
+  color: #000000;
+}
+
+[data-theme="high-contrast-light"] a {
+  color: #0000ee !important;
+  text-decoration: underline !important;
+}
+
+[data-theme="high-contrast-dark"] [class*="opacity-"] {
+  opacity: 1 !important;
+}
+
+[data-theme="high-contrast-dark"] p,
+[data-theme="high-contrast-dark"] span,
+[data-theme="high-contrast-dark"] a,
+[data-theme="high-contrast-dark"] div,
+[data-theme="high-contrast-dark"] li,
+[data-theme="high-contrast-dark"] td,
+[data-theme="high-contrast-dark"] th,
+[data-theme="high-contrast-dark"] label {
+  color: #ffffff;
+}
+
+[data-theme="high-contrast-dark"] a {
+  color: #6db3f2 !important;
+  text-decoration: underline !important;
+}
+
+/* Enhanced focus indicators for high contrast */
+[data-theme="high-contrast-light"] *:focus-visible {
+  outline: 3px solid #000000 !important;
+  outline-offset: 2px;
+}
+
+[data-theme="high-contrast-dark"] *:focus-visible {
+  outline: 3px solid #ffffff !important;
+  outline-offset: 2px;
+}
+
+/* ============================================
+   Section Navigation (Traditional Form Mode)
+   ============================================ */
+
+/* Active section link styling */
+.section-nav-active {
+  background-color: oklch(var(--p) / 0.1);
+  color: oklch(var(--p));
+  font-weight: 500;
+}
+
+.section-nav-active .section-nav-dot {
+  opacity: 1;
+  background-color: oklch(var(--p));
+}
+
+/* Section link hover state */
+.section-nav-link:not(.section-nav-active):hover .section-nav-dot {
+  opacity: 0.7;
+}
+
+/* ============================================
+   Expandable Help Sections
+   ============================================ */
+
+/* Rotate chevron when details is open */
+details[open] .details-open\:rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Smooth content reveal */
+details > div {
+  animation: detailsReveal 0.2s ease-out;
+}
+
+@keyframes detailsReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================
+   Mobile Bottom Sheet
+   ============================================ */
+
+/* Bottom sheet backdrop */
+.bottom-sheet-backdrop {
+  position: fixed;
+  inset: 0;
+  background: oklch(0% 0 0 / 0.5);
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.bottom-sheet-backdrop.open {
+  opacity: 1;
+}
+
+/* Bottom sheet panel */
+.bottom-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: oklch(var(--b1));
+  z-index: 51;
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+  border-radius: 1.5rem 1.5rem 0 0;
+  box-shadow: 0 -4px 20px oklch(0% 0 0 / 0.15);
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.bottom-sheet.open {
+  transform: translateY(0);
+}
+
+/* Drag handle */
+.bottom-sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 0.75rem 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.bottom-sheet-handle:active {
+  cursor: grabbing;
+}
+
+.bottom-sheet-handle-bar {
+  width: 2.5rem;
+  height: 0.25rem;
+  background: oklch(var(--bc) / 0.3);
+  border-radius: 9999px;
+  transition: background 0.2s ease;
+}
+
+.bottom-sheet-handle:hover .bottom-sheet-handle-bar,
+.bottom-sheet-handle:active .bottom-sheet-handle-bar {
+  background: oklch(var(--bc) / 0.5);
+}
+
+/* Bottom sheet header */
+.bottom-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem 0.75rem;
+  border-bottom: 1px solid oklch(var(--bc) / 0.1);
+}
+
+.bottom-sheet-title {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: oklch(var(--bc));
+}
+
+/* Bottom sheet content */
+.bottom-sheet-content {
+  padding: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Safe area padding for iOS */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .bottom-sheet-content {
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom));
+  }
+}
+
+/* Action buttons in bottom sheet */
+.bottom-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bottom-sheet-action {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: oklch(var(--b2));
+  border-radius: 0.75rem;
+  min-height: 56px;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.bottom-sheet-action:active {
+  transform: scale(0.98);
+  background: oklch(var(--b3));
+}
+
+.bottom-sheet-action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.5rem;
+  flex-shrink: 0;
+}
+
+.bottom-sheet-action-icon.primary {
+  background: oklch(var(--p) / 0.15);
+  color: oklch(var(--p));
+}
+
+.bottom-sheet-action-icon.success {
+  background: oklch(var(--su) / 0.15);
+  color: oklch(var(--su));
+}
+
+.bottom-sheet-action-icon.info {
+  background: oklch(var(--in) / 0.15);
+  color: oklch(var(--in));
+}
+
+.bottom-sheet-action-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.bottom-sheet-action-title {
+  font-weight: 500;
+  color: oklch(var(--bc));
+}
+
+.bottom-sheet-action-desc {
+  font-size: 0.75rem;
+  color: oklch(var(--bc) / 0.6);
+  margin-top: 0.125rem;
+}
+
+.bottom-sheet-action-chevron {
+  color: oklch(var(--bc) / 0.4);
+  flex-shrink: 0;
+}
+
+/* Divider in bottom sheet */
+.bottom-sheet-divider {
+  height: 1px;
+  background: oklch(var(--bc) / 0.1);
+  margin: 0.5rem 0;
+}
+
+/* Secondary actions (smaller, less prominent) */
+.bottom-sheet-secondary-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.bottom-sheet-secondary-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: oklch(var(--bc) / 0.7);
+  font-size: 0.875rem;
+  border-radius: 0.5rem;
+  min-height: 44px;
+  transition: background 0.2s ease;
+}
+
+.bottom-sheet-secondary-action:hover {
+  background: oklch(var(--bc) / 0.05);
+}
+
+/* Mobile FAB for opening bottom sheet */
+.form-actions-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 40;
+  /* Safe area for iOS */
+  bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+}
+
+/* Prevent FAB overlap on short screens */
+@media (max-height: 600px) {
+  .form-actions-fab {
+    bottom: 0.75rem;
+    transform: translateX(-50%) scale(0.9);
+  }
+}
+
+/* Reduced motion support for bottom sheet */
+@media (prefers-reduced-motion: reduce) {
+  .bottom-sheet,
+  .bottom-sheet-backdrop,
+  .bottom-sheet-action {
+    transition: none !important;
+  }
+
+  .bottom-sheet.open {
+    transform: translateY(0);
+  }
+
+  .bottom-sheet-action:active {
+    transform: none;
+  }
+}
+
+html.reduce-motion .bottom-sheet,
+html.reduce-motion .bottom-sheet-backdrop,
+html.reduce-motion .bottom-sheet-action {
+  transition: none !important;
+}
+
+html.reduce-motion .bottom-sheet.open {
+  transform: translateY(0);
+}
+
+/* Print - hide bottom sheet */
+@media print {
+  .bottom-sheet,
+  .bottom-sheet-backdrop,
+  .form-actions-fab {
+    display: none !important;
+  }
 }

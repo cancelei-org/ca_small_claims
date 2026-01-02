@@ -251,6 +251,29 @@ if Rails.env.development? || Rails.env.test?
       zip_code: "95814",
       phone: "(916) 555-0100",
       admin: true
+    },
+    # E2E test users (used by Playwright security tests)
+    {
+      email: "user_a@example.com",
+      password: "password",
+      full_name: "Test User A",
+      address: "123 Test Street",
+      city: "San Francisco",
+      state: "CA",
+      zip_code: "94102",
+      phone: "(415) 555-0001",
+      admin: false
+    },
+    {
+      email: "user_b@example.com",
+      password: "password",
+      full_name: "Test User B",
+      address: "456 Test Avenue",
+      city: "San Jose",
+      state: "CA",
+      zip_code: "95110",
+      phone: "(408) 555-0002",
+      admin: false
     }
   ]
 

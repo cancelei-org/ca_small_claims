@@ -1,82 +1,80 @@
 <% content_for :title, "My Submissions - CA Small Claims Court" %>
 
 <div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-900 mb-2">My Submissions</h1>
-  <p class="text-gray-600">View and manage your saved form submissions.</p>
+  <h1 class="text-3xl font-bold text-base-content mb-2">My Submissions</h1>
+  <p class="text-base-content/70">View and manage your saved form submissions.</p>
 </div>
 
 <% if @submissions.any? %>
-  <div class="bg-white rounded-lg shadow overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+  <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
+    <table class="table table-zebra w-full">
+      <thead>
         <tr>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Form</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Progress</th>
-          <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
-          <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          <th>Form</th>
+          <th>Status</th>
+          <th>Progress</th>
+          <th>Last Updated</th>
+          <th class="text-right">Actions</th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
+      <tbody>
         <% @submissions.each do |submission| %>
-          <tr class="hover:bg-gray-50">
-            <td class="px-6 py-4 whitespace-nowrap">
+          <tr>
+            <td>
               <div class="flex items-center">
                 <div>
-                  <div class="text-sm font-medium text-gray-900"><%= submission.form_definition.code %></div>
-                  <div class="text-sm text-gray-500"><%= submission.form_definition.title %></div>
+                  <div class="font-medium text-base-content"><%= submission.form_definition.code %></div>
+                  <div class="text-sm text-base-content/60"><%= submission.form_definition.title %></div>
                 </div>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
+            <td>
               <% case submission.status %>
               <% when "completed" %>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <span class="badge badge-success gap-2">
                   Completed
                 </span>
               <% when "draft" %>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <span class="badge badge-warning gap-2">
                   Draft
                 </span>
               <% else %>
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                <span class="badge badge-ghost gap-2">
                   <%= submission.status.titleize %>
                 </span>
               <% end %>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <div class="flex items-center">
-                <div class="w-24 bg-gray-200 rounded-full h-2 mr-2">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: <%= submission.completion_percentage %>%"></div>
-                </div>
-                <span class="text-sm text-gray-600"><%= submission.completion_percentage %>%</span>
+            <td>
+              <div class="flex items-center gap-3">
+                <progress class="progress progress-primary w-24" value="<%= submission.completion_percentage %>" max="100"></progress>
+                <span class="text-sm text-base-content/70"><%= submission.completion_percentage %>%</span>
               </div>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+            <td class="text-sm text-base-content/60">
               <%= time_ago_in_words(submission.updated_at) %> ago
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-              <div class="flex justify-end space-x-2">
+            <td class="text-right">
+              <div class="flex justify-end gap-2">
                 <% if submission.status == "completed" %>
-                  <%= link_to pdf_submission_path(submission), target: "_blank", class: "text-blue-600 hover:text-blue-900", title: "View PDF" do %>
+                  <%= link_to pdf_submission_path(submission), target: "_blank", class: "btn btn-ghost btn-sm btn-square text-info", "aria-label": "View PDF", title: "View PDF" do %>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                     </svg>
                   <% end %>
-                  <%= link_to download_pdf_submission_path(submission), class: "text-green-600 hover:text-green-900", title: "Download PDF" do %>
+                  <%= link_to download_pdf_submission_path(submission), class: "btn btn-ghost btn-sm btn-square text-success", "aria-label": "Download PDF", title: "Download PDF" do %>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                     </svg>
                   <% end %>
                 <% else %>
-                  <%= link_to form_path(submission.form_definition), class: "text-blue-600 hover:text-blue-900", title: "Continue Editing" do %>
+                  <%= link_to form_path(submission.form_definition), class: "btn btn-ghost btn-sm btn-square text-info", "aria-label": "Continue Editing", title: "Continue Editing" do %>
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                     </svg>
                   <% end %>
                 <% end %>
-                <%= button_to submission_path(submission), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this submission?" }, class: "text-red-600 hover:text-red-900", title: "Delete" do %>
+                <%= button_to submission_path(submission), method: :delete, data: { turbo_confirm: "Are you sure you want to delete this submission?" }, class: "btn btn-ghost btn-sm btn-square text-error", "aria-label": "Delete", title: "Delete" do %>
                   <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                   </svg>
@@ -89,19 +87,10 @@
     </table>
   </div>
 <% else %>
-  <div class="text-center py-12 bg-white rounded-lg shadow">
-    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-    </svg>
-    <h3 class="mt-2 text-sm font-medium text-gray-900">No submissions yet</h3>
-    <p class="mt-1 text-sm text-gray-500">Get started by filling out a form.</p>
-    <div class="mt-6">
-      <%= link_to forms_path, class: "inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700" do %>
-        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-        </svg>
-        Browse Forms
-      <% end %>
-    </div>
-  </div>
+  <%= render "shared/empty_state",
+    icon: "document",
+    title: "No submissions yet",
+    message: "Get started by filling out a form.",
+    action_path: forms_path,
+    action_text: "Browse Forms" %>
 <% end %>

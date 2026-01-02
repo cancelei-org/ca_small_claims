@@ -1,29 +1,40 @@
-<%# Radio Button Field %>
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
+<%# Radio Button Field - Uses fieldset/legend for proper screen reader semantics %>
+<fieldset class="form-control w-full mb-4" data-field-name="<%= field.name %>">
+  <legend class="label">
+    <span class="label-text font-medium text-base">
+      <%= field.label || field.name.titleize %>
+      <% if field.required %>
+        <span class="text-error ml-1" aria-hidden="true">*</span>
+        <span class="sr-only">(required)</span>
+      <% end %>
+    </span>
+    <% if field.help_text.present? %>
+      <span class="tooltip-hint ml-1" data-tip="<%= field.help_text %>" tabindex="0">
+        <svg class="tooltip-icon w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+      </span>
     <% end %>
-  </label>
+  </legend>
 
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col gap-2 mt-1"
+       role="radiogroup"
+       aria-required="<%= field.required %>"
+       aria-describedby="<%= field_error_id(field) %>">
     <% field.options&.each do |option| %>
-      <label class="label cursor-pointer justify-start gap-3">
+      <label class="label cursor-pointer justify-start gap-3 py-2 min-h-[44px]">
         <%= form.radio_button field.name,
           option["value"],
           checked: submission.field_value(field.name) == option["value"],
           required: field.required,
-          class: "radio radio-primary",
-          data: { action: "change->form#fieldChanged" } %>
-        <span class="label-text"><%= option["label"] || option["value"] %></span>
+          class: "radio radio-primary w-5 h-5",
+          data: field_data_attributes(action: "change->form#fieldChanged") %>
+        <span class="label-text text-base"><%= option["label"] || option["value"] %></span>
       </label>
     <% end %>
   </div>
 
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
-  <% end %>
-</div>
+  <%# Error container for accessibility %>
+  <%= field_error_container(field) %>
+</fieldset>

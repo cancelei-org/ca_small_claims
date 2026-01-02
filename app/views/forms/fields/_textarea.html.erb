@@ -1,23 +1,44 @@
-<div class="form-control w-full mb-4">
-  <label class="label">
-    <span class="label-text font-medium text-base"><%= field.label || field.name.titleize %></span>
-    <% if field.required %>
-      <span class="label-text-alt text-error">*</span>
-    <% end %>
-  </label>
+<% prefix ||= nil %>
+<%= field_wrapper(field, prefix: prefix) do %>
+  <% if field.max_length.present? && field.max_length > 0 %>
+    <%# Wrap with character count controller when max_length is set %>
+    <div data-controller="character-count"
+         data-character-count-max-value="<%= field.max_length %>"
+         data-character-count-warn-at-value="20">
+      <%= dictatable_textarea form, field.name,
+        value: submission.field_value(field.name),
+        placeholder: field.placeholder,
+        required: field.required,
+        maxlength: field.max_length,
+        rows: 4,
+        class: standard_textarea_class,
+        id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+        data: field_data_attributes.merge(
+          character_count_target: "input",
+          action: "input->form#fieldChanged input->character-count#updateCount"
+        ),
+        **field_aria_attributes(field, prefix: prefix) %>
 
-  <%= form.text_area field.name,
-    value: submission.field_value(field.name),
-    placeholder: field.placeholder,
-    required: field.required,
-    maxlength: field.max_length,
-    rows: 4,
-    class: "textarea textarea-bordered w-full text-base",
-    data: { action: "input->form#fieldChanged" } %>
-
-  <% if field.help_text.present? %>
-    <label class="label w-full text-wrap">
-      <span class="label-text-alt text-base-content/70"><%= field.help_text %></span>
-    </label>
+      <%# Character count display %>
+      <div class="flex justify-end mt-1 text-xs"
+           id="<%= [ prefix, field.name.parameterize ].compact.join("-") %>-input-char-count"
+           aria-live="polite"
+           aria-atomic="true">
+        <span data-character-count-target="remaining"
+              class="text-base-content/50"><%= field.max_length - (submission.field_value(field.name)&.length || 0) %></span>
+        <span class="text-base-content/50">/<%= field.max_length %> characters remaining</span>
+      </div>
+    </div>
+  <% else %>
+    <%# No max_length - render without character count %>
+    <%= dictatable_textarea form, field.name,
+      value: submission.field_value(field.name),
+      placeholder: field.placeholder,
+      required: field.required,
+      rows: 4,
+      class: standard_textarea_class,
+      id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
+      data: field_data_attributes,
+      **field_aria_attributes(field, prefix: prefix) %>
   <% end %>
-</div>
+<% end %>

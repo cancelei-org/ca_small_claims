@@ -1,62 +1,133 @@
 <% content_for :title, "All Forms - CA Small Claims Court" %>
 
 <div class="mb-8">
-  <h1 class="text-3xl font-bold text-gray-900 mb-2">California Small Claims Court Forms</h1>
-  <p class="text-gray-600">All 51 official forms, ready to fill out online.</p>
+  <h1 class="text-3xl font-bold text-base-content mb-2">California Small Claims Court Forms</h1>
+  <p class="text-base-content/70">All 51 official forms, ready to fill out online.</p>
 </div>
 
-<!-- Search and Filter -->
-<div class="bg-white rounded-lg shadow p-4 mb-6">
-  <div class="flex flex-col md:flex-row gap-4">
-    <%= form_with url: forms_path, method: :get, local: true, class: "flex-1" do |f| %>
+<!-- Search and Filter - Mobile optimized -->
+<div class="card bg-base-100 shadow mb-6" data-controller="forms-search">
+  <div class="card-body p-4">
+    <%# Search input with instant search %>
+    <div class="form-control w-full">
       <div class="relative">
-        <%= f.text_field :search,
-          value: params[:search],
-          placeholder: "Search forms...",
-          class: "w-full pl-10 pr-4 py-3 min-h-[48px] text-base border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500" %>
+        <input type="search"
+               name="search"
+               value="<%= params[:search] %>"
+               placeholder="Search forms by code or title..."
+               aria-label="Search forms"
+               class="input input-bordered w-full pl-10 pr-4 min-h-[48px] text-base"
+               data-forms-search-target="input"
+               data-action="input->forms-search#search keydown.enter->forms-search#submit"
+               autocomplete="off">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="h-5 w-5 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
           </svg>
         </div>
+        <%# Loading indicator %>
+        <div class="absolute inset-y-0 right-0 pr-3 flex items-center hidden"
+             data-forms-search-target="loading">
+          <span class="loading loading-spinner loading-sm"></span>
+        </div>
       </div>
-    <% end %>
+    </div>
 
-    <div class="flex flex-wrap gap-2">
-      <%= link_to "All", forms_path,
-        class: "px-4 py-3 min-h-[44px] rounded-md text-sm md:text-base font-medium flex items-center #{@current_category.nil? ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
+    <%# Category filter - Dropdown on mobile, pills on desktop %>
+    <div class="mt-4">
+      <%# Mobile: Select dropdown %>
+      <div class="md:hidden">
+        <label class="label">
+          <span class="label-text font-medium">Category</span>
+        </label>
+        <select class="select select-bordered w-full min-h-[48px]"
+                data-forms-search-target="category"
+                data-action="change->forms-search#filterCategory">
+          <option value="" <%= 'selected' if @current_category.nil? %>>All Categories</option>
+          <% @categories.each do |category| %>
+            <option value="<%= category.slug %>"
+                    <%= 'selected' if @current_category&.id == category.id %>>
+              <%= category.name %>
+            </option>
+          <% end %>
+        </select>
+      </div>
 
-      <% @categories.each do |category| %>
-        <%= link_to category.name, forms_path(category: category.slug),
-          class: "px-4 py-3 min-h-[44px] rounded-md text-sm md:text-base font-medium flex items-center #{@current_category&.id == category.id ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}" %>
-      <% end %>
+      <%# Desktop: Pill buttons %>
+      <div class="hidden md:flex flex-wrap gap-2" role="tablist" aria-label="Filter by category">
+        <%= link_to "All", forms_path(search: params[:search]),
+          class: "btn btn-sm min-h-[44px] #{@current_category.nil? ? 'btn-primary' : 'btn-ghost bg-base-200'}",
+          role: "tab",
+          "aria-selected": @current_category.nil? %>
+
+        <% @categories.each do |category| %>
+          <%= link_to category.name,
+            forms_path(category: category.slug, search: params[:search]),
+            class: "btn btn-sm min-h-[44px] #{@current_category&.id == category.id ? 'btn-primary' : 'btn-ghost bg-base-200'}",
+            role: "tab",
+            "aria-selected": @current_category&.id == category.id %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Sort and Results %>
+    <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <div class="text-sm text-base-content/60" data-forms-search-target="count">
+        <%= pluralize(@forms.count, 'form') %> found
+      </div>
+
+      <%# Sort toggle %>
+      <div class="flex items-center gap-2 text-sm">
+        <span class="text-base-content/60">Sort:</span>
+        <div class="btn-group">
+          <%= link_to "Default",
+            forms_path(category: params[:category], search: params[:search], sort: "default"),
+            class: "btn btn-xs #{@sort_by == 'default' ? 'btn-primary' : 'btn-ghost'}" %>
+          <%= link_to "Popular",
+            forms_path(category: params[:category], search: params[:search], sort: "popular"),
+            class: "btn btn-xs #{@sort_by == 'popular' ? 'btn-primary' : 'btn-ghost'}" %>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- Forms Grid -->
 <% if @forms.any? %>
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-forms-search-target="results">
     <% @forms.each do |form| %>
-      <div class="bg-white rounded-lg shadow hover:shadow-md transition-shadow">
-        <%= link_to form_path(form.code), class: "block p-4" do %>
-          <div class="flex items-start space-x-3">
-            <div class="flex-shrink-0">
-              <span class="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-blue-100 text-blue-600 font-bold">
+      <% is_popular = @popular_form_ids.include?(form.id) %>
+      <div class="card bg-base-100 shadow hover:shadow-lg transition-shadow <%= 'ring-2 ring-warning/50' if is_popular %>">
+        <%= link_to form_path(form.code), class: "card-body p-4 min-h-[88px]" do %>
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 relative">
+              <span class="inline-flex items-center justify-center h-12 w-12 rounded-lg bg-primary/10 text-primary font-bold text-sm">
                 <%= form.code.gsub(/[A-Z]+-/, "") %>
               </span>
+              <% if is_popular %>
+                <span class="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-warning text-warning-content text-xs" title="Popular form">
+                  <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                  </svg>
+                </span>
+              <% end %>
             </div>
             <div class="flex-1 min-w-0">
-              <h3 class="font-semibold text-gray-900"><%= form.code %></h3>
-              <p class="text-sm text-gray-600 line-clamp-2"><%= form.title %></p>
+              <div class="flex items-center gap-2">
+                <h2 class="font-semibold text-base-content text-base"><%= form.code %></h2>
+                <% if is_popular %>
+                  <span class="badge badge-warning badge-sm">Popular</span>
+                <% end %>
+              </div>
+              <p class="text-sm text-base-content/70 line-clamp-2"><%= form.title %></p>
               <% if form.category.present? %>
-                <span class="inline-block mt-2 px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600">
+                <span class="badge badge-ghost mt-2 text-xs">
                   <%= form.category.name %>
                 </span>
               <% end %>
             </div>
-            <div class="flex-shrink-0">
-              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex-shrink-0 self-center">
+              <svg class="h-5 w-5 text-base-content/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
               </svg>
             </div>
@@ -66,12 +137,10 @@
     <% end %>
   </div>
 <% else %>
-  <div class="text-center py-12">
-    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-    </svg>
-    <h3 class="mt-2 text-sm font-medium text-gray-900">No forms found</h3>
-    <p class="mt-1 text-sm text-gray-500">Try adjusting your search or filter.</p>
-    <%= link_to "Clear filters", forms_path, class: "mt-4 inline-block text-blue-600 hover:text-blue-800" %>
-  </div>
+  <%= render "shared/empty_state",
+    icon: "document",
+    title: "No forms found",
+    message: "Try adjusting your search or filter.",
+    action_path: forms_path,
+    action_text: "Clear filters" %>
 <% end %>

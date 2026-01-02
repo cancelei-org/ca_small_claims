@@ -1,7 +1,10 @@
 import { Controller } from '@hotwired/stimulus';
+import { showToast } from 'utils/toast';
 
-// Handles toggling between wizard and traditional form views
+// Handles switching between Wizard and Traditional form views
+
 // Persists preference in localStorage
+// Warns users before switching with unsaved changes
 export default class extends Controller {
   static targets = [
     'wizardContainer',
@@ -13,7 +16,8 @@ export default class extends Controller {
 
   static values = {
     mode: { type: String, default: 'wizard' },
-    storageKey: { type: String, default: 'formViewMode' }
+    storageKey: { type: String, default: 'formViewMode' },
+    warnOnUnsaved: { type: Boolean, default: true }
   };
 
   connect() {
@@ -26,9 +30,60 @@ export default class extends Controller {
 
     this.applyMode();
     this.updateToggle();
+
+    // Bind beforeunload handler for page leave warning
+    this.handleBeforeUnload = this.handleBeforeUnload.bind(this);
+    window.addEventListener('beforeunload', this.handleBeforeUnload);
+
+    // Listen for form changes to track unsaved state
+    this.handleFormInput = this.handleFormInput.bind(this);
+    this.element.addEventListener('input', this.handleFormInput);
+    this.element.addEventListener('change', this.handleFormInput);
+
+    // Listen for successful saves to clear unsaved state
+    this.handleFormSaved = this.handleFormSaved.bind(this);
+    document.addEventListener('form:saved', this.handleFormSaved);
+
+    this.hasUnsavedChanges = false;
+  }
+
+  disconnect() {
+    window.removeEventListener('beforeunload', this.handleBeforeUnload);
+    this.element.removeEventListener('input', this.handleFormInput);
+    this.element.removeEventListener('change', this.handleFormInput);
+    document.removeEventListener('form:saved', this.handleFormSaved);
+  }
+
+  handleFormInput() {
+    this.hasUnsavedChanges = true;
+  }
+
+  handleFormSaved() {
+    this.hasUnsavedChanges = false;
+  }
+
+  handleBeforeUnload(event) {
+    if (this.warnOnUnsavedValue && this.hasUnsavedChanges) {
+      event.preventDefault();
+      // Modern browsers ignore custom message but require returnValue
+      event.returnValue = '';
+    }
   }
 
   toggle(event) {
+    // Check for unsaved changes before switching
+    if (this.warnOnUnsavedValue && this.hasUnsavedChanges) {
+      const confirmed = this.confirmModeSwitch();
+
+      if (!confirmed) {
+        // Revert the toggle if user cancels
+        event.preventDefault();
+        this.updateToggle();
+
+        return;
+      }
+    }
+
     // If triggered by a checkbox/toggle input
     if (event.target.type === 'checkbox') {
       this.modeValue = event.target.checked ? 'wizard' : 'traditional';
@@ -40,6 +95,27 @@ export default class extends Controller {
     localStorage.setItem(this.storageKeyValue, this.modeValue);
     this.applyMode();
     this.updateToggle();
+  }
+
+  /**
+   * Show confirmation dialog for switching modes with unsaved changes
+   * @returns {boolean} True if user confirms, false otherwise
+   */
+  confirmModeSwitch() {
+    // Use native confirm for unsaved changes warning
+    // eslint-disable-next-line no-alert -- Intentional for critical data loss warning
+    const confirmed = window.confirm(
+      'You have unsaved changes. Switching views may cause data loss. ' +
+        'Your changes will be synced, but some formatting may be lost.\n\n' +
+        'Continue switching?'
+    );
+
+    if (confirmed) {
+      // Show toast notification
+      showToast('Switching view mode...', 'info', 2000);
+    }
+
+    return confirmed;
   }
 
   applyMode() {

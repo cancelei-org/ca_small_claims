@@ -1,43 +1,43 @@
 <% content_for :title, "Workflow Complete - #{@workflow.name}" %>
 
 <div class="max-w-3xl mx-auto">
-  <div class="bg-white rounded-lg shadow-lg p-8 text-center">
-    <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-green-100 mb-6">
-      <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+  <div class="card bg-base-100 shadow-lg p-8 text-center">
+    <div class="inline-flex items-center justify-center h-16 w-16 rounded-full bg-success/20 mb-6 mx-auto">
+      <svg class="h-8 w-8 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
       </svg>
     </div>
 
-    <h1 class="text-3xl font-bold text-gray-900 mb-2">Workflow Complete!</h1>
-    <p class="text-gray-600 mb-8">
+    <h1 class="text-3xl font-bold text-base-content mb-2">Workflow Complete!</h1>
+    <p class="text-base-content/70 mb-8">
       You've completed all the forms in the "<%= @workflow.name %>" workflow.
     </p>
 
     <!-- Completed Forms -->
-    <div class="bg-gray-50 rounded-lg p-6 mb-8 text-left">
-      <h2 class="font-semibold text-gray-900 mb-4">Completed Forms</h2>
+    <div class="bg-base-200 rounded-lg p-6 mb-8 text-left">
+      <h2 class="font-semibold text-base-content mb-4">Completed Forms</h2>
       <div class="space-y-3">
         <% @completed_submissions.each do |submission| %>
-          <div class="flex items-center justify-between p-3 bg-white rounded-md border">
+          <div class="flex items-center justify-between p-3 bg-base-100 rounded-md border border-base-300">
             <div class="flex items-center">
-              <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-green-100 mr-3">
-                <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+              <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-success/20 mr-3">
+                <svg class="h-4 w-4 text-success" fill="currentColor" viewBox="0 0 20 20">
                   <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
                 </svg>
               </span>
               <div>
-                <p class="font-medium text-gray-900"><%= submission.form_definition.code %></p>
-                <p class="text-sm text-gray-500"><%= submission.form_definition.title %></p>
+                <p class="font-medium text-base-content"><%= submission.form_definition.code %></p>
+                <p class="text-sm text-base-content/70"><%= submission.form_definition.title %></p>
               </div>
             </div>
             <div class="flex space-x-2">
-              <%= link_to pdf_submission_path(submission), target: "_blank", class: "p-2 text-gray-400 hover:text-gray-600" do %>
+              <%= link_to pdf_submission_path(submission), target: "_blank", class: "btn btn-ghost btn-sm btn-square", "aria-label": "Preview" do %>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
                 </svg>
               <% end %>
-              <%= link_to download_pdf_submission_path(submission), class: "p-2 text-gray-400 hover:text-gray-600" do %>
+              <%= link_to download_pdf_submission_path(submission), class: "btn btn-ghost btn-sm btn-square", "aria-label": "Download" do %>
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
                 </svg>
@@ -50,25 +50,30 @@
 
     <!-- Actions -->
     <div class="flex flex-col sm:flex-row justify-center gap-4">
-      <%= link_to submissions_path, class: "inline-flex items-center justify-center px-6 py-3 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 font-medium" do %>
+      <%= link_to submissions_path, class: "btn btn-outline" do %>
         View My Submissions
       <% end %>
 
-      <%= link_to workflows_path, class: "inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 font-medium" do %>
+      <%= link_to workflows_path, class: "btn btn-primary" do %>
         Start Another Workflow
       <% end %>
     </div>
   </div>
 
   <!-- Next Steps -->
-  <div class="mt-8 bg-yellow-50 rounded-lg p-6">
-    <h2 class="font-semibold text-yellow-900 mb-2">Next Steps</h2>
-    <ul class="list-disc list-inside text-sm text-yellow-800 space-y-2">
-      <li>Download and print all completed forms</li>
-      <li>Make copies of each form (keep one for your records)</li>
-      <li>File the original with the court clerk</li>
-      <li>Serve copies on the other parties as required</li>
-      <li>Keep proof of service for your records</li>
-    </ul>
+  <div class="mt-8 alert alert-warning shadow-lg">
+    <div>
+      <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current flex-shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
+      <div>
+        <h3 class="font-bold">Next Steps</h3>
+        <ul class="list-disc list-inside text-sm mt-2">
+          <li>Download and print all completed forms</li>
+          <li>Make copies of each form (keep one for your records)</li>
+          <li>File the original with the court clerk</li>
+          <li>Serve copies on the other parties as required</li>
+          <li>Keep proof of service for your records</li>
+        </ul>
+      </div>
+    </div>
   </div>
 </div>

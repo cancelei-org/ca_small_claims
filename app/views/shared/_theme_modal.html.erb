@@ -1,15 +1,22 @@
 <%# Theme Selector Modal - Preview cards use inline styles for accurate color display %>
-<dialog id="theme-modal" class="modal" data-controller="theme">
-  <div class="modal-box w-11/12 max-w-5xl">
-    <form method="dialog">
-      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
-    </form>
+<div data-controller="modal">
+  <dialog id="theme-modal"
+          class="modal"
+          aria-labelledby="theme-modal-title"
+          aria-modal="true"
+          role="dialog"
+          data-controller="theme"
+          data-modal-target="dialog">
+    <div class="modal-box w-11/12 max-w-5xl">
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close theme selector">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </form>
 
-    <h3 class="font-bold text-lg mb-4">Choose Theme</h3>
+      <h3 id="theme-modal-title" class="font-bold text-lg mb-4">Choose Theme</h3>
 
     <%# Light Themes Section %>
     <div class="mb-6">
@@ -27,7 +34,7 @@
     </div>
 
     <%# Dark Themes Section %>
-    <div>
+    <div class="mb-6">
       <h4 class="text-sm font-medium text-base-content/60 mb-3 flex items-center gap-2">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
@@ -41,13 +48,65 @@
       </div>
     </div>
 
+    <%# Accessibility Themes Section - High Contrast for WCAG AAA %>
+    <div>
+      <h4 class="text-sm font-medium text-base-content/60 mb-3 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        High Contrast (Accessibility)
+        <span class="badge badge-xs badge-outline">WCAG AAA</span>
+      </h4>
+      <p class="text-xs text-base-content/50 mb-3">Enhanced contrast for users with low vision. Meets WCAG 2.1 AAA (7:1 contrast ratio).</p>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        <% available_themes[:accessibility].each do |theme| %>
+          <%= render "shared/theme_preview_card", theme: theme, is_selected: current_theme == theme[:id] %>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Motion Preferences Section %>
+    <div class="mt-6 pt-6 border-t border-base-300">
+      <h4 class="text-sm font-medium text-base-content/60 mb-3 flex items-center gap-2">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        Motion Preferences
+        <span class="badge badge-xs badge-outline">Accessibility</span>
+      </h4>
+      <p class="text-xs text-base-content/50 mb-3">
+        Reduce or disable animations for users with vestibular disorders or motion sensitivity.
+      </p>
+      <div data-controller="motion" class="flex flex-col sm:flex-row gap-4">
+        <div class="form-control">
+          <label class="label cursor-pointer gap-3">
+            <span class="label-text">Reduce motion</span>
+            <input type="checkbox"
+                   class="toggle toggle-primary"
+                   data-motion-target="toggle"
+                   data-action="change->motion#toggle"
+                   aria-describedby="motion-description" />
+          </label>
+        </div>
+        <div class="flex items-center gap-2 text-sm text-base-content/60">
+          <span>Status:</span>
+          <span data-motion-target="status" class="font-medium">Loading...</span>
+        </div>
+      </div>
+      <p id="motion-description" class="text-xs text-base-content/40 mt-2">
+        When enabled, animations and transitions will be minimized. Your preference is saved locally.
+      </p>
+    </div>
+
     <div class="modal-action">
       <form method="dialog">
         <button class="btn">Close</button>
       </form>
     </div>
   </div>
-  <form method="dialog" class="modal-backdrop">
-    <button>close</button>
-  </form>
-</dialog>
+    <form method="dialog" class="modal-backdrop">
+      <button aria-label="Close theme selector">close</button>
+    </form>
+  </dialog>
+</div>

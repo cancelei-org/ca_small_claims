@@ -1,8 +1,9 @@
 <% content_for :title, "Feedback - Admin" %>
 
 <div class="space-y-6">
+  <h1 class="sr-only">Form Feedback Management</h1>
   <div class="flex items-center justify-between">
-    <h1 class="text-2xl font-bold">Form Feedback</h1>
+    <h2 class="text-2xl font-bold">Form Feedback</h2>
     <div class="badge badge-warning gap-1" id="pending-count-badge">
       <span id="pending-count"><%= @pending_count %></span> pending
     </div>
@@ -14,43 +15,47 @@
       <%= form_with url: admin_feedbacks_path, method: :get, data: { turbo_frame: "feedbacks-list" } do |f| %>
         <div class="flex flex-wrap gap-4 items-end">
           <div class="form-control w-full sm:w-auto">
-            <label class="label py-1">
+            <label class="label py-1" for="form_id">
               <span class="label-text text-xs">Form</span>
             </label>
             <%= f.select :form_id,
                          options_from_collection_for_select(@forms, :id, :code, params[:form_id]),
                          { include_blank: "All Forms" },
-                         class: "select select-bordered select-sm w-full" %>
+                         class: "select select-bordered select-sm w-full",
+                         id: "form_id" %>
           </div>
 
           <div class="form-control w-full sm:w-auto">
-            <label class="label py-1">
+            <label class="label py-1" for="status">
               <span class="label-text text-xs">Status</span>
             </label>
             <%= f.select :status,
                          options_for_select(FormFeedback::STATUSES.map { |s| [s.titleize, s] }, params[:status]),
                          { include_blank: "All Statuses" },
-                         class: "select select-bordered select-sm" %>
+                         class: "select select-bordered select-sm",
+                         id: "status" %>
           </div>
 
           <div class="form-control w-full sm:w-auto">
-            <label class="label py-1">
+            <label class="label py-1" for="issue_type">
               <span class="label-text text-xs">Issue Type</span>
             </label>
             <%= f.select :issue_type,
                          options_for_select(FormFeedback::ISSUE_TYPES.to_a, params[:issue_type]),
                          { include_blank: "All Issues" },
-                         class: "select select-bordered select-sm" %>
+                         class: "select select-bordered select-sm",
+                         id: "issue_type" %>
           </div>
 
           <div class="form-control w-full sm:w-auto">
-            <label class="label py-1">
+            <label class="label py-1" for="rating">
               <span class="label-text text-xs">Rating</span>
             </label>
             <%= f.select :rating,
                          options_for_select((1..5).map { |r| ["#{r} Star#{r > 1 ? 's' : ''}", r] }, params[:rating]),
                          { include_blank: "All Ratings" },
-                         class: "select select-bordered select-sm" %>
+                         class: "select select-bordered select-sm",
+                         id: "rating" %>
           </div>
 
           <div class="flex gap-2">
@@ -67,7 +72,88 @@
     <div class="card bg-base-100 shadow">
       <div class="card-body p-0">
         <% if @feedbacks.any? %>
-          <div class="overflow-x-auto">
+          <%# Mobile: Card layout %>
+          <div class="md:hidden divide-y divide-base-200">
+            <% @feedbacks.each do |feedback| %>
+              <div class="p-4 space-y-3" id="<%= dom_id(feedback) %>-mobile">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <div class="font-medium"><%= feedback.form_definition.code %></div>
+                    <div class="text-sm opacity-60 truncate"><%= feedback.form_definition.title %></div>
+                  </div>
+                  <% case feedback.status %>
+                  <% when "pending" %>
+                    <span class="badge badge-warning badge-sm flex-shrink-0">Pending</span>
+                  <% when "acknowledged" %>
+                    <span class="badge badge-info badge-sm flex-shrink-0">Acknowledged</span>
+                  <% when "resolved" %>
+                    <span class="badge badge-success badge-sm flex-shrink-0">Resolved</span>
+                  <% end %>
+                </div>
+
+                <div class="flex items-center gap-4 text-sm">
+                  <div class="flex items-center gap-1">
+                    <% feedback.rating.times do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4 text-warning">
+                        <path fill-rule="evenodd" d="M10.788 3.21c.448-1.077 1.976-1.077 2.424 0l2.082 5.007 5.404.433c1.164.093 1.636 1.545.749 2.305l-4.117 3.527 1.257 5.273c.271 1.136-.964 2.033-1.96 1.425L12 18.354 7.373 21.18c-.996.608-2.231-.29-1.96-1.425l1.257-5.273-4.117-3.527c-.887-.76-.415-2.212.749-2.305l5.404-.433 2.082-5.006z" clip-rule="evenodd" />
+                      </svg>
+                    <% end %>
+                  </div>
+                  <span class="opacity-60"><%= time_ago_in_words(feedback.created_at) %> ago</span>
+                </div>
+
+                <% if feedback.issue_types.any? %>
+                  <div class="flex flex-wrap gap-1">
+                    <% feedback.issue_types.first(3).each do |type| %>
+                      <span class="badge badge-ghost badge-sm"><%= FormFeedback::ISSUE_TYPES[type]&.truncate(15) || type %></span>
+                    <% end %>
+                    <% if feedback.issue_types.size > 3 %>
+                      <span class="badge badge-ghost badge-sm">+<%= feedback.issue_types.size - 3 %></span>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <div class="flex items-center gap-2 pt-1">
+                  <% unless feedback.resolved? %>
+                    <% if feedback.pending? %>
+                      <%= button_to acknowledge_admin_feedback_path(feedback),
+                                    method: :patch,
+                                    class: "btn btn-ghost btn-sm min-h-[44px]",
+                                    title: "Mark as acknowledged",
+                                    data: { turbo_stream: true } do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        Acknowledge
+                      <% end %>
+                    <% end %>
+
+                    <%= button_to resolve_admin_feedback_path(feedback),
+                                  method: :patch,
+                                  class: "btn btn-success btn-sm min-h-[44px]",
+                                  title: "Resolve",
+                                  data: { turbo_stream: true } do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                      </svg>
+                      Resolve
+                    <% end %>
+                  <% end %>
+
+                  <%= link_to admin_feedback_path(feedback), class: "btn btn-ghost btn-sm min-h-[44px] ml-auto" do %>
+                    View Details
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Desktop: Table layout %>
+          <div class="hidden md:block overflow-x-auto">
             <table class="table table-zebra">
               <thead>
                 <tr>

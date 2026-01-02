@@ -1,42 +1,89 @@
 <%# Traditional Form View - All fields displayed at once %>
 <%# locals: sections, form, submission %>
 
-<div class="bg-base-100 rounded-lg shadow">
-  <div class="p-6 border-b border-base-200">
-    <div class="flex items-center justify-between">
-      <h2 class="text-lg font-semibold text-base-content">Form Fields</h2>
-      <div id="autosave-status-traditional" class="text-sm text-base-content/70" data-form-target="status">
-        <%= render partial: "shared/autosave_status", locals: { saved_at: submission.updated_at } %>
-      </div>
-    </div>
-  </div>
-
-  <div class="p-6 space-y-8">
-    <% sections.each do |section_name, fields| %>
-      <div class="border-b border-base-200 pb-6 last:border-b-0 last:pb-0">
-        <h3 class="text-lg font-semibold text-base-content mb-4 capitalize">
-          <%= section_name.to_s.titleize %>
-        </h3>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <% fields.each do |field| %>
-            <div class="<%= field.width_class %>">
-              <%= render partial: "forms/fields/#{field.field_type}",
-                         locals: { field: field, form: form, submission: submission } %>
-            </div>
+<div data-controller="scroll-spy" data-scroll-spy-offset-value="120" data-scroll-spy-active-class-value="section-nav-active">
+  <%# Section Navigation Sidebar - visible on large screens %>
+  <% if sections.present? && sections.size > 1 %>
+    <nav class="hidden xl:block fixed right-8 top-1/3 z-30 w-48"
+         aria-label="Form sections"
+         data-scroll-spy-target="nav">
+      <div class="bg-base-100 rounded-lg shadow-lg p-4 border border-base-200">
+        <h4 class="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-3">Sections</h4>
+        <ul class="space-y-1">
+          <% sections.each do |section_name, fields| %>
+            <% section_id = section_name.to_s.parameterize %>
+            <li>
+              <a href="#section-<%= section_id %>"
+                 class="block px-3 py-2 text-sm rounded-md transition-colors
+                        text-base-content/70 hover:text-base-content hover:bg-base-200
+                        section-nav-link"
+                 data-scroll-spy-target="link"
+                 data-action="click->scroll-spy#scrollTo">
+                <span class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-current opacity-40 section-nav-dot"></span>
+                  <%= section_name.to_s.titleize.truncate(20) %>
+                </span>
+              </a>
+            </li>
           <% end %>
+        </ul>
+      </div>
+    </nav>
+  <% end %>
+
+  <%# Main Form Content %>
+  <div class="bg-base-100 rounded-lg shadow">
+    <div class="p-6 border-b border-base-200">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-semibold text-base-content">Form Fields</h2>
+        <div class="flex items-center gap-3">
+          <%# Offline Indicator %>
+          <div data-controller="offline-indicator" class="hidden">
+            <div class="flex items-center gap-1">
+              <span data-offline-indicator-target="icon"></span>
+              <span data-offline-indicator-target="status"></span>
+              <span data-offline-indicator-target="badge" class="hidden"></span>
+            </div>
+          </div>
+
+          <%# Auto-save Status %>
+          <div id="autosave-status-traditional" class="text-sm text-base-content/70" data-form-target="status">
+            <%= render partial: "shared/autosave_status", locals: { saved_at: submission.updated_at } %>
+          </div>
         </div>
       </div>
-    <% end %>
+    </div>
 
-    <% if sections.empty? %>
-      <div class="text-center py-8 text-base-content/70">
-        <svg class="w-12 h-12 mx-auto mb-4 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-        </svg>
-        <p>No fields configured for this form yet.</p>
-      </div>
-    <% end %>
+    <div class="p-6 space-y-8">
+      <% sections.each do |section_name, fields| %>
+        <% section_id = section_name.to_s.parameterize %>
+        <section id="section-<%= section_id %>"
+                 class="border-b border-base-200 pb-6 last:border-b-0 last:pb-0 scroll-mt-24"
+                 data-scroll-spy-target="section">
+          <h3 class="text-lg font-semibold text-base-content mb-4 capitalize">
+            <%= section_name.to_s.titleize %>
+          </h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <% fields.each do |field| %>
+              <div class="<%= field.width_class %>">
+                <%= render partial: "forms/fields/#{field.field_type}",
+                           locals: { field: field, form: form, submission: submission, prefix: "traditional" } %>
+              </div>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <% if sections.empty? %>
+        <div class="text-center py-8 text-base-content/70">
+          <svg class="w-12 h-12 mx-auto mb-4 text-base-content/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          <p>No fields configured for this form yet.</p>
+        </div>
+      <% end %>
+    </div>
   </div>
 </div>

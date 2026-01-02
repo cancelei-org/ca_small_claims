@@ -40,6 +40,9 @@ Capybara.register_driver :chrome do |app|
   options.add_argument("--no-sandbox")
   options.add_argument("--disable-dev-shm-usage")
 
+  # Enable browser logs
+  options.add_option("goog:loggingPrefs", { browser: "ALL" })
+
   Capybara::Selenium::Driver.new app, browser: :chrome, options:
 end
 
@@ -81,6 +84,13 @@ RSpec.configure do |config|
   # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
 
+  Capybara.default_max_wait_time = 5
+
   config.include ActiveSupport::Testing::TimeHelpers
   config.include ActionView::RecordIdentifier, type: :system
+  config.include Devise::Test::ControllerHelpers, type: :controller
+  config.include Devise::Test::ControllerHelpers, type: :helper
+  config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Devise::Test::IntegrationHelpers, type: :system
+  config.include AbstractController::Translation
 end

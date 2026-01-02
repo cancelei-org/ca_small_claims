@@ -80,8 +80,6 @@ class FormFeedback < ApplicationRecord
     return if issue_types.blank?
 
     invalid_types = issue_types - ISSUE_TYPES.keys
-    if invalid_types.any?
-      errors.add(:issue_types, "contains invalid types: #{invalid_types.join(', ')}")
-    end
+    errors.add(:issue_types, "contains invalid types: #{invalid_types.join(', ')}") if invalid_types.any?
   end
 end

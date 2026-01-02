@@ -110,6 +110,10 @@ group :development do
   gem "rubocop-rspec", require: false
   gem "rubocop-rspec_rails", require: false
   gem "rubocop-rails-omakase", require: false
+
+  # DRY code analysis tools
+  gem "flay", require: false           # Structural similarity detection
+  gem "reek", require: false           # Code smell detection
 end
 
 group :development, :test do

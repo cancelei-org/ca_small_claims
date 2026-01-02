@@ -2,6 +2,7 @@
 <%# locals: field, form, submission, index %>
 
 <div class="wizard-card <%= 'hidden' unless index == 0 %>"
+     id="wizard-card-<%= index %>"
      data-wizard-target="card"
      data-index="<%= index %>">
 
@@ -23,7 +24,7 @@
 
       <%# Field Label - Larger for wizard mode %>
       <div class="mb-4">
-        <label class="text-xl font-semibold text-base-content" for="submission_<%= field.name %>">
+        <label class="text-xl font-semibold text-base-content" for="wizard-<%= field.name.parameterize %>-input">
           <%= field.label || field.name.titleize %>
           <% if field.required %>
             <span class="text-error">*</span>
@@ -35,7 +36,7 @@
       <div class="wizard-field-content py-4 flex-grow">
         <div class="max-w-md mx-auto">
           <%= render partial: "forms/fields/#{field.field_type}",
-                     locals: { field: field, form: form, submission: submission } %>
+                     locals: { field: field, form: form, submission: submission, prefix: "wizard" } %>
         </div>
       </div>
 

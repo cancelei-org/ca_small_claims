@@ -137,11 +137,10 @@ module Forms
 
     def resolve_manual_review(form_code)
       queue = load_manual_review_queue
-      if queue[form_code]
+      return unless queue[form_code]
         queue[form_code]["status"] = "resolved"
         queue[form_code]["resolved_at"] = Time.current.iso8601
         save_manual_review_queue(queue)
-      end
     end
 
     def save_progress

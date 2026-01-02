@@ -19,6 +19,16 @@ export default class extends Controller {
     this.currentValue =
       document.documentElement.getAttribute('data-theme') || 'light';
     this.updateUI();
+
+    // Track the trigger element for focus restoration (accessibility)
+    this.triggerElement = null;
+
+    // Listen for modal close to restore focus
+    const modal = this.modal;
+
+    if (modal) {
+      modal.addEventListener('close', () => this.handleModalClose());
+    }
   }
 
   /**
@@ -31,10 +41,12 @@ export default class extends Controller {
   /**
    * Open the theme modal
    */
-  openModal() {
+  openModal(event) {
     const modal = this.modal;
 
     if (modal) {
+      // Store the trigger element for focus restoration (accessibility)
+      this.triggerElement = event?.currentTarget || document.activeElement;
       modal.showModal();
       // Update UI when modal opens (in case theme changed elsewhere)
       this.updateUI();
@@ -49,6 +61,22 @@ export default class extends Controller {
 
     if (modal) {
       modal.close();
+    }
+  }
+
+  /**
+   * Handle modal close - restore focus to trigger element (accessibility)
+   */
+  handleModalClose() {
+    if (
+      this.triggerElement &&
+      typeof this.triggerElement.focus === 'function'
+    ) {
+      // Small delay to ensure modal is fully closed
+      requestAnimationFrame(() => {
+        this.triggerElement.focus();
+        this.triggerElement = null;
+      });
     }
   }
 

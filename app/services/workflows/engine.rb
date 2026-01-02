@@ -19,7 +19,7 @@ module Workflows
     end
 
     def current_submission
-      submissions.drafts.order(:created_at).last
+      submissions.drafts.order(:updated_at).last
     end
 
     def current_step
@@ -176,9 +176,7 @@ module Workflows
       step.form_definition.field_definitions
         .where.not(shared_field_key: nil)
         .each do |field|
-          if shared_data.key?(field.shared_field_key) && !data.key?(field.name)
-            data[field.name] = shared_data[field.shared_field_key]
-          end
+          data[field.name] = shared_data[field.shared_field_key] if shared_data.key?(field.shared_field_key) && !data.key?(field.name)
         end
 
       data

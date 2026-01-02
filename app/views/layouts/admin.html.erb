@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full" data-theme="corporate">
+<html lang="en" class="h-full" data-theme="<%= current_theme %>">
   <head>
     <title><%= content_for(:title) || "Admin - CA Small Claims" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -21,7 +21,7 @@
       <!-- Main Content Area -->
       <div class="drawer-content flex flex-col">
         <!-- Top Navbar -->
-        <nav class="navbar bg-base-100 shadow-sm border-b border-base-300">
+        <nav class="navbar bg-base-100 shadow-sm border-b border-base-300" aria-label="Admin toolbar">
           <div class="flex-none lg:hidden">
             <label for="admin-drawer" class="btn btn-square btn-ghost">
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current">
@@ -85,8 +85,8 @@
 
       <!-- Sidebar -->
       <div class="drawer-side">
-        <label for="admin-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-        <aside class="bg-base-100 w-64 min-h-full border-r border-base-300">
+        <label for="admin-drawer" aria-label="close sidebar" class="drawer-overlay" aria-hidden="true"></label>
+        <aside class="bg-base-100 w-64 min-h-full border-r border-base-300" aria-label="Admin navigation">
           <!-- Sidebar Header -->
           <div class="p-4 border-b border-base-300">
             <div class="flex items-center gap-2">
@@ -96,15 +96,15 @@
                 </svg>
               </div>
               <div>
-                <div class="font-bold">CA Small Claims</div>
-                <div class="text-xs opacity-60">Admin Panel</div>
+                <div class="font-bold text-base-content">CA Small Claims</div>
+                <div class="text-xs opacity-60 text-base-content">Admin Panel</div>
               </div>
             </div>
           </div>
 
           <!-- Navigation Menu -->
           <ul class="menu p-4 text-base-content">
-            <li class="menu-title">Overview</li>
+            <li class="menu-title text-base-content/50 uppercase text-xs font-bold">Overview</li>
             <li>
               <%= link_to admin_root_path, class: "#{controller_name == 'dashboard' ? 'active' : ''}" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -114,7 +114,7 @@
               <% end %>
             </li>
 
-            <li class="menu-title mt-4">Feedback</li>
+            <li class="menu-title mt-4 text-base-content/50 uppercase text-xs font-bold">Feedback</li>
             <li>
               <%= link_to admin_feedbacks_path, class: "#{controller_name == 'feedbacks' ? 'active' : ''}" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -122,19 +122,18 @@
                 </svg>
                 All Feedback
                 <% if defined?(@pending_count) && @pending_count.to_i > 0 %>
-                  <span class="badge badge-warning badge-sm"><%= @pending_count %></span>
+                  <span class="badge badge-warning badge-sm ml-auto"><%= @pending_count %></span>
                 <% end %>
               <% end %>
             </li>
 
-            <li class="menu-title mt-4">Reports</li>
+            <li class="menu-title mt-4 text-base-content/50 uppercase text-xs font-bold">Reports</li>
             <li>
-              <%= link_to "#", class: "opacity-50 cursor-not-allowed" do %>
+              <%= link_to admin_analytics_path, class: "#{controller_name == 'analytics' ? 'active' : ''}" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
                 </svg>
                 Analytics
-                <span class="badge badge-ghost badge-sm">Soon</span>
               <% end %>
             </li>
           </ul>

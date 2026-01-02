@@ -123,20 +123,12 @@ module Utilities
 
     # Instance methods for dependency injection patterns
 
-    def path
-      self.class.path
-    end
+    delegate :path, to: :class
 
-    def available?
-      self.class.available?
-    end
+    delegate :available?, to: :class
 
-    def info
-      self.class.info
-    end
+    delegate :info, to: :class
 
-    def version
-      self.class.version
-    end
+    delegate :version, to: :class
   end
 end
