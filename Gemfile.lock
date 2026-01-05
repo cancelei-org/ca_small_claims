@@ -297,7 +297,7 @@ GEM
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
-    minitest (6.0.0)
+    minitest (6.0.1)
       prism (~> 1.5)
     mission_control-jobs (1.1.0)
       actioncable (>= 7.1)
@@ -478,10 +478,10 @@ GEM
     rspec-mocks (3.13.7)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.13.0)
-    rspec-rails (7.1.1)
-      actionpack (>= 7.0)
-      activesupport (>= 7.0)
-      railties (>= 7.0)
+    rspec-rails (8.0.2)
+      actionpack (>= 7.2)
+      activesupport (>= 7.2)
+      railties (>= 7.2)
       rspec-core (~> 3.13)
       rspec-expectations (~> 3.13)
       rspec-mocks (~> 3.13)
@@ -734,7 +734,7 @@ DEPENDENCIES
   rails (~> 8.1.1)
   rails-controller-testing
   ransack
-  rspec-rails (~> 7.0)
+  rspec-rails (~> 8.0)
   rubocop
   rubocop-capybara
   rubocop-factory_bot
