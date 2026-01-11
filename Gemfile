@@ -59,7 +59,7 @@ gem "pundit"
 # UI Components
 gem "view_component"
 gem "simple_form", "~> 5.3"
-gem "pagy", "~> 9.0"
+gem "pagy", "~> 43.2"
 
 # Background jobs with database-backed queue
 gem "mission_control-jobs"
