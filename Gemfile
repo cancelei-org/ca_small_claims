@@ -9,7 +9,7 @@ gem "foreman"
 gem "pg"
 gem "puma"
 gem "rails", "~> 8.1.1"
-gem "sqlite3", "~> 2.0"  # For development/test
+gem "sqlite3", "~> 2.9"  # For development/test
 gem "thruster"
 
 # Health checks and monitoring
