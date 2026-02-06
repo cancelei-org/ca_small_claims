@@ -1,0 +1,180 @@
+# Quick Fill Template: Property Damage
+# Common scenarios: Damage to personal property, contractor disputes, neighbor disputes
+
+scenario:
+  id: property_damage
+  name: "Property Damage"
+  description: "For disputes involving damage to your personal or real property"
+  icon: "tool"
+  category: property
+
+  claim_types:
+    - property_damage
+    - contract
+    - faulty_merchandise
+
+  customization:
+    - id: damage_source
+      question: "What caused the property damage?"
+      type: select
+      options:
+        - value: contractor
+          label: "Contractor or Service Provider"
+          description: "Damage caused by a contractor, repair person, or service provider"
+        - value: neighbor
+          label: "Neighbor"
+          description: "Damage caused by a neighbor or their property"
+        - value: vandalism
+          label: "Vandalism or Intentional Damage"
+          description: "Someone intentionally damaged your property"
+        - value: product
+          label: "Defective Product"
+          description: "A product you purchased damaged your property"
+        - value: pet
+          label: "Pet or Animal"
+          description: "Damage caused by someone else's pet or animal"
+
+    - id: property_type
+      question: "What type of property was damaged?"
+      type: select
+      options:
+        - value: personal
+          label: "Personal Property"
+          description: "Belongings, electronics, furniture, etc."
+        - value: vehicle
+          label: "Vehicle"
+          description: "Car, motorcycle, boat, etc."
+        - value: real_property
+          label: "Real Property"
+          description: "Your home, land, or structures"
+
+    - id: repair_status
+      question: "Has the property been repaired?"
+      type: select
+      options:
+        - value: repaired
+          label: "Yes, I have repair receipts"
+        - value: estimated
+          label: "No, I have repair estimates"
+        - value: replaced
+          label: "Property was replaced"
+        - value: unrepairable
+          label: "Property cannot be repaired"
+
+prefills:
+  contractor:
+    SC-100:
+      claim_basis: property_damage
+      claim_description: |
+        On [DATE], I hired the defendant to perform the following work:
+        [DESCRIBE WORK: e.g., "remodel my bathroom," "repair my roof," "install new flooring"]
+
+        The agreed price for the work was $[CONTRACT AMOUNT].
+
+        During the course of the work, the defendant caused the following damage to my property:
+        [DESCRIBE DAMAGE: e.g., "damaged my hardwood floors," "broke a window," "caused water damage to the ceiling"]
+
+        [IF INCOMPLETE WORK: Additionally, the defendant failed to complete the work as agreed.]
+
+        I have obtained [a repair estimate / repair receipts] showing the cost to fix the damage is $[REPAIR AMOUNT].
+
+        I am seeking $[TOTAL AMOUNT] for the cost of repairs [and any additional damages].
+      venue_reason: contract_performance
+      demand_made: true
+
+  neighbor:
+    SC-100:
+      claim_basis: property_damage
+      claim_description: |
+        I am the owner/resident of [YOUR ADDRESS].
+
+        The defendant is my neighbor at [DEFENDANT'S ADDRESS].
+
+        On [DATE], the defendant's [DESCRIBE SOURCE: e.g., "tree," "fence," "water drainage," "construction project"] caused damage to my property.
+
+        The damage includes:
+        [DESCRIBE DAMAGE: e.g., "tree fell on my fence causing damage," "water runoff flooded my yard"]
+
+        The cost to repair the damage is $[AMOUNT] based on [repair receipts / professional estimates].
+
+        I notified the defendant of the damage on [NOTIFICATION DATE] and requested they pay for repairs. The defendant has refused.
+      venue_reason: incident_location
+      demand_made: true
+
+  vandalism:
+    SC-100:
+      claim_basis: property_damage
+      claim_description: |
+        On [DATE], the defendant intentionally damaged my property.
+
+        The defendant [DESCRIBE ACTIONS: e.g., "keyed my car," "broke my window," "spray-painted my fence"].
+
+        [IF POLICE REPORT: A police report was filed (Report #[NUMBER]).]
+
+        As a result, I incurred the following damages:
+        [LIST DAMAGES AND COSTS]
+
+        Total damage: $[AMOUNT]
+      venue_reason: incident_location
+      demand_made: true
+
+  product:
+    SC-100:
+      claim_basis: faulty_merchandise
+      claim_description: |
+        On [PURCHASE DATE], I purchased [PRODUCT NAME] from [SELLER/STORE] for $[PURCHASE PRICE].
+
+        On [DAMAGE DATE], the product malfunctioned/was defective and caused the following damage to my property:
+        [DESCRIBE DAMAGE: e.g., "the appliance caught fire and damaged my kitchen counter," "the product leaked and ruined my carpet"]
+
+        The cost to repair/replace the damaged property is $[DAMAGE AMOUNT].
+
+        I am seeking:
+        - Cost of damaged property: $[DAMAGE AMOUNT]
+        - [IF APPLICABLE: Refund of product price: $[PRODUCT PRICE]]
+        - Total: $[TOTAL]
+      venue_reason: defendant_business
+      demand_made: true
+
+  pet:
+    SC-100:
+      claim_basis: property_damage
+      claim_description: |
+        On [DATE], the defendant's [TYPE OF ANIMAL: e.g., "dog," "cat"] caused damage to my property.
+
+        The incident occurred at [LOCATION].
+
+        The animal [DESCRIBE INCIDENT: e.g., "bit/attacked my pet," "destroyed my lawn," "damaged my fence"].
+
+        The damage includes:
+        [LIST DAMAGES: e.g., "veterinary bills," "property repair costs," "replacement costs"]
+
+        Total damages: $[AMOUNT]
+
+        [IF KNOWN DANGEROUS ANIMAL: The defendant knew or should have known their animal was dangerous because [EXPLAIN: prior incidents, breed restrictions, etc.].]
+      venue_reason: incident_location
+      demand_made: true
+
+tips:
+  - title: "Document the Damage"
+    content: "Take photos and videos of all damage before making repairs. Get multiple written estimates from licensed professionals."
+
+  - title: "Measure of Damages"
+    content: "You can recover the lesser of: (1) the cost to repair, or (2) the reduction in value. For unique or irreplaceable items, fair market value may apply."
+
+  - title: "Contractor Disputes"
+    content: "Check if the contractor is licensed at cslb.ca.gov. Unlicensed contractors may face additional penalties and cannot sue you for payment."
+
+  - title: "Pet Damage"
+    content: "California has strict liability for dog bites. For other pet damage, you must prove the owner knew or should have known the animal was dangerous."
+
+  - title: "Tree Damage"
+    content: "If a neighbor's tree damages your property, they may be liable if they knew the tree was hazardous. Document any prior complaints you made about the tree."
+
+related_forms:
+  - code: SC-104
+    reason: "To request a court date/time"
+  - code: SC-103
+    reason: "If you cannot afford the filing fee"
+  - code: SC-105
+    reason: "If suing a business or contractor"

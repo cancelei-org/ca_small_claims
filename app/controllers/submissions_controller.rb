@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 class SubmissionsController < ApplicationController
-  include SessionStorage
   include PdfHandling
 
   before_action :set_submission, only: [ :show, :destroy, :pdf, :download_pdf ]

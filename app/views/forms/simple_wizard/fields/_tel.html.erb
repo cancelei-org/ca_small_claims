@@ -1,0 +1,14 @@
+<%# Phone input for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.telephone_field field.name,
+                         id: "simple-wizard-field-#{field.name}",
+                         value: submission.field_value(field.name),
+                         placeholder: field.placeholder || "(555) 555-5555",
+                         required: field.required,
+                         class: "input input-bordered w-full",
+                         autocomplete: "tel",
+                         data: {
+                           action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                         } %>

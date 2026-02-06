@@ -71,7 +71,7 @@
               <div class="flex items-center justify-between">
                 <div>
                   <h3 class="font-semibold"><%= workflow.name %></h3>
-                  <p class="text-sm text-base-content/60"><%= workflow.total_steps %> steps</p>
+                  <p class="text-sm text-base-content/60"><%= workflow.total_steps %> <%= t("workflows.steps") %></p>
                 </div>
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5 text-base-content/40">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
@@ -82,7 +82,7 @@
 
           <% if @featured_workflows.empty? %>
             <div class="text-center py-4 text-base-content/60">
-              <p>Workflows coming soon</p>
+              <p><%= t("home.workflows_coming_soon") %></p>
             </div>
           <% end %>
         </div>
@@ -140,6 +140,35 @@
       </div>
     </div>
   </div>
+</section>
+
+<%# Form Finder CTA %>
+<section class="py-8">
+  <%= link_to form_finder_path, class: "block" do %>
+    <div class="card bg-gradient-to-r from-primary to-secondary text-primary-content shadow-xl hover:shadow-2xl transition-shadow">
+      <div class="card-body flex-row items-center justify-between">
+        <div class="flex items-center gap-4">
+          <div class="p-3 rounded-full bg-primary-content/20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="text-xl font-bold"><%= t("home.form_finder.title") %></h2>
+            <p class="opacity-90"><%= t("home.form_finder.description") %></p>
+          </div>
+        </div>
+        <div class="hidden md:block">
+          <span class="btn btn-ghost btn-lg text-primary-content border-primary-content/30 hover:bg-primary-content/20">
+            <%= t("buttons.find_forms") %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          </span>
+        </div>
+      </div>
+    </div>
+  <% end %>
 </section>
 
 <%# Quick Actions - Filing vs Being Sued %>

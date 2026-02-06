@@ -1,0 +1,365 @@
+# Form Dependencies Configuration
+# Defines form sequences, dependencies, and Form Kits for California Small Claims Court
+#
+# Stages:
+#   - filing: Initial filing of claim/response
+#   - service: Serving documents to other parties
+#   - hearing: Pre-trial and hearing preparation
+#   - judgment: Post-judgment forms
+#   - enforcement: Collecting on a judgment
+#   - appeal: Appealing a decision
+
+# Form sequences define the typical order of forms in a case flow
+sequences:
+  # Plaintiff filing flow
+  plaintiff_claim:
+    stage: filing
+    forms:
+      - code: SC-100
+        name: "Plaintiff's Claim"
+        description: "Start your small claims case"
+        required: true
+      - code: SC-100A
+        name: "Additional Plaintiffs/Defendants"
+        description: "For cases with more than 2 plaintiffs or defendants"
+        required: false
+        conditional: "multiple_parties"
+      - code: SC-103
+        name: "Request to Waive Court Fees"
+        description: "Apply for fee waiver if you cannot afford filing fees"
+        required: false
+        conditional: "needs_fee_waiver"
+      - code: SC-104
+        name: "Proof of Service"
+        description: "Prove you served the defendant"
+        required: true
+        after: SC-100
+
+  # Defendant response flow
+  defendant_response:
+    stage: filing
+    forms:
+      - code: SC-120
+        name: "Defendant's Claim"
+        description: "File a counter-claim against the plaintiff"
+        required: false
+      - code: SC-120A
+        name: "Additional Parties"
+        description: "For cases with more than 2 plaintiffs"
+        required: false
+        conditional: "multiple_parties"
+      - code: SC-104
+        name: "Proof of Service"
+        description: "Prove you served your counter-claim"
+        required: true
+        after: SC-120
+
+  # Pre-trial flow
+  pre_trial:
+    stage: hearing
+    forms:
+      - code: SC-114
+        name: "Declaration for Subpoena"
+        description: "Request witness attendance at hearing"
+        required: false
+      - code: SC-150
+        name: "Request for Continuance"
+        description: "Ask to reschedule your hearing"
+        required: false
+      - code: SC-152
+        name: "Motion to Vacate Judgment"
+        description: "Request to set aside a judgment"
+        required: false
+      - code: SC-221
+        name: "Transfer Order"
+        description: "Transfer case to another court"
+        required: false
+
+  # Judgment collection flow
+  judgment_collection:
+    stage: enforcement
+    forms:
+      - code: EJ-001
+        name: "Abstract of Judgment"
+        description: "Create a lien on debtor's property"
+        required: false
+      - code: SC-132
+        name: "Satisfaction of Judgment"
+        description: "Acknowledge judgment has been paid"
+        required: false
+        after_paid: true
+      - code: SC-108
+        name: "Request for Dismissal"
+        description: "Dismiss your case or judgment"
+        required: false
+
+  # Appeal flow
+  appeal:
+    stage: appeal
+    forms:
+      - code: SC-300
+        name: "Petition for Writ"
+        description: "Challenge a court ruling"
+        required: false
+        deadline: "20 days from judgment"
+
+# Form Dependencies - defines what forms typically follow or precede other forms
+dependencies:
+  SC-100:
+    next:
+      - code: SC-104
+        reason: "Proof of service is required after filing"
+        required: true
+      - code: SC-100A
+        reason: "Use if you have more than 2 defendants"
+        required: false
+      - code: SC-103
+        reason: "Apply for fee waiver if you qualify"
+        required: false
+    stage: filing
+    role: plaintiff
+
+  SC-100A:
+    previous:
+      - code: SC-100
+        reason: "File with your main claim"
+    stage: filing
+    role: plaintiff
+
+  SC-103:
+    next:
+      - code: SC-100
+        reason: "Submit with your claim form"
+    stage: filing
+    role: both
+
+  SC-104:
+    previous:
+      - code: SC-100
+        reason: "File after serving your claim"
+      - code: SC-120
+        reason: "File after serving your counter-claim"
+    next:
+      - code: SC-114
+        reason: "Subpoena witnesses if needed"
+        required: false
+    stage: service
+    role: both
+
+  SC-120:
+    previous:
+      - code: SC-100
+        reason: "Respond to plaintiff's claim"
+    next:
+      - code: SC-104
+        reason: "Prove you served the plaintiff"
+        required: true
+      - code: SC-120A
+        reason: "Use if more than 2 plaintiffs"
+        required: false
+    stage: filing
+    role: defendant
+
+  SC-120A:
+    previous:
+      - code: SC-120
+        reason: "File with your counter-claim"
+    stage: filing
+    role: defendant
+
+  SC-114:
+    previous:
+      - code: SC-100
+        reason: "After filing your case"
+      - code: SC-120
+        reason: "After filing your response"
+    stage: hearing
+    role: both
+
+  SC-132:
+    previous:
+      - code: EJ-001
+        reason: "After collecting judgment"
+    stage: judgment
+    role: plaintiff
+
+  SC-150:
+    previous:
+      - code: SC-100
+        reason: "Request to reschedule hearing"
+      - code: SC-120
+        reason: "Request to reschedule hearing"
+    stage: hearing
+    role: both
+
+  SC-152:
+    previous:
+      - code: SC-132
+        reason: "After judgment entered"
+    stage: judgment
+    role: both
+
+  EJ-001:
+    previous:
+      - code: SC-100
+        reason: "After winning your case"
+    next:
+      - code: SC-132
+        reason: "Acknowledge payment when received"
+    stage: enforcement
+    role: plaintiff
+
+  SC-300:
+    previous:
+      - code: SC-100
+        reason: "Appeal court decision"
+      - code: SC-120
+        reason: "Appeal court decision"
+    stage: appeal
+    role: both
+
+# Form Kits - bundled sets of forms for common scenarios
+form_kits:
+  complete_filing:
+    name: "Complete Filing Kit"
+    description: "Everything you need to file a new small claims case"
+    icon: "file-plus"
+    stage: filing
+    role: plaintiff
+    recommended_for:
+      - "First-time filers"
+      - "Standard claims"
+    forms:
+      - code: SC-100
+        required: true
+        order: 1
+      - code: SC-104
+        required: true
+        order: 2
+      - code: SC-103
+        required: false
+        order: 3
+        note: "Only if requesting fee waiver"
+    estimated_time: "30-45 minutes"
+
+  defendant_response:
+    name: "Defendant Response Kit"
+    description: "Forms to respond to a small claims lawsuit and file a counter-claim"
+    icon: "shield"
+    stage: filing
+    role: defendant
+    recommended_for:
+      - "People who have been sued"
+      - "Counter-claims"
+    forms:
+      - code: SC-120
+        required: true
+        order: 1
+      - code: SC-104
+        required: true
+        order: 2
+      - code: SC-103
+        required: false
+        order: 3
+        note: "Only if requesting fee waiver"
+    estimated_time: "30-45 minutes"
+
+  judgment_collection:
+    name: "Judgment Collection Kit"
+    description: "Tools to collect money after winning your case"
+    icon: "banknotes"
+    stage: enforcement
+    role: plaintiff
+    recommended_for:
+      - "Judgment creditors"
+      - "Collecting debts"
+    forms:
+      - code: EJ-001
+        required: false
+        order: 1
+        note: "Creates lien on real property"
+      - code: SC-132
+        required: false
+        order: 2
+        note: "File when judgment is paid"
+    estimated_time: "20-30 minutes"
+
+  appeal_kit:
+    name: "Appeal Kit"
+    description: "Forms to challenge a small claims court decision"
+    icon: "scale"
+    stage: appeal
+    role: both
+    recommended_for:
+      - "Appealing a judgment"
+      - "Court errors"
+    forms:
+      - code: SC-300
+        required: true
+        order: 1
+    estimated_time: "45-60 minutes"
+    important_deadline: "File within 20 days of judgment"
+
+  pre_trial:
+    name: "Pre-Trial Preparation Kit"
+    description: "Forms for hearing preparation and scheduling"
+    icon: "calendar"
+    stage: hearing
+    role: both
+    recommended_for:
+      - "Need witnesses"
+      - "Rescheduling"
+    forms:
+      - code: SC-114
+        required: false
+        order: 1
+        note: "Subpoena witnesses"
+      - code: SC-150
+        required: false
+        order: 2
+        note: "Request continuance"
+    estimated_time: "15-20 minutes"
+
+# Stage definitions with display information
+stages:
+  filing:
+    name: "Filing Your Case"
+    description: "Start your small claims case or respond to one"
+    order: 1
+    color: "primary"
+    icon: "document-plus"
+
+  service:
+    name: "Serving Documents"
+    description: "Deliver court papers to other parties"
+    order: 2
+    color: "info"
+    icon: "envelope"
+
+  hearing:
+    name: "Before the Hearing"
+    description: "Prepare for your court date"
+    order: 3
+    color: "warning"
+    icon: "calendar"
+
+  judgment:
+    name: "After Judgment"
+    description: "Post-judgment paperwork"
+    order: 4
+    color: "success"
+    icon: "check-circle"
+
+  enforcement:
+    name: "Collecting Your Judgment"
+    description: "Enforce a judgment and collect money"
+    order: 5
+    color: "secondary"
+    icon: "currency-dollar"
+
+  appeal:
+    name: "Appeals"
+    description: "Challenge a court decision"
+    order: 6
+    color: "error"
+    icon: "arrow-up-circle"

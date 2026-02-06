@@ -1,0 +1,63 @@
+CA Small Claims Court Forms
+===========================
+
+Fee Waiver Application Update
+-----------------------------
+
+Hello <%= @user.display_name %>,
+
+There has been an update to your fee waiver application status.
+
+<% case @status.to_s %>
+<% when "approved" %>
+*** APPROVED ***
+<%= @status_message %>
+<% when "denied" %>
+*** NOT APPROVED ***
+<%= @status_message %>
+<% when "pending_review" %>
+*** UNDER REVIEW ***
+<%= @status_message %>
+<% else %>
+*** STATUS UPDATED ***
+<%= @status_message %>
+<% end %>
+
+APPLICATION DETAILS
+-------------------
+Form: <%= @form_definition.code %> - <%= @form_definition.title %>
+Status: <%= @status.to_s.titleize %>
+Updated: <%= Time.current.strftime("%B %d, %Y at %I:%M %p") %>
+
+<% if @status.to_s == "approved" %>
+WHAT THIS MEANS
+---------------
+- Court filing fees will be waived for your case
+- You may still need to pay for process server or other costs
+- Keep a copy of your fee waiver approval for your records
+- The waiver applies to the specific case mentioned
+<% elsif @status.to_s == "denied" %>
+YOUR OPTIONS
+------------
+- You may request a hearing to contest the decision
+- You can reapply if your financial situation changes
+- Contact the court clerk for information about payment plans
+- Some courts offer reduced fees based on income
+<% elsif @status.to_s == "pending_review" %>
+WHAT HAPPENS NEXT
+-----------------
+- A court clerk will review your application
+- You may be asked to provide additional documentation
+- Review typically takes 1-5 business days
+- You will receive an email when a decision is made
+<% end %>
+
+View your application at: <%= submission_url(@submission) %>
+
+QUESTIONS?
+----------
+If you have questions about your fee waiver status, please contact your local Small Claims Court clerk's office directly.
+
+---
+California Small Claims Court Forms
+You received this email because you applied for a fee waiver.

@@ -1,0 +1,19 @@
+<%# Checkbox for simple wizard
+    locals: field, form, submission, index
+%>
+
+<label class="choice-label">
+  <%= form.check_box field.name,
+                     {
+                       id: "simple-wizard-field-#{field.name}",
+                       checked: submission.field_value(field.name) == true || submission.field_value(field.name) == "true",
+                       required: field.required,
+                       class: "checkbox checkbox-primary",
+                       data: {
+                         action: "change->simple-wizard#fieldChanged change->form#fieldChanged"
+                       }
+                     },
+                     "true",
+                     "false" %>
+  <span class="choice-text"><%= field.label || field.name.titleize %></span>
+</label>

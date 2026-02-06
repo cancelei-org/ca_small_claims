@@ -1,13 +1,4 @@
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
-  <%= form.telephone_field field.name,
-    value: submission.field_value(field.name),
-    placeholder: field.placeholder || "(555) 555-5555",
-    required: field.required,
-    class: standard_input_class,
-    id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-    data: field_data_attributes.merge(
-      action: "input->form#fieldChanged input->input-format#format"
-    ),
-    **field_aria_attributes(field, prefix: prefix) %>
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
+  <%= render_input_field(form, field, :tel, submission, prefix: prefix) %>
 <% end %>

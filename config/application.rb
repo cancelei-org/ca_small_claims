@@ -43,5 +43,8 @@ module CaSmallClaims
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+    # Security middleware
+    config.middleware.use Rack::Attack if Rails.env.production?
   end
 end

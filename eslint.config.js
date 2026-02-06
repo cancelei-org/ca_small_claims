@@ -29,7 +29,9 @@ const config = [
     languageOptions: {
       globals: {
         ...globals.browser,
-        process: 'readonly'
+        process: 'readonly',
+        L: 'readonly',       // Leaflet global
+        Turbo: 'readonly'    // Hotwired Turbo global
       }
     },
     rules: {

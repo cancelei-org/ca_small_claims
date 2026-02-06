@@ -31,9 +31,6 @@ gem "turbo-rails"
 # Hotwire's modest JavaScript framework
 gem "stimulus-rails"
 
-# TurboBoost Commands for reactive server-side commands
-gem "turbo_boost-commands", "~> 0.3"
-
 # Use JavaScript with ESM import maps
 gem "importmap-rails"
 
@@ -159,4 +156,10 @@ group :test do
 
   # PDF content verification
   gem "pdf-reader"
+
+  # HTML matchers for view testing
+  gem "rspec-html-matchers"
 end
+
+gem "lograge", "~> 0.14.0"
+gem "erb_lint", require: false, group: :development

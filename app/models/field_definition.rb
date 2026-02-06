@@ -49,4 +49,49 @@ class FieldDefinition < ApplicationRecord
   def component_name
     "Forms::#{field_type.camelize}FieldComponent"
   end
+
+  # Transforms conditions from YAML format to JS controller format
+  # YAML format: { "show_when" => { "field" => "name", "value" => "val" } }
+  # JS format: [{ "field" => "name", "operator" => "equals", "value" => "val" }]
+  #
+  # @return [Array<Hash>] Array of condition objects for the JS controller
+  def conditions_for_js
+    return [] unless conditions.present?
+
+    result = []
+
+    # Handle show_when condition
+    if (show_when = conditions["show_when"] || conditions[:show_when])
+      result << normalize_condition(show_when, "equals")
+    end
+
+    # Handle hide_when condition (inverts the operator)
+    if (hide_when = conditions["hide_when"] || conditions[:hide_when])
+      result << normalize_condition(hide_when, "not_equals")
+    end
+
+    # Handle array of conditions
+    if conditions.is_a?(Array)
+      conditions.each do |cond|
+        result << normalize_condition(cond, "equals")
+      end
+    end
+
+    result.compact
+  end
+
+  private
+
+  def normalize_condition(condition, default_operator)
+    return nil unless condition.is_a?(Hash)
+
+    field = condition["field"] || condition[:field]
+    return nil unless field.present?
+
+    {
+      "field" => field,
+      "operator" => condition["operator"] || condition[:operator] || default_operator,
+      "value" => condition["value"] || condition[:value]
+    }
+  end
 end

@@ -30,13 +30,29 @@ module FormDataAccessor
     form_data[field_name.to_s]
   end
 
-  # Updates a single field value in form_data
+  # Retrieves the source/metadata for a field
+  #
+  # @param field_name [String, Symbol] The name of the field
+  # @return [Hash] Metadata for the field (source, original_value, etc.)
+  def field_metadata(field_name)
+    (form_data["_metadata"] || {})[field_name.to_s] || {}
+  end
+
+  # Updates a single field value in form_data with optional metadata
   #
   # @param field_name [String, Symbol] The name of the field
   # @param value [Object] The value to set
+  # @param metadata [Hash] Optional metadata (source, etc.)
   # @return [Boolean] true if save was successful
-  def update_field(field_name, value)
+  def update_field(field_name, value, metadata = nil)
     self.form_data = form_data.merge(field_name.to_s => value)
+
+    if metadata
+      meta = form_data["_metadata"] || {}
+      meta[field_name.to_s] = (meta[field_name.to_s] || {}).merge(metadata.stringify_keys)
+      self.form_data["_metadata"] = meta
+    end
+
     after_form_data_update if respond_to?(:after_form_data_update, true)
     save
   end
@@ -46,7 +62,16 @@ module FormDataAccessor
   # @param new_data [Hash] Hash of field names to values
   # @return [Boolean] true if save was successful
   def update_fields(new_data)
+    # Filter out metadata from new_data if passed directly
+    metadata = new_data.delete("_metadata") || new_data.delete(:_metadata)
+
     self.form_data = form_data.merge(new_data.stringify_keys)
+
+    if metadata
+      meta = form_data["_metadata"] || {}
+      self.form_data["_metadata"] = meta.merge(metadata.stringify_keys)
+    end
+
     after_form_data_update if respond_to?(:after_form_data_update, true)
     save
   end

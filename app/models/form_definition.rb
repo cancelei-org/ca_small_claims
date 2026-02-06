@@ -38,9 +38,6 @@ class FormDefinition < ApplicationRecord
     where("LOWER(code) LIKE ? OR LOWER(title) LIKE ? OR LOWER(description) LIKE ?", term, term, term)
   }
 
-  # Legacy constant for backward compatibility during migration
-  LEGACY_CATEGORIES = %w[filing service pre_trial judgment post_judgment special info plaintiff defendant enforcement appeal collections informational fee_waiver].freeze
-
   def pdf_path
     if use_s3_storage?
       S3::TemplateService.new.download_template(pdf_filename)
@@ -72,6 +69,25 @@ class FormDefinition < ApplicationRecord
   def fields_by_page
     field_definitions.group_by(&:page_number)
   end
+
+  # Returns fields grouped by section, and within each section,
+  # identifies groups of fields that should be repeated together.
+  # @return [Hash] { section_name => [ { type: :single, field: f }, { type: :group, name: 'g', fields: [...] } ] }
+  def sections_with_groups
+    field_definitions.group_by(&:section).transform_values do |fields|
+      fields.sort_by(&:position).chunk_while do |a, b|
+        a.repeating_group.present? && a.repeating_group == b.repeating_group
+      end.map do |chunk|
+        if chunk.first.repeating_group.present?
+          { type: :group, name: chunk.first.repeating_group, fields: chunk }
+        else
+          chunk.map { |f| { type: :single, field: f } }
+        end
+      end.flatten
+    end
+  end
+
+  after_commit -> { Cache::FormMetadataCache.invalidate! }, on: [ :create, :update, :destroy ]
 
   def to_param
     slug.presence || code
@@ -120,13 +136,37 @@ class FormDefinition < ApplicationRecord
   end
 
   # Returns total usage count (submissions + session submissions)
+  # Uses single query with UNION for efficiency
   def usage_count
-    submissions.count + session_submissions.count
+    Submission.where(form_definition_id: id).count +
+      SessionSubmission.where(form_definition_id: id).count
+  end
+
+  # Returns total usage count using cached counter (for batch operations)
+  # Call with FormDefinition.with_usage_counts to preload
+  def cached_usage_count
+    @cached_usage_count ||= usage_count
+  end
+
+  # Batch load usage counts for multiple form definitions
+  # Returns hash of {form_id => count}
+  def self.usage_counts_for(form_ids)
+    submission_counts = Submission.where(form_definition_id: form_ids)
+                                  .group(:form_definition_id)
+                                  .count
+    session_counts = SessionSubmission.where(form_definition_id: form_ids)
+                                      .group(:form_definition_id)
+                                      .count
+
+    form_ids.index_with do |id|
+      (submission_counts[id] || 0) + (session_counts[id] || 0)
+    end
   end
 
   # Returns true if this form is in the top N most popular forms
+  # Optimized to use EXISTS query instead of loading all IDs into memory
   def popular?(threshold: 5)
-    self.class.active.popular(threshold).pluck(:id).include?(id)
+    self.class.active.popular(threshold).exists?(id: id)
   end
 
   # Returns recommended forms based on category and common workflows
@@ -160,6 +200,47 @@ class FormDefinition < ApplicationRecord
     }
   end
 
+  # ============================================
+  # Form Estimates (Difficulty & Time)
+  # ============================================
+
+  # Returns the estimated time to complete this form
+  # @return [String] Formatted time estimate (e.g., "~15 min")
+  def estimated_time
+    time_estimator.formatted_estimate
+  end
+
+  # Returns the estimated minutes to complete this form
+  # @return [Integer] Estimated minutes
+  delegate :estimated_minutes, to: :time_estimator
+
+  # Returns the difficulty level of this form
+  # @return [Symbol] :easy, :medium, or :complex
+  delegate :difficulty_level, to: :complexity_calculator
+
+  # Returns human-readable difficulty label
+  # @return [String] "Easy", "Medium", or "Complex"
+  delegate :difficulty_label, to: :complexity_calculator
+
+  # Returns the complexity score for this form
+  # @return [Integer] Weighted complexity score
+  delegate :complexity_score, to: :complexity_calculator
+
+  # Returns detailed estimates including time range
+  # @return [Hash] Hash with difficulty and time information
+  def form_estimates
+    {
+      difficulty_level: difficulty_level,
+      difficulty_label: difficulty_label,
+      complexity_score: complexity_score,
+      estimated_minutes: estimated_minutes,
+      estimated_time: estimated_time,
+      time_range: time_estimator.time_range,
+      total_fields: complexity_calculator.total_fields,
+      required_fields: complexity_calculator.required_fields_count
+    }
+  end
+
   # Returns true if this form has pending feedback that needs attention
   def needs_attention?
     form_feedbacks.pending.exists? || form_feedbacks.low_rated.unresolved.exists?
@@ -190,6 +271,14 @@ class FormDefinition < ApplicationRecord
   end
 
   private
+
+  def complexity_calculator
+    @complexity_calculator ||= FormEstimates::ComplexityCalculator.new(self)
+  end
+
+  def time_estimator
+    @time_estimator ||= FormEstimates::TimeEstimator.new(self)
+  end
 
   def use_s3_storage?
     ENV.fetch("USE_S3_STORAGE", "false") == "true"

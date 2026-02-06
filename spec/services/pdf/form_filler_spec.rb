@@ -70,4 +70,65 @@ RSpec.describe Pdf::FormFiller do
       expect(Rails.cache.exist?(submission.pdf_cache_key)).to be false
     end
   end
+
+  describe "edge cases" do
+    context "with empty form_data" do
+      let(:submission) { create(:submission, form_definition: form_definition, form_data: {}) }
+
+      it "generates PDF successfully" do
+        result = service.generate
+        expect(result).to eq("PDF DATA")
+      end
+    end
+
+    context "with nil form_data values" do
+      let(:submission) { create(:submission, form_definition: form_definition, form_data: { "field1" => nil, "field2" => "" }) }
+
+      it "generates PDF successfully" do
+        result = service.generate
+        expect(result).to eq("PDF DATA")
+      end
+    end
+
+    context "with special characters in form_data" do
+      let(:submission) do
+        create(:submission, form_definition: form_definition, form_data: {
+          "name" => "John O'Connor & Co.",
+          "address" => "123 Main St.\nApt #4",
+          "notes" => "Special chars: <>&\"'"
+        })
+      end
+
+      it "generates PDF successfully" do
+        result = service.generate
+        expect(result).to eq("PDF DATA")
+      end
+    end
+
+    context "with very long field values" do
+      let(:submission) do
+        create(:submission, form_definition: form_definition, form_data: {
+          "description" => "A" * 10_000
+        })
+      end
+
+      it "generates PDF successfully" do
+        result = service.generate
+        expect(result).to eq("PDF DATA")
+      end
+    end
+
+    context "with unicode characters" do
+      let(:submission) do
+        create(:submission, form_definition: form_definition, form_data: {
+          "name" => "José García 日本語 🏛️"
+        })
+      end
+
+      it "generates PDF successfully" do
+        result = service.generate
+        expect(result).to eq("PDF DATA")
+      end
+    end
+  end
 end

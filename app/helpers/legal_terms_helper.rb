@@ -1,94 +1,160 @@
 # frozen_string_literal: true
 
 module LegalTermsHelper
-  # Common legal terms used in Small Claims Court forms
-  # Each term includes a definition and optional link to CA Courts Self-Help
-  LEGAL_TERMS = {
-    plaintiff: {
-      title: "Plaintiff",
-      definition: "The person or business filing the lawsuit (suing). In small claims, " \
-                  "this is the person who believes they are owed money or property.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/plaintiff"
-    },
-    defendant: {
-      title: "Defendant",
-      definition: "The person or business being sued. The defendant must respond to " \
-                  "the lawsuit and may owe money or property if the plaintiff wins.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/defendant"
-    },
-    venue: {
-      title: "Venue",
-      definition: "The court location where your case will be heard. Generally, you must " \
-                  "file in the county where the defendant lives or where the issue occurred.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/file"
-    },
-    service: {
-      title: "Service of Process",
-      definition: "The legal requirement to deliver court papers to the other party. " \
-                  "Someone 18+ (not you) must deliver the papers and sign a proof of service.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/serve"
-    },
-    judgment: {
-      title: "Judgment",
-      definition: "The court's final decision in your case. It states who won and how much " \
-                  "money (if any) is owed. Collecting the judgment is your responsibility.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/judgment"
-    },
-    claim: {
-      title: "Claim Amount",
-      definition: "The total amount of money you are asking for. In California Small Claims, " \
-                  "individuals can sue for up to $12,500; businesses up to $6,250.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/how-much"
-    },
-    hearing: {
-      title: "Hearing",
-      definition: "The court date when you present your case to the judge. Both parties " \
-                  "can bring evidence and witnesses. The judge decides the case that day.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/hearing"
-    },
-    appeal: {
-      title: "Appeal",
-      definition: "A request for a new trial if you disagree with the judgment. Only defendants " \
-                  "can appeal in small claims court. Appeals must be filed within 30 days.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/appeal"
-    },
-    continuance: {
-      title: "Continuance",
-      definition: "A request to postpone your court date. You must have a good reason and " \
-                  "ask before your hearing date. The judge decides whether to grant it.",
-      link: nil
-    },
-    garnishment: {
-      title: "Wage Garnishment",
-      definition: "A court order requiring an employer to withhold part of the defendant's " \
-                  "wages to pay the judgment. Used when the defendant won't pay voluntarily.",
-      link: "https://selfhelp.courts.ca.gov/small-claims/collect"
-    }
-  }.freeze
+  # Highlights legal terms in text with interactive tooltips
+  # Usage: <%= highlight_legal_terms("The plaintiff must serve the defendant") %>
+  def highlight_legal_terms(text)
+    return "" if text.blank?
 
-  # Render expandable help for a legal term
-  # Usage: <%= legal_term_help(:plaintiff) %>
-  def legal_term_help(term_key)
-    term = LEGAL_TERMS[term_key.to_sym]
-    return nil unless term
+    highlighted = LegalTerms::Glossary.instance.highlight_terms(text)
+    highlighted.html_safe
+  end
 
-    expandable_help(
-      term[:title],
-      term[:definition],
-      link_url: term[:link],
-      link_text: "Learn more at CA Courts"
+  # Creates a single legal term tooltip
+  # Usage: <%= legal_term("plaintiff") %>
+  def legal_term(term_text, options = {})
+    term_data = LegalTerms::Glossary.instance.find_by_term(term_text)
+    return term_text unless term_data
+
+    display_text = options[:display] || term_text
+    tooltip_text = term_data[:simple] || term_data[:definition]
+
+    content_tag(:span,
+      display_text,
+      class: "legal-term #{options[:class]}".strip,
+      data: {
+        controller: "legal-tooltip",
+        legal_tooltip_definition_value: term_data[:definition],
+        legal_tooltip_simple_value: term_data[:simple] || "",
+        legal_tooltip_url_value: term_data[:help_url] || glossary_term_url(term_data)
+      },
+      tabindex: "0",
+      role: "button",
+      aria: { label: "#{display_text}: #{tooltip_text}" }
     )
   end
 
-  # Get just the definition text for a legal term (for tooltips)
-  def legal_term_definition(term_key)
-    term = LEGAL_TERMS[term_key.to_sym]
-    term&.dig(:definition)
+  # Creates a "What's this?" tooltip icon for field labels containing legal terms
+  # Usage: <%= legal_term_tooltip_icon(field.label) %>
+  def legal_term_tooltip_icon(label_text, options = {})
+    return nil if label_text.blank?
+
+    glossary = LegalTerms::Glossary.instance
+    terms = glossary.terms_in_label(label_text)
+    return nil if terms.empty?
+
+    # Use the first term found for the tooltip
+    term_data = terms.first
+    tooltip_text = term_data[:simple] || term_data[:definition]
+    icon_class = options[:class] || "w-4 h-4 ml-1"
+
+    content_tag(:button,
+      type: "button",
+      class: "legal-term-icon inline-flex items-center text-base-content/60 hover:text-primary focus:text-primary transition-colors",
+      data: {
+        controller: "legal-tooltip",
+        legal_tooltip_definition_value: term_data[:definition],
+        legal_tooltip_simple_value: term_data[:simple] || "",
+        legal_tooltip_url_value: term_data[:help_url] || glossary_term_url(term_data)
+      },
+      tabindex: "0",
+      title: "What is #{term_data[:term]}?",
+      aria: { label: "Learn about #{term_data[:term]}: #{tooltip_text}" }
+    ) do
+      icon(:info_circle, class: icon_class)
+    end
   end
 
-  # Get the title for a legal term
-  def legal_term_title(term_key)
-    term = LEGAL_TERMS[term_key.to_sym]
-    term&.dig(:title)
+  # Creates a label with legal term tooltip icon if terms are found
+  # Usage: <%= label_with_legal_tooltip("Plaintiff Name", "plaintiff") %>
+  def label_with_legal_tooltip(label_text, term_key = nil)
+    glossary = LegalTerms::Glossary.instance
+
+    # If specific term key provided, look it up
+    term_data = if term_key.present?
+                  glossary.find(term_key) || glossary.find_by_term(term_key)
+    else
+                  glossary.first_term_in(label_text)
+    end
+
+    return content_tag(:span, label_text, class: "label-text font-medium text-base") unless term_data
+
+    tooltip_text = term_data[:simple] || term_data[:definition]
+
+    content_tag(:span, class: "inline-flex items-center gap-1") do
+      label_span = content_tag(:span, label_text, class: "label-text font-medium text-base")
+
+      tooltip_button = content_tag(:button,
+        type: "button",
+        class: "legal-term-icon inline-flex items-center text-base-content/60 hover:text-primary focus:text-primary transition-colors rounded-full",
+        data: {
+          controller: "legal-tooltip",
+          legal_tooltip_definition_value: term_data[:definition],
+          legal_tooltip_simple_value: term_data[:simple] || "",
+          legal_tooltip_url_value: term_data[:help_url] || glossary_term_url(term_data)
+        },
+        tabindex: "0",
+        title: "What is #{term_data[:term]}?",
+        aria: { label: "Learn about #{term_data[:term]}: #{tooltip_text}" }
+      ) do
+        icon(:info_circle, class: "w-4 h-4")
+      end
+
+      safe_join([ label_span, tooltip_button ])
+    end
+  end
+
+  # Renders the full glossary for reference
+  def legal_terms_glossary
+    terms = LegalTerms::Glossary.instance.terms.sort_by { |t| t[:term] }
+    render partial: "shared/legal_terms_glossary", locals: { terms: terms }
+  end
+
+  # Renders grouped glossary with categories
+  def legal_terms_glossary_grouped
+    categories = LegalTerms::Glossary.instance.terms_by_category
+    render partial: "shared/legal_terms_glossary_grouped", locals: { categories: categories }
+  end
+
+  # Check if text contains any legal terms
+  def contains_legal_terms?(text)
+    return false if text.blank?
+
+    LegalTerms::Glossary.instance.contains_terms?(text)
+  end
+
+  # Get all legal terms for a given text
+  def legal_terms_in(text)
+    return [] if text.blank?
+
+    LegalTerms::Glossary.instance.terms_in_label(text)
+  end
+
+  # URL to glossary page with anchor to specific term
+  def glossary_term_url(term_data)
+    "/glossary##{term_data[:term].parameterize}"
+  end
+
+  # Render a compact tooltip for inline use
+  # Shows term with dotted underline and tooltip on hover
+  def inline_legal_term(term_text, display_text = nil)
+    term_data = LegalTerms::Glossary.instance.find_by_term(term_text)
+    display = display_text || term_text
+
+    return display unless term_data
+
+    content_tag(:span,
+      display,
+      class: "legal-term-inline",
+      data: {
+        controller: "legal-tooltip",
+        legal_tooltip_definition_value: term_data[:definition],
+        legal_tooltip_simple_value: term_data[:simple] || "",
+        legal_tooltip_url_value: term_data[:help_url] || glossary_term_url(term_data)
+      },
+      tabindex: "0",
+      role: "button",
+      aria: { label: "#{display}: #{term_data[:simple] || term_data[:definition]}" }
+    )
   end
 end

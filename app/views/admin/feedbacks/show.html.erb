@@ -1,4 +1,4 @@
-<% content_for :title, "Feedback ##{@feedback.id} - Admin" %>
+<% content_for :title, "Issue ##{@feedback.id} - Admin" %>
 
 <div class="space-y-6">
   <div class="flex items-center gap-4">
@@ -6,7 +6,7 @@
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
         <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
       </svg>
-      Back to Feedback
+      Back to Issues
     <% end %>
   </div>
 
@@ -21,14 +21,10 @@
               <h2 class="card-title mb-1"><%= @feedback.form_definition.code %></h2>
               <p class="text-base-content/70"><%= @feedback.form_definition.title %></p>
             </div>
-            <% case @feedback.status %>
-            <% when "pending" %>
-              <span class="badge badge-warning">Pending</span>
-            <% when "acknowledged" %>
-              <span class="badge badge-info">Acknowledged</span>
-            <% when "resolved" %>
-              <span class="badge badge-success">Resolved</span>
-            <% end %>
+            <div class="flex flex-col gap-2 items-end">
+              <span class="badge <%= @feedback.status_badge_class %>"><%= @feedback.status_label %></span>
+              <span class="badge <%= @feedback.priority_badge_class %>"><%= @feedback.priority_label %> Priority</span>
+            </div>
           </div>
 
           <%# Rating %>
@@ -71,17 +67,53 @@
         </div>
       </div>
 
-      <%# Admin Notes %>
+      <%# Admin Notes & Settings %>
       <div class="card bg-base-100 shadow">
         <div class="card-body">
-          <h3 class="font-semibold mb-4">Admin Notes</h3>
+          <h3 class="font-semibold mb-4">Issue Management</h3>
 
           <%= form_with model: @feedback, url: admin_feedback_path(@feedback), method: :patch do |f| %>
-            <div class="form-control mb-4">
-              <%= f.text_area :admin_notes, rows: 4, class: "textarea textarea-bordered w-full", placeholder: "Add notes about this feedback..." %>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Status</span>
+                </label>
+                <%= f.select :status,
+                             options_for_select([
+                               ["Open", "open"],
+                               ["In Progress", "in_progress"],
+                               ["Resolved", "resolved"],
+                               ["Closed", "closed"]
+                             ], @feedback.status),
+                             {},
+                             class: "select select-bordered w-full" %>
+              </div>
+
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text">Priority</span>
+                </label>
+                <%= f.select :priority,
+                             options_for_select([
+                               ["Low", "low"],
+                               ["Medium", "medium"],
+                               ["High", "high"],
+                               ["Urgent", "urgent"]
+                             ], @feedback.priority),
+                             {},
+                             class: "select select-bordered w-full" %>
+              </div>
             </div>
+
+            <div class="form-control mb-4">
+              <label class="label">
+                <span class="label-text">Admin Notes</span>
+              </label>
+              <%= f.text_area :admin_notes, rows: 4, class: "textarea textarea-bordered w-full", placeholder: "Add internal notes about this issue..." %>
+            </div>
+
             <div class="flex justify-end">
-              <%= f.submit "Save Notes", class: "btn btn-primary btn-sm" %>
+              <%= f.submit "Save Changes", class: "btn btn-primary btn-sm" %>
             </div>
           <% end %>
         </div>
@@ -90,22 +122,21 @@
 
     <%# Sidebar %>
     <div class="space-y-6">
-      <%# Actions %>
+      <%# Quick Actions %>
       <div class="card bg-base-100 shadow">
         <div class="card-body">
-          <h3 class="font-semibold mb-4">Actions</h3>
+          <h3 class="font-semibold mb-4">Quick Actions</h3>
 
           <div class="space-y-2">
-            <% unless @feedback.resolved? %>
-              <% if @feedback.pending? %>
-                <%= button_to acknowledge_admin_feedback_path(@feedback),
+            <% if @feedback.active? %>
+              <% if @feedback.open? %>
+                <%= button_to start_progress_admin_feedback_path(@feedback),
                             method: :patch,
                             class: "btn btn-outline btn-info w-full gap-2" do %>
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                   </svg>
-                  Mark as Acknowledged
+                  Start Progress
                 <% end %>
               <% end %>
 
@@ -115,15 +146,78 @@
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
-                Mark as Resolved
+                Resolve Issue
+              <% end %>
+
+              <%= button_to close_admin_feedback_path(@feedback),
+                          method: :patch,
+                          class: "btn btn-outline w-full gap-2" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                Close (Won't Fix)
               <% end %>
             <% else %>
-              <div class="alert alert-success">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <% if @feedback.resolved? %>
+                <div class="alert alert-success mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>Resolved by <%= @feedback.resolved_by&.display_name || "Unknown" %></span>
+                </div>
+              <% elsif @feedback.closed? %>
+                <div class="alert mb-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                  <span>Closed by <%= @feedback.resolved_by&.display_name || "Unknown" %></span>
+                </div>
+              <% end %>
+
+              <%= button_to reopen_admin_feedback_path(@feedback),
+                          method: :patch,
+                          class: "btn btn-outline w-full gap-2" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
                 </svg>
-                <span>Resolved by <%= @feedback.resolved_by&.display_name || "Unknown" %></span>
-              </div>
+                Reopen Issue
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+
+      <%# Priority Actions %>
+      <div class="card bg-base-100 shadow">
+        <div class="card-body">
+          <h3 class="font-semibold mb-4">Priority</h3>
+          <div class="flex gap-2">
+            <% unless @feedback.priority == "low" %>
+              <%= button_to de_escalate_admin_feedback_path(@feedback),
+                          method: :patch,
+                          class: "btn btn-ghost btn-sm flex-1",
+                          title: "Decrease priority",
+                          data: { turbo_stream: true } do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 13.5L12 21m0 0l-7.5-7.5M12 21V3" />
+                </svg>
+              <% end %>
+            <% end %>
+
+            <div class="flex-1 text-center">
+              <span class="badge <%= @feedback.priority_badge_class %> badge-lg"><%= @feedback.priority_label %></span>
+            </div>
+
+            <% unless @feedback.priority == "urgent" %>
+              <%= button_to escalate_admin_feedback_path(@feedback),
+                          method: :patch,
+                          class: "btn btn-ghost btn-sm flex-1",
+                          title: "Increase priority",
+                          data: { turbo_stream: true } do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 10.5L12 3m0 0l7.5 7.5M12 3v18" />
+                </svg>
+              <% end %>
             <% end %>
           </div>
         </div>

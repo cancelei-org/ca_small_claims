@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "shellwords"
+
 module Utilities
   # Centralizes pdftk executable resolution and availability checking.
   # Used by PDF processing services to locate the pdftk binary.
@@ -62,7 +64,14 @@ module Utilities
       def version
         return nil unless available?
 
-        output = `#{path} --version 2>&1`.strip
+        # Security: Validate path exists as a file before execution
+        resolved_path = path
+        raise ArgumentError, "Invalid path" unless File.file?(resolved_path)
+
+        # Security: Use shell escaping to prevent command injection
+        # Even though path comes from known sources, escape for defense in depth
+        safe_path = Shellwords.escape(resolved_path)
+        output = `#{safe_path} --version 2>&1`.strip
         match = output.match(/pdftk\s+([\d.]+)/i)
         match ? match[1] : output.lines.first&.strip
       rescue StandardError

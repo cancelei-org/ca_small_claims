@@ -1,0 +1,323 @@
+<% content_for :title, "#{@user.display_name} - Admin" %>
+
+<div class="space-y-6">
+  <%# Breadcrumb %>
+  <div class="text-sm breadcrumbs">
+    <ul>
+      <li><%= link_to "Admin", admin_root_path %></li>
+      <li><%= link_to "Users", admin_users_path %></li>
+      <li><%= @user.display_name %></li>
+    </ul>
+  </div>
+
+  <%# User Header %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+          <div class="avatar placeholder">
+            <div class="bg-neutral text-neutral-content rounded-full w-16">
+              <span class="text-xl"><%= @user.display_name.first(2).upcase %></span>
+            </div>
+          </div>
+          <div>
+            <h1 class="text-2xl font-bold"><%= @user.display_name %></h1>
+            <p class="opacity-60"><%= @user.email %></p>
+            <div class="flex gap-2 mt-2">
+              <% if @user.admin? %>
+                <span class="badge badge-primary">Admin</span>
+              <% end %>
+              <% if @user.guest? %>
+                <span class="badge badge-warning">Guest</span>
+              <% else %>
+                <span class="badge badge-success">Registered</span>
+              <% end %>
+              <% if @user.profile_complete? %>
+                <span class="badge badge-info">Profile Complete</span>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <%= link_to activity_admin_user_path(@user), class: "btn btn-outline btn-sm" do %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Activity Timeline
+          <% end %>
+
+          <%# Impersonation Button - only show for non-admin users %>
+          <% if @user.can_be_impersonated? && current_user.can_impersonate? %>
+            <button type="button"
+                    class="btn btn-warning btn-sm"
+                    onclick="document.getElementById('impersonate-modal').showModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              Impersonate
+            </button>
+          <% elsif @user.admin? || @user.super_admin? %>
+            <span class="tooltip tooltip-left" data-tip="Cannot impersonate admin users">
+              <button class="btn btn-ghost btn-sm btn-disabled" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                </svg>
+                Impersonate
+              </button>
+            </span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Stats Cards %>
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-title">Submissions</div>
+      <div class="stat-value text-primary"><%= @submissions_count %></div>
+      <div class="stat-desc">Form submissions</div>
+    </div>
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-title">Feedbacks</div>
+      <div class="stat-value text-secondary"><%= @feedbacks_count %></div>
+      <div class="stat-desc">Feedback provided</div>
+    </div>
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-title">Member Since</div>
+      <div class="stat-value text-sm"><%= @user.created_at.strftime("%b %d, %Y") %></div>
+      <div class="stat-desc"><%= time_ago_in_words(@user.created_at) %> ago</div>
+    </div>
+    <div class="stat bg-base-100 shadow rounded-box">
+      <div class="stat-title">Last Active</div>
+      <div class="stat-value text-sm"><%= @user.updated_at.strftime("%b %d, %Y") %></div>
+      <div class="stat-desc"><%= time_ago_in_words(@user.updated_at) %> ago</div>
+    </div>
+  </div>
+
+  <%# User Details %>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <%# Profile Information %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">Profile Information</h2>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <th class="w-1/3">Full Name</th>
+                <td><%= @user.full_name.presence || "-" %></td>
+              </tr>
+              <tr>
+                <th>Email</th>
+                <td><%= @user.email %></td>
+              </tr>
+              <tr>
+                <th>Phone</th>
+                <td><%= @user.phone.presence || "-" %></td>
+              </tr>
+              <tr>
+                <th>Address</th>
+                <td><%= @user.address.presence || "-" %></td>
+              </tr>
+              <tr>
+                <th>City</th>
+                <td><%= @user.city.presence || "-" %></td>
+              </tr>
+              <tr>
+                <th>State</th>
+                <td><%= @user.state.presence || "-" %></td>
+              </tr>
+              <tr>
+                <th>ZIP Code</th>
+                <td><%= @user.zip_code.presence || "-" %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <%# Account Settings %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title">Account Settings</h2>
+        <div class="overflow-x-auto">
+          <table class="table table-sm">
+            <tbody>
+              <tr>
+                <th class="w-1/3">User ID</th>
+                <td class="font-mono"><%= @user.id %></td>
+              </tr>
+              <tr>
+                <th>Account Type</th>
+                <td>
+                  <% if @user.guest? %>
+                    <span class="badge badge-warning">Guest</span>
+                  <% else %>
+                    <span class="badge badge-success">Registered</span>
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <th>Admin</th>
+                <td>
+                  <% if @user.admin? %>
+                    <span class="badge badge-primary">Yes</span>
+                  <% else %>
+                    <span class="badge badge-ghost">No</span>
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <th>Profile Complete</th>
+                <td>
+                  <% if @user.profile_complete? %>
+                    <span class="badge badge-success">Yes</span>
+                  <% else %>
+                    <span class="badge badge-ghost">No</span>
+                  <% end %>
+                </td>
+              </tr>
+              <tr>
+                <th>Created At</th>
+                <td><%= @user.created_at.strftime("%B %d, %Y at %I:%M %p") %></td>
+              </tr>
+              <tr>
+                <th>Last Updated</th>
+                <td><%= @user.updated_at.strftime("%B %d, %Y at %I:%M %p") %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Recent Submissions %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="card-title">Recent Submissions</h2>
+        <% if @submissions_count > 5 %>
+          <%= link_to admin_submissions_path(search: @user.email), class: "btn btn-ghost btn-sm" do %>
+            View All
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+
+      <% if @recent_submissions.any? %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Created</th>
+                <th class="text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recent_submissions.each do |submission| %>
+                <tr>
+                  <td>
+                    <div class="font-medium"><%= submission.form_definition.code %></div>
+                    <div class="text-sm opacity-60 truncate max-w-[200px]"><%= submission.form_definition.title %></div>
+                  </td>
+                  <td>
+                    <% case submission.status %>
+                    <% when "draft" %>
+                      <span class="badge badge-warning badge-sm">Draft</span>
+                    <% when "completed" %>
+                      <span class="badge badge-info badge-sm">Completed</span>
+                    <% when "submitted" %>
+                      <span class="badge badge-success badge-sm">Submitted</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <progress class="progress progress-primary w-16" value="<%= submission.completion_percentage %>" max="100"></progress>
+                      <span class="text-sm"><%= submission.completion_percentage %>%</span>
+                    </div>
+                  </td>
+                  <td class="text-sm"><%= submission.created_at.strftime("%b %d, %Y") %></td>
+                  <td class="text-right">
+                    <%= link_to admin_submission_path(submission), class: "btn btn-ghost btn-sm" do %>
+                      View
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <div class="text-center py-8 text-base-content/60">
+          <p>No submissions yet</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# Impersonation Modal %>
+<% if @user.can_be_impersonated? && current_user.can_impersonate? %>
+  <dialog id="impersonate-modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg">Impersonate User</h3>
+      <div class="py-4">
+        <div class="alert alert-warning mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <div>
+            <h4 class="font-semibold">This action is logged</h4>
+            <p class="text-sm">All impersonation sessions are recorded for security purposes.</p>
+          </div>
+        </div>
+
+        <p class="mb-4">
+          You are about to view the site as <strong><%= @user.display_name %></strong>
+          (<%= @user.email %>). You will see exactly what this user sees.
+        </p>
+
+        <%= form_with url: admin_impersonate_user_path(@user), method: :post, local: true, class: "space-y-4" do |f| %>
+          <div class="form-control">
+            <label class="label" for="reason">
+              <span class="label-text">Reason for impersonation (optional)</span>
+            </label>
+            <textarea
+              name="reason"
+              id="reason"
+              class="textarea textarea-bordered"
+              rows="2"
+              maxlength="500"
+              placeholder="e.g., Investigating support ticket #1234"></textarea>
+            <label class="label">
+              <span class="label-text-alt">This will be logged for audit purposes</span>
+            </label>
+          </div>
+
+          <div class="modal-action">
+            <button type="button" class="btn btn-ghost" onclick="document.getElementById('impersonate-modal').close()">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-warning">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+              </svg>
+              Start Impersonation
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+<% end %>

@@ -1,0 +1,22 @@
+<% content_for :title, "Submit Feedback" %>
+
+<div class="max-w-2xl mx-auto">
+  <div class="mb-8">
+    <%= link_to product_feedbacks_path, class: "btn btn-ghost btn-sm gap-2" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to Feedback
+    <% end %>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h1 class="card-title text-2xl mb-6">Submit Feedback</h1>
+
+      <div id="product-feedback-form">
+        <%= render "product_feedbacks/form", product_feedback: @product_feedback %>
+      </div>
+    </div>
+  </div>
+</div>

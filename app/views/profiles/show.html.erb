@@ -16,69 +16,113 @@
         This information will be used to auto-fill common fields across court forms.
       </p>
 
-      <%= form_with model: @user, url: profile_path, method: :patch, data: { controller: "profile", profile_url_value: profile_path } do |f| %>
+      <%= form_with model: @user, url: profile_path, method: :patch, data: { controller: "profile validation", profile_url_value: profile_path } do |f| %>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <%# Full Name %>
           <div class="form-control md:col-span-2">
-            <%= f.label :full_name, class: "label" do %>
+            <%= f.label :full_name, class: "label", for: "user-full-name-input" do %>
               <span class="label-text">Full Legal Name</span>
             <% end %>
-            <%= f.text_field :full_name, class: "input input-bordered w-full", placeholder: "Your full legal name", data: { action: "input->profile#save" } %>
+            <%= f.text_field :full_name,
+                class: "input input-bordered w-full",
+                id: "user-full-name-input",
+                placeholder: "Your full legal name",
+                "aria-describedby": "user-full-name-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-full-name-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# Phone %>
           <div class="form-control">
-            <%= f.label :phone, class: "label" do %>
+            <%= f.label :phone, class: "label", for: "user-phone-input" do %>
               <span class="label-text">Phone Number</span>
             <% end %>
-            <%= f.telephone_field :phone, class: "input input-bordered w-full", placeholder: "(555) 555-5555", data: { action: "input->profile#save" } %>
+            <%= f.telephone_field :phone,
+                class: "input input-bordered w-full",
+                id: "user-phone-input",
+                placeholder: "(555) 555-5555",
+                "aria-describedby": "user-phone-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-phone-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# Date of Birth %>
           <div class="form-control">
-            <%= f.label :date_of_birth, class: "label" do %>
+            <%= f.label :date_of_birth, class: "label", for: "user-date-of-birth-input" do %>
               <span class="label-text">Date of Birth</span>
             <% end %>
-            <%= f.date_field :date_of_birth, class: "input input-bordered w-full", data: { action: "change->profile#save" } %>
+            <%= f.date_field :date_of_birth,
+                class: "input input-bordered w-full",
+                id: "user-date-of-birth-input",
+                "aria-describedby": "user-date-of-birth-error",
+                data: { action: "change->profile#save", validation_target: "input" } %>
+            <div id="user-date-of-birth-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# Address %>
           <div class="form-control md:col-span-2">
-            <%= f.label :address, class: "label" do %>
+            <%= f.label :address, class: "label", for: "user-address-input" do %>
               <span class="label-text">Street Address</span>
             <% end %>
-            <%= f.text_field :address, class: "input input-bordered w-full", placeholder: "123 Main Street", data: { action: "input->profile#save" } %>
+            <%= f.text_field :address,
+                class: "input input-bordered w-full",
+                id: "user-address-input",
+                placeholder: "123 Main Street",
+                "aria-describedby": "user-address-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-address-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# City %>
           <div class="form-control">
-            <%= f.label :city, class: "label" do %>
+            <%= f.label :city, class: "label", for: "user-city-input" do %>
               <span class="label-text">City</span>
             <% end %>
-            <%= f.text_field :city, class: "input input-bordered w-full", placeholder: "Los Angeles", data: { action: "input->profile#save" } %>
+            <%= f.text_field :city,
+                class: "input input-bordered w-full",
+                id: "user-city-input",
+                placeholder: "Los Angeles",
+                "aria-describedby": "user-city-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-city-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# State %>
           <div class="form-control">
-            <%= f.label :state, class: "label" do %>
+            <%= f.label :state, class: "label", for: "user-state-input" do %>
               <span class="label-text">State</span>
             <% end %>
-            <%= f.text_field :state, class: "input input-bordered w-full", value: @user.state || "CA", data: { action: "input->profile#save" } %>
+            <%= f.text_field :state,
+                class: "input input-bordered w-full",
+                id: "user-state-input",
+                value: @user.state || "CA",
+                "aria-describedby": "user-state-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-state-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
 
           <%# Zip Code %>
           <div class="form-control">
-            <%= f.label :zip_code, class: "label" do %>
+            <%= f.label :zip_code, class: "label", for: "user-zip-code-input" do %>
               <span class="label-text">ZIP Code</span>
             <% end %>
-            <%= f.text_field :zip_code, class: "input input-bordered w-full", placeholder: "90210", maxlength: 10, data: { action: "input->profile#save" } %>
+            <%= f.text_field :zip_code,
+                class: "input input-bordered w-full",
+                id: "user-zip-code-input",
+                placeholder: "90210",
+                maxlength: 10,
+                pattern: "[0-9]{5}(-[0-9]{4})?",
+                title: "5-digit ZIP code (e.g., 90210) or ZIP+4 (e.g., 90210-1234)",
+                "aria-describedby": "user-zip-code-error",
+                data: { action: "input->profile#save", validation_target: "input" } %>
+            <div id="user-zip-code-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
           </div>
         </div>
 
         <div class="divider"></div>
 
         <div class="flex justify-end">
-          <%= f.submit "Save Profile", class: "btn btn-primary" %>
+          <%= f.submit "Save Profile", class: "btn btn-primary", data: { turbo_submits_with: "Saving...", disable_with: "Saving..." } %>
         </div>
       <% end %>
     </div>

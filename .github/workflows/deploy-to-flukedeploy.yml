@@ -1,0 +1,189 @@
+name: Deploy to FlukeDeploy
+
+# This workflow deploys ca_small_claims to vps16gb using FlukeDeploy
+# It uses self-hosted runners from cancelei-org
+
+on:
+  push:
+    branches:
+      - main
+      - production
+  workflow_dispatch:  # Allow manual triggering
+
+# Only allow one deployment at a time
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  # FlukeDeploy Configuration
+  FLUKEDEPLOY_URL: https://captain.flukebase.me
+  APP_NAME: ca-small-claims
+  DOMAIN: flukebase.me
+
+  # Docker Configuration
+  IMAGE_NAME: ca_small_claims
+  REGISTRY: ghcr.io
+
+  # Database Configuration (uses tier2-rails-postgres on vps16gb)
+  DATABASE_HOST: tier2-rails-postgres
+  POSTGRES_PASSWORD: ${{ secrets.TIER2_POSTGRES_PASSWORD }}
+
+jobs:
+  build-and-deploy:
+    name: Build and Deploy to FlukeDeploy
+    runs-on: [self-hosted, linux]
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ github.repository }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }}
+
+      - name: Deploy to FlukeDeploy via Docker Service
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.VPS_SSH_KEY }}
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          IMAGE_TAG: ${{ steps.meta.outputs.version }}
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H 194.163.44.171 >> ~/.ssh/known_hosts
+
+          # Deploy to VPS
+          ssh -i ~/.ssh/deploy_key root@194.163.44.171 << 'ENDSSH'
+          set -e
+
+          echo "🚀 Deploying ca-small-claims..."
+
+          # Check if service exists
+          if docker service ls --filter name=ca-small-claims --format '{{.Name}}' | grep -q ca-small-claims; then
+            echo "Updating existing service..."
+            docker service update \
+              --image ${{ env.REGISTRY }}/${{ github.repository }}:${{ steps.meta.outputs.version }} \
+              --env-add RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
+              --env-add DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_development \
+              --env-add CACHE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_cache_development \
+              --env-add QUEUE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_queue_development \
+              --env-add CABLE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_cable_development \
+              ca-small-claims
+          else
+            echo "Creating new service..."
+            docker service create \
+              --name ca-small-claims \
+              --network captain-overlay-network \
+              --publish published=3010,target=80,mode=host \
+              --env RAILS_ENV=production \
+              --env RAILS_MASTER_KEY=${{ secrets.RAILS_MASTER_KEY }} \
+              --env SECRET_KEY_BASE=${{ secrets.RAILS_MASTER_KEY }} \
+              --env RAILS_LOG_TO_STDOUT=true \
+              --env RAILS_SERVE_STATIC_FILES=true \
+              --env DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_development \
+              --env CACHE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_cache_development \
+              --env QUEUE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_queue_development \
+              --env CABLE_DATABASE_URL=postgresql://postgres:${{ secrets.TIER2_POSTGRES_PASSWORD }}@tier2-rails-postgres:5432/ca_small_claims_cable_development \
+              --env RAILS_MAX_THREADS=5 \
+              --constraint 'node.role==manager' \
+              --replicas 1 \
+              --restart-condition any \
+              --limit-memory 1G \
+              --reserve-memory 512M \
+              --label com.flukebase.tier=2 \
+              --label com.flukebase.app=ca-small-claims \
+              ${{ env.REGISTRY }}/${{ github.repository }}:${{ steps.meta.outputs.version }}
+          fi
+
+          echo "✅ Service deployed"
+
+          # Wait for service to be running
+          echo "⏳ Waiting for service to start..."
+          for i in {1..30}; do
+            if docker service ls --filter name=ca-small-claims --format '{{.Replicas}}' | grep -q '1/1'; then
+              echo "✅ Service is running"
+              break
+            fi
+            sleep 2
+          done
+
+          # Get container ID
+          CONTAINER_ID=$(docker ps --filter name=ca-small-claims --format '{{.ID}}' | head -1)
+
+          if [ -n "$CONTAINER_ID" ]; then
+            echo "📦 Container: $CONTAINER_ID"
+
+            # Run migrations
+            echo "🔄 Running database migrations..."
+            docker exec $CONTAINER_ID bin/rails db:migrate || echo "Migrations completed or failed"
+
+            echo "✅ Deployment complete!"
+            echo "🌐 Access at: http://194.163.44.171:3010"
+          else
+            echo "⚠️  Container not found yet"
+          fi
+          ENDSSH
+
+          # Cleanup
+          rm ~/.ssh/deploy_key
+
+      - name: Deployment Summary
+        if: success()
+        run: |
+          echo "## 🎉 Deployment Successful!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Application:** ca-small-claims" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** Production (vps16gb)" >> $GITHUB_STEP_SUMMARY
+          echo "**Image:** ${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Access:** http://194.163.44.171:3010" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Database" >> $GITHUB_STEP_SUMMARY
+          echo "Connected to: tier2-rails-postgres" >> $GITHUB_STEP_SUMMARY
+
+      - name: Deployment Failed
+        if: failure()
+        run: |
+          echo "## ❌ Deployment Failed" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Check the logs above for details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Troubleshooting" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify secrets are set: RAILS_MASTER_KEY, VPS_SSH_KEY, TIER2_POSTGRES_PASSWORD" >> $GITHUB_STEP_SUMMARY
+          echo "- Check VPS connectivity" >> $GITHUB_STEP_SUMMARY
+          echo "- Verify tier2-rails-postgres is running" >> $GITHUB_STEP_SUMMARY

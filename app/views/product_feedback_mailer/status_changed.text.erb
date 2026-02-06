@@ -1,0 +1,28 @@
+YOUR FEEDBACK STATUS HAS BEEN UPDATED
+======================================
+
+Hi <%= @user.display_name %>,
+
+We wanted to let you know that the status of your feedback has been updated.
+
+Title: <%= @product_feedback.title %>
+Category: <%= @product_feedback.category_display_name %>
+Previous Status: <%= ProductFeedback.status_display_name(@old_status) %>
+New Status: <%= @product_feedback.status_display_name %>
+
+<% case @product_feedback.status %>
+<% when "under_review" %>
+Our team is now actively reviewing your feedback. Thank you for helping us improve!
+<% when "planned" %>
+Great news! Your suggestion has been added to our roadmap. We'll implement this in a future update.
+<% when "in_progress" %>
+We're actively working on this! Stay tuned for updates.
+<% when "completed" %>
+Your feedback has been implemented. Thank you for contributing to making our platform better!
+<% when "declined" %>
+After careful consideration, we've decided not to proceed with this request at this time. We appreciate you taking the time to share your thoughts.
+<% end %>
+
+View your feedback: <%= product_feedback_url(@product_feedback) %>
+
+If you have any questions, please don't hesitate to contact us.

@@ -1,5 +1,6 @@
 'use strict';
 
+/* eslint-disable sonarjs/no-skipped-tests -- conditional test.skip() based on test data availability */
 /**
  * Keyboard Navigation Tests
  *
@@ -389,3 +390,4 @@ test.describe('Arrow Key Navigation', () => {
     await expect(focusedRadio).toBeAttached();
   });
 });
+/* eslint-enable sonarjs/no-skipped-tests */

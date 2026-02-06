@@ -21,6 +21,7 @@
              autocomplete="address-line1"
              <%= "required" if field.required %>
              data-address-target="street1"
+             data-validation-target="input"
              data-action="input->address#fieldChanged">
     </div>
 
@@ -35,6 +36,7 @@
              class="<%= standard_input_class %>"
              autocomplete="address-line2"
              data-address-target="street2"
+             data-validation-target="input"
              data-action="input->address#fieldChanged">
     </div>
 
@@ -52,6 +54,7 @@
                autocomplete="address-level2"
                <%= "required" if field.required %>
                data-address-target="city"
+               data-validation-target="input"
                data-action="input->address#fieldChanged">
       </div>
 
@@ -65,6 +68,7 @@
                 autocomplete="address-level1"
                 <%= "required" if field.required %>
                 data-address-target="state"
+                data-validation-target="input"
                 data-action="change->address#fieldChanged">
           <option value="">--</option>
           <option value="CA" selected>CA</option>
@@ -87,15 +91,17 @@
                maxlength="10"
                inputmode="numeric"
                pattern="[0-9]{5}(-[0-9]{4})?"
+               title="5-digit ZIP code (e.g., 90001) or ZIP+4 (e.g., 90001-1234)"
                class="<%= standard_input_class %>"
                autocomplete="postal-code"
                <%= "required" if field.required %>
                data-address-target="zip"
+               data-validation-target="input"
                data-action="input->address#formatZip">
       </div>
     </div>
 
-    <p class="text-xs text-base-content/50">
+    <p class="text-xs text-base-content/60">
       California addresses are pre-selected. For out-of-state addresses, select "Other".
     </p>
   </div>

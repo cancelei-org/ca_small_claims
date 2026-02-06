@@ -1,0 +1,23 @@
+<%= form_with url: update_admin_notes_admin_product_feedback_path(product_feedback),
+              method: :patch,
+              local: false,
+              class: "mt-4" do |f| %>
+  <div class="form-control">
+    <%= f.text_area :admin_notes,
+                    value: product_feedback.admin_notes,
+                    class: "textarea textarea-bordered w-full h-32",
+                    placeholder: "Internal notes about this feedback (not visible to the user)" %>
+  </div>
+
+  <div class="flex justify-end mt-4">
+    <%= f.submit "Save Notes", class: "btn btn-primary btn-sm" %>
+  </div>
+<% end %>
+
+<% if product_feedback.admin_notes.present? %>
+  <div class="mt-4 p-4 bg-base-200 rounded-lg">
+    <p class="text-sm font-semibold mb-2">Current Notes:</p>
+    <p class="text-base-content/70"><%= simple_format(product_feedback.admin_notes) %></p>
+    <p class="text-xs text-base-content/50 mt-2">Last updated: <%= product_feedback.updated_at.strftime("%B %d, %Y at %I:%M %p") %></p>
+  </div>
+<% end %>

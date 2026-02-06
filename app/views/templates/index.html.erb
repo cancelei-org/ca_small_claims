@@ -1,0 +1,21 @@
+<div class="container mx-auto px-4 py-8">
+  <h1 class="text-3xl font-bold mb-6">Quick Fill Templates</h1>
+
+  <% if @templates.any? %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% @templates.each do |template| %>
+        <div class="card bg-base-100 shadow-xl">
+          <div class="card-body">
+            <h2 class="card-title"><%= template[:name] %></h2>
+            <p><%= template[:description] %></p>
+            <div class="card-actions justify-end">
+              <%= link_to "View Details", template_path(template[:id]), class: "btn btn-primary" %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-center text-gray-500">No templates found</p>
+  <% end %>
+</div>

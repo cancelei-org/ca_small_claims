@@ -1,0 +1,57 @@
+<div class="card bg-base-100 shadow-lg border border-primary/20 mb-6">
+  <div class="card-body">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="p-2 rounded-lg bg-primary/10 text-primary">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+        </svg>
+      </div>
+      <h3 class="card-title text-lg">Review Auto-filled Data</h3>
+    </div>
+    
+    <p class="text-sm text-base-content/70 mb-4">
+      Some information was automatically filled from your profile or previous forms. 
+      Please review these fields to ensure accuracy.
+    </p>
+
+    <div class="overflow-x-auto">
+      <table class="table table-zebra table-sm">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Value</th>
+            <th>Source</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% fields.each do |field_name, meta| %>
+            <% value = submission.field_value(field_name) %>
+            <tr>
+              <td class="font-medium"><%= field_name.titleize %></td>
+              <td class="truncate max-w-[200px]"><%= value %></td>
+              <td>
+                <span class="badge badge-ghost badge-sm uppercase tracking-tighter">
+                  <%= meta["source"] == "profile" ? "Profile" : "Prev. Form" %>
+                </span>
+              </td>
+              <td>
+                <% if value != meta["original_value"] && meta["original_value"].present? %>
+                  <span class="badge badge-info badge-sm">Modified</span>
+                <% else %>
+                  <span class="badge badge-success badge-sm text-white">Verified</span>
+                <% end %>
+              </td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-actions justify-end mt-4">
+      <button class="btn btn-sm btn-ghost" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
+        Review again
+      </button>
+    </div>
+  </div>
+</div>

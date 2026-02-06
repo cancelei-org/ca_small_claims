@@ -1,0 +1,216 @@
+<%# Simple Wizard - Typeform-style one-question-at-a-time interface
+    locals: form_definition, submission, wizard_fields
+%>
+
+<div class="simple-wizard-container min-h-screen bg-base-200"
+     data-controller="simple-wizard form"
+     data-simple-wizard-form-code-value="<%= form_definition.code %>"
+     data-simple-wizard-total-questions-value="<%= wizard_fields.count %>"
+     data-form-save-url-value="<%= form_path(form_definition.code) %>"
+     data-form-debounce-delay-value="500">
+
+  <%# Progress Bar (thin, top of screen) %>
+  <div class="wizard-progress-bar sticky top-0 z-50 bg-base-100 shadow-sm">
+    <progress class="progress progress-primary w-full h-1"
+              value="0"
+              max="100"
+              data-simple-wizard-target="progress"
+              aria-label="Form completion progress"></progress>
+  </div>
+
+  <%# Main Wizard Content %>
+  <div class="wizard-content max-w-3xl mx-auto px-4 py-8">
+
+    <%# Question Counter & Section Badge %>
+    <div class="flex items-center justify-between mb-6">
+      <div class="question-counter text-sm font-medium text-base-content/60"
+           data-simple-wizard-target="counter">
+        1 → <%= wizard_fields.count %>
+      </div>
+
+      <div class="section-badge badge badge-primary badge-lg hidden"
+           data-simple-wizard-target="sectionBadge">
+        Section Name
+      </div>
+    </div>
+
+    <%# Section Roadmap (optional, for visual progress) %>
+    <% sections = wizard_fields.group_by(&:section).keys.compact %>
+    <% if sections.any? %>
+      <div class="section-roadmap mb-8 hidden lg:flex gap-2 justify-center"
+           data-simple-wizard-target="sectionRoadmap">
+        <% sections.each do |section| %>
+          <div class="section-step px-3 py-1 text-xs font-medium rounded-full
+                      bg-base-300 text-base-content/50
+                      transition-all duration-300"
+               data-section="<%= section %>">
+            <%= section.to_s.titleize %>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# Form Wrapper %>
+    <%= form_with model: submission,
+                  url: form_path(form_definition.code),
+                  method: :patch,
+                  html: {
+                    id: "simple-wizard-form",
+                    class: "wizard-form",
+                    data: {
+                      form_target: "form",
+                      action: "submit->form#save"
+                    }
+                  } do |f| %>
+
+      <%# Hidden field for wizard progress %>
+      <%= f.hidden_field :wizard_progress, value: 0, data: { simple_wizard_target: "progressField" } %>
+
+      <%# Question Screens %>
+      <% wizard_fields.each_with_index do |field, index| %>
+        <div class="wizard-screen <%= 'hidden' unless index == 0 %> mb-8"
+             data-simple-wizard-target="screen"
+             data-section="<%= field.section %>"
+             data-index="<%= index %>">
+
+          <%# Question Container %>
+          <div class="question-container bg-base-100 rounded-2xl shadow-xl p-8 md:p-12">
+
+            <%# Question Title %>
+            <div class="question-title mb-6">
+              <label for="simple-wizard-field-<%= field.name %>"
+                     class="block text-3xl md:text-4xl font-bold text-base-content leading-tight">
+                <%= field.label || field.name.titleize %>
+                <% if field.required %>
+                  <span class="text-error ml-2">*</span>
+                <% end %>
+              </label>
+
+              <%# Help Text %>
+              <% if field.help_text.present? %>
+                <p class="question-help text-lg text-base-content/60 mt-3">
+                  <%= field.help_text %>
+                </p>
+              <% end %>
+            </div>
+
+            <%# Field Input %>
+            <div class="question-input mb-6">
+              <%= render partial: "forms/simple_wizard/fields/#{field.field_type}",
+                         locals: {
+                           field: field,
+                           form: f,
+                           submission: submission,
+                           index: index
+                         } %>
+            </div>
+
+            <%# Validation Error (hidden by default) %>
+            <div class="validation-error hidden alert alert-error mt-4">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>This field is required.</span>
+            </div>
+
+            <%# Field Format Hint %>
+            <% if field.placeholder.present? && field.field_type.in?(['tel', 'date', 'currency']) %>
+              <div class="format-hint text-sm text-base-content/50 mt-2">
+                Format: <%= field.placeholder %>
+              </div>
+            <% end %>
+
+          </div>
+        </div>
+      <% end %>
+
+      <%# Navigation Controls %>
+      <div class="wizard-navigation sticky bottom-0 bg-base-100 border-t border-base-300 py-4 mt-8">
+        <div class="flex items-center justify-between gap-4">
+
+          <%# Back Button %>
+          <button type="button"
+                  class="btn btn-ghost invisible"
+                  data-simple-wizard-target="backBtn"
+                  data-action="click->simple-wizard#previous">
+            ← Back
+          </button>
+
+          <%# Continue Button %>
+          <button type="button"
+                  class="btn btn-primary btn-lg flex-1 md:flex-none md:min-w-[200px]"
+                  data-simple-wizard-target="continueBtn"
+                  data-action="click->simple-wizard#next">
+            Continue →
+          </button>
+
+        </div>
+      </div>
+
+    <% end %>
+
+  </div>
+
+  <%# Keyboard Shortcuts Help (toggle with ?) %>
+  <div class="keyboard-help fixed bottom-4 right-4 text-xs text-base-content/40 hidden lg:block">
+    <div class="bg-base-100 rounded-lg shadow px-3 py-2">
+      <p><kbd class="kbd kbd-xs">Enter</kbd> Continue</p>
+      <p><kbd class="kbd kbd-xs">Esc</kbd> Back</p>
+      <p><kbd class="kbd kbd-xs">⌘</kbd> + <kbd class="kbd kbd-xs">→</kbd> Next</p>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  /* Simple fade-in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Section roadmap styles */
+  .section-step.active {
+    @apply bg-primary text-primary-content font-bold;
+  }
+
+  .section-step.completed {
+    @apply bg-success/20 text-success;
+  }
+
+  /* Wizard input focus styles */
+  .wizard-screen input:not([type="checkbox"]):not([type="radio"]),
+  .wizard-screen textarea,
+  .wizard-screen select {
+    @apply text-xl md:text-2xl font-medium;
+    @apply border-2 border-base-300 rounded-xl;
+    @apply focus:border-primary focus:ring-4 focus:ring-primary/20;
+    @apply transition-all duration-200;
+    @apply px-4 py-3;
+  }
+
+  /* Radio and checkbox larger for wizard */
+  .wizard-screen input[type="radio"],
+  .wizard-screen input[type="checkbox"] {
+    @apply w-5 h-5;
+  }
+
+  .wizard-screen label.choice-label {
+    @apply text-lg font-medium cursor-pointer;
+    @apply flex items-center gap-3 p-4 rounded-xl;
+    @apply border-2 border-base-300;
+    @apply hover:border-primary hover:bg-primary/5;
+    @apply transition-all duration-200;
+  }
+
+  .wizard-screen label.choice-label:has(input:checked) {
+    @apply border-primary bg-primary/10;
+  }
+</style>

@@ -1,5 +1,6 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 require "spec_helper"
+require "rails-controller-testing"
 ENV["RAILS_ENV"] ||= "test"
 ENV["HTTP_BASIC_AUTH_USERNAME"] = nil
 ENV["HTTP_BASIC_AUTH_PASSWORD"] = nil
@@ -11,6 +12,8 @@ require "capybara/rspec"
 require "selenium-webdriver"
 require "pundit/rspec"
 require "pundit/matchers"
+require "rails-controller-testing"
+require "rspec-html-matchers"
 
 # Add additional requires below this line. Rails is not loaded until this point!
 
@@ -46,7 +49,13 @@ Capybara.register_driver :chrome do |app|
   Capybara::Selenium::Driver.new app, browser: :chrome, options:
 end
 
+# Force routes to load to ensure Devise mappings are available
+Rails.application.routes_reloader.execute
+
+Warden.test_mode!
+
 RSpec.configure do |config|
+  config.include RSpecHtmlMatchers
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [ Rails.root.join("spec/fixtures") ]
 
@@ -54,6 +63,12 @@ RSpec.configure do |config|
   # examples within a transaction, remove the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
+
+  # rails-controller-testing
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :controller
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :view
+  config.include Rails::Controller::Testing::TestProcess, type: :controller
+  config.include Rails.application.routes.url_helpers
 
   # Allow exceptions to be raised in request specs for authorization testing
   config.around(:each, :raise_exceptions) do |example|
@@ -66,6 +81,7 @@ RSpec.configure do |config|
   # Run system tests in rack_test by default
   config.before(:each, type: :system) do |example|
     unless example.metadata[:uses_javascript] ||
+           example.metadata[:js] ||
            example.metadata[:viewport_mobile] ||
            example.metadata[:viewport_tablet] ||
            example.metadata[:viewport_desktop]
@@ -74,9 +90,39 @@ RSpec.configure do |config|
   end
 
   # System tests indicating that they use Javascript should be run with headless Chrome
+  # Support both :uses_javascript and :js metadata
   config.before(:each, :uses_javascript, type: :system) do
     driven_by :chrome
   end
+
+  config.before(:each, :js, type: :system) do
+    driven_by :chrome
+  end
+
+  # Clean up browser state after each system test to prevent test pollution
+  config.after(:each, type: :system) do |example|
+    if example.metadata[:js] || example.metadata[:uses_javascript]
+      # Clear cookies and local storage between tests
+      if Capybara.current_driver != :rack_test
+        begin
+          page.driver.browser.manage.delete_all_cookies
+          page.execute_script("window.localStorage.clear();") rescue nil
+          page.execute_script("window.sessionStorage.clear();") rescue nil
+        rescue StandardError
+          # Ignore errors if browser is not available
+        end
+      end
+    end
+    # Reset Warden test mode (clears Devise authentication state)
+    Warden.test_reset!
+    # Reset Capybara session
+    Capybara.reset_sessions!
+  end
+
+  # rails-controller-testing
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :controller
+  config.include Rails::Controller::Testing::TemplateAssertions, type: :view
+  config.include Rails::Controller::Testing::TestProcess, type: :controller
 
   # Infer spec type from file location
   config.infer_spec_type_from_file_location!
@@ -91,6 +137,13 @@ RSpec.configure do |config|
   config.include Devise::Test::ControllerHelpers, type: :controller
   config.include Devise::Test::ControllerHelpers, type: :helper
   config.include Devise::Test::IntegrationHelpers, type: :request
+  config.include Rails.application.routes.url_helpers, type: :request
+
+  # Reset Warden test mode after each request spec
+  config.after(:each, type: :request) do
+    Warden.test_reset!
+  end
   config.include Devise::Test::IntegrationHelpers, type: :system
+  config.include Rails.application.routes.url_helpers, type: :system
   config.include AbstractController::Translation
 end

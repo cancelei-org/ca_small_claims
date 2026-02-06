@@ -1,0 +1,139 @@
+# Quick Fill Template: Landlord/Tenant Dispute
+# Common scenarios: Security deposit, unpaid rent, habitability issues
+
+scenario:
+  id: landlord_dispute
+  name: "Landlord/Tenant Dispute"
+  description: "For disputes involving rental property, security deposits, or lease agreements"
+  icon: "home"
+  category: housing
+
+  # Common claim types this template handles
+  claim_types:
+    - security_deposit
+    - unpaid_rent
+    - habitability
+    - lease_violation
+
+  # Questions to customize the template
+  customization:
+    - id: dispute_type
+      question: "What type of landlord/tenant dispute is this?"
+      type: select
+      options:
+        - value: security_deposit
+          label: "Security Deposit Not Returned"
+          description: "Landlord kept all or part of your security deposit"
+        - value: unpaid_rent
+          label: "Unpaid Rent (as Landlord)"
+          description: "You are a landlord suing a tenant for unpaid rent"
+        - value: habitability
+          label: "Habitability Issues"
+          description: "Landlord failed to maintain habitable conditions"
+        - value: illegal_fees
+          label: "Illegal Fees Charged"
+          description: "Landlord charged fees not allowed by law"
+
+    - id: is_plaintiff_tenant
+      question: "Are you the tenant or landlord?"
+      type: select
+      options:
+        - value: tenant
+          label: "I am the tenant"
+        - value: landlord
+          label: "I am the landlord"
+
+# Pre-filled values based on scenario (keyed by dispute_type)
+prefills:
+  security_deposit:
+    SC-100:
+      claim_basis: security_deposit
+      claim_description: |
+        I was a tenant at [RENTAL ADDRESS] from [START DATE] to [END DATE].
+
+        When I moved in, I paid a security deposit of $[DEPOSIT AMOUNT].
+
+        When I moved out on [MOVE-OUT DATE], I provided proper notice and left the property in good condition, normal wear and tear excepted.
+
+        The landlord was required to return my deposit or provide an itemized statement of deductions within 21 days. The landlord failed to do so.
+
+        I am entitled to my full deposit of $[AMOUNT], plus additional damages as allowed by California Civil Code Section 1950.5.
+      venue_reason: incident_location
+      demand_made: true
+
+    SC-104:
+      interpreter_needed: false
+
+  unpaid_rent:
+    SC-100:
+      claim_basis: unpaid_rent
+      claim_description: |
+        I am the landlord/property manager of [RENTAL ADDRESS].
+
+        The defendant was a tenant at this property under a lease agreement.
+
+        The defendant failed to pay rent for the following months: [MONTHS].
+
+        The monthly rent was $[RENT AMOUNT]. The total unpaid rent is $[TOTAL AMOUNT].
+
+        Despite demand for payment, the defendant has refused or failed to pay.
+      venue_reason: incident_location
+      demand_made: true
+
+  habitability:
+    SC-100:
+      claim_basis: property_damage
+      claim_description: |
+        I was a tenant at [RENTAL ADDRESS] from [START DATE] to [END DATE].
+
+        During my tenancy, the landlord failed to maintain the property in habitable condition. The following issues existed:
+
+        [LIST ISSUES: e.g., broken heating, plumbing leaks, mold, pest infestation]
+
+        I notified the landlord in writing on [NOTIFICATION DATE] about these issues.
+
+        The landlord failed to make repairs within a reasonable time.
+
+        As a result, I incurred the following damages:
+        - [LIST DAMAGES: medical expenses, temporary housing, repair costs, etc.]
+
+        Total damages: $[AMOUNT]
+      venue_reason: incident_location
+      demand_made: true
+
+  illegal_fees:
+    SC-100:
+      claim_basis: contract
+      claim_description: |
+        I was a tenant at [RENTAL ADDRESS].
+
+        The landlord charged me the following fees that are not permitted under California law:
+
+        [LIST ILLEGAL FEES: e.g., excessive late fees, application fee refund, etc.]
+
+        Under California Civil Code, these fees are not lawful. I am entitled to recover these amounts plus any applicable penalties.
+
+        Total amount: $[AMOUNT]
+      venue_reason: incident_location
+      demand_made: true
+
+# Tips shown to user when using this template
+tips:
+  - title: "Gather Your Evidence"
+    content: "Collect your lease agreement, photos of the property, move-in/move-out inspection reports, and any written communications with your landlord."
+
+  - title: "Security Deposit Timeline"
+    content: "In California, landlords have 21 days after you move out to return your deposit or provide an itemized statement of deductions."
+
+  - title: "Bad Faith Penalty"
+    content: "If your landlord kept your deposit in bad faith, you may be entitled to up to twice the deposit amount as a penalty."
+
+  - title: "Demand Letter"
+    content: "Before filing, send a written demand letter to your landlord requesting return of your deposit. Keep a copy for your records."
+
+# Related forms that may be needed
+related_forms:
+  - code: SC-104
+    reason: "To request a court date/time"
+  - code: SC-103
+    reason: "If you cannot afford the filing fee"

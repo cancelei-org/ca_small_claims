@@ -15,7 +15,7 @@ test.describe('Mobile UI Rendering', () => {
     });
 
     // Check that the page loads
-    await expect(page).toHaveTitle(/.*/);
+    await expect(page).toHaveTitle(/.*/u);
 
     // Check for horizontal overflow (common mobile issue)
     const hasHorizontalOverflow = await page.evaluate(() => {
@@ -190,7 +190,7 @@ test.describe('Mobile UI Rendering', () => {
         });
 
         const filename =
-          pageUrl.replace(/\//g, '-').replace(/^-/, '') || 'home';
+          pageUrl.replace(/\//gu, '-').replace(/^-/u, '') || 'home';
 
         await page.screenshot({
           path: `tests/screenshots/mobile-${filename}.png`,

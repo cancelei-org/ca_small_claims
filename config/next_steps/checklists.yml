@@ -1,0 +1,745 @@
+# Post-Completion Actionable Checklists Configuration
+# Per-form checklists with steps, deadlines, and resources
+# Used by NextSteps::ChecklistBuilder service
+
+# Default checklist for forms without specific configuration
+default:
+  title: "Your Next Steps Checklist"
+  intro: "Follow these steps to complete your court filing process."
+  steps:
+    - id: review
+      number: 1
+      title: "Review Your Form"
+      description: "Carefully review all information for accuracy. Check names, dates, addresses, and amounts."
+      icon: "check-circle"
+      required: true
+      estimated_time: "5-10 minutes"
+
+    - id: print
+      number: 2
+      title: "Print Your Form"
+      description: "Print the original plus copies. Most courts require the original and 2 copies (1 for you, 1 for each other party)."
+      icon: "printer"
+      required: true
+      estimated_time: "5 minutes"
+      tips:
+        - "Use standard letter-size (8.5 x 11) white paper"
+        - "Print single-sided unless the form specifies double-sided"
+        - "Make sure all text is legible"
+
+    - id: file
+      number: 3
+      title: "File with the Court"
+      description: "Take your forms to the court clerk's office or file online if available in your county."
+      icon: "building"
+      required: true
+      link:
+        text: "Find Your Local Courthouse"
+        url: "https://www.courts.ca.gov/find-my-court.htm"
+      tips:
+        - "Courts are typically open 8:30 AM - 4:00 PM on weekdays"
+        - "Some courts allow e-filing through their websites"
+        - "Bring photo ID with you"
+
+    - id: keep_records
+      number: 4
+      title: "Keep Your Records"
+      description: "Keep copies of all filed documents in a safe place. You may need them for your hearing."
+      icon: "folder"
+      required: true
+
+  resources:
+    - title: "California Courts Self-Help Center"
+      url: "https://selfhelp.courts.ca.gov/small-claims"
+      description: "Official guidance for small claims cases"
+    - title: "Small Claims Advisor"
+      url: "https://selfhelp.courts.ca.gov/small-claims/advisor"
+      description: "Free help available at every courthouse"
+
+# Form-specific checklists
+forms:
+  SC-100:
+    title: "Filing Your Small Claims Claim"
+    intro: "You've completed your Plaintiff's Claim (SC-100). Follow these steps to file your case and prepare for your hearing."
+    steps:
+      - id: review
+        number: 1
+        title: "Review Your Claim"
+        description: "Double-check all defendant information, claim amount, and reason for your claim. Errors may delay your case or result in dismissal."
+        icon: "check-circle"
+        required: true
+        estimated_time: "10 minutes"
+        important: true
+        tips:
+          - "Verify defendant's full legal name and current address"
+          - "Make sure your claim amount is within the limit ($12,500 for individuals)"
+          - "Check that you've selected the correct court location"
+
+      - id: copies
+        number: 2
+        title: "Make Copies"
+        description: "Print the original plus copies for each defendant and one for yourself."
+        icon: "copy"
+        required: true
+        estimated_time: "5 minutes"
+        tips:
+          - "1 defendant = original + 2 copies"
+          - "2 defendants = original + 3 copies"
+          - "Keep at least one copy for your own records"
+
+      - id: file
+        number: 3
+        title: "File at the Courthouse"
+        description: "File at the court where the defendant lives or where the problem happened (contract signed, accident occurred, etc.)."
+        icon: "building"
+        required: true
+        link:
+          text: "Find Your Local Courthouse"
+          url: "https://www.courts.ca.gov/find-my-court.htm"
+        tips:
+          - "The clerk will assign a case number and hearing date"
+          - "Filing by mail may delay getting your hearing date"
+          - "Some courts offer same-day or next-day hearing scheduling"
+
+      - id: pay_fee
+        number: 4
+        title: "Pay the Filing Fee"
+        description: "Pay the filing fee when you submit your claim. Fees vary by claim amount."
+        icon: "credit-card"
+        required: true
+        fee_info:
+          - "$30 if claim is $1,500 or less"
+          - "$50 if claim is $1,501 to $5,000"
+          - "$75 if claim is over $5,000"
+        tips:
+          - "Fee waivers are available if you qualify (form FW-001)"
+          - "Most courts accept cash, check, or credit card"
+          - "Keep your receipt as proof of payment"
+        link:
+          text: "Fee Waiver Information"
+          url: "https://selfhelp.courts.ca.gov/small-claims/fee-waiver"
+
+      - id: serve
+        number: 5
+        title: "Serve the Defendant"
+        description: "Have someone 18+ (NOT you) deliver the court papers to the defendant. This must be done properly or your case may be dismissed."
+        icon: "mail"
+        required: true
+        important: true
+        deadline_type: "before_hearing"
+        deadline_days:
+          personal: 15
+          substituted: 25
+          certified_mail: 25
+        link:
+          text: "Learn About Service Requirements"
+          url: "https://selfhelp.courts.ca.gov/small-claims/serve"
+        tips:
+          - "Personal service: hand-deliver to defendant directly"
+          - "Substituted service: leave with adult at home/work + mail a copy"
+          - "Service by mail: use certified mail with return receipt"
+          - "You CANNOT serve the papers yourself - ask a friend, relative, or hire a process server"
+
+      - id: proof_of_service
+        number: 6
+        title: "File Proof of Service (SC-104)"
+        description: "After service is completed, the server must fill out and sign the Proof of Service form. File it with the court."
+        icon: "file-check"
+        required: true
+        deadline_type: "before_hearing"
+        deadline_days: 5
+        related_form: "SC-104"
+        link:
+          text: "Complete SC-104 Now"
+          url: "/forms/sc-104"
+          internal: true
+
+      - id: prepare_evidence
+        number: 7
+        title: "Prepare Your Evidence"
+        description: "Gather all documents, photos, receipts, contracts, and witness information to support your case."
+        icon: "briefcase"
+        required: true
+        estimated_time: "1-2 hours"
+        tips:
+          - "Make 3 copies of each document (judge, defendant, yourself)"
+          - "Organize documents in chronological order"
+          - "Prepare a brief summary of events and amounts"
+          - "Photos should be printed, not shown on phone"
+
+      - id: attend_hearing
+        number: 8
+        title: "Attend Your Hearing"
+        description: "Arrive at least 15 minutes early. Dress professionally and bring all your evidence and copies."
+        icon: "calendar"
+        required: true
+        important: true
+        tips:
+          - "If you cannot attend, contact the court BEFORE your hearing date"
+          - "You can request interpreter services if needed"
+          - "Practice explaining your case in 5 minutes or less"
+        link:
+          text: "Prepare for Your Hearing"
+          url: "https://selfhelp.courts.ca.gov/small-claims/hearing"
+
+    related_forms:
+      - code: "SC-104"
+        reason: "Required to prove you served the defendant"
+        when: "after_service"
+      - code: "SC-103"
+        reason: "If you cannot afford the filing fee"
+        when: "before_filing"
+        conditional: "low_income"
+      - code: "SC-104B"
+        reason: "For service by certified mail"
+        when: "after_service"
+
+    resources:
+      - title: "Small Claims Advisor"
+        url: "https://selfhelp.courts.ca.gov/small-claims/advisor"
+        description: "Free help available at every courthouse"
+      - title: "Filing a Claim Video"
+        url: "https://www.courts.ca.gov/42989.htm"
+        description: "Step-by-step video guide"
+      - title: "Service of Process Guide"
+        url: "https://selfhelp.courts.ca.gov/small-claims/serve"
+        description: "How to properly serve defendants"
+
+  SC-120:
+    title: "Filing Your Counter-Claim"
+    intro: "You've completed your Defendant's Claim (SC-120). Follow these steps to file your counter-claim against the plaintiff."
+    steps:
+      - id: review
+        number: 1
+        title: "Review Your Counter-Claim"
+        description: "Verify your claim amount and reasons are clearly stated. Your counter-claim is separate from defending against the plaintiff's claim."
+        icon: "check-circle"
+        required: true
+        estimated_time: "10 minutes"
+        tips:
+          - "Maximum counter-claim: $12,500 for individuals, $6,250 for businesses"
+          - "You can counter-claim for more than the plaintiff is suing you for"
+          - "Make sure your claim is related to the same transaction or occurrence"
+
+      - id: copies
+        number: 2
+        title: "Make Copies"
+        description: "Make copies for the plaintiff and for your records."
+        icon: "copy"
+        required: true
+
+      - id: file_before_hearing
+        number: 3
+        title: "File Before Your Hearing"
+        description: "Your counter-claim MUST be filed at least 5 days before the hearing date. Earlier is better."
+        icon: "clock"
+        required: true
+        important: true
+        deadline_type: "before_hearing"
+        deadline_days: 5
+
+      - id: pay_fee
+        number: 4
+        title: "Pay Counter-Claim Fee"
+        description: "Counter-claim fees are the same as regular filing fees, based on amount claimed."
+        icon: "credit-card"
+        required: true
+        fee_info:
+          - "$30 if counter-claim is $1,500 or less"
+          - "$50 if counter-claim is $1,501 to $5,000"
+          - "$75 if counter-claim is over $5,000"
+
+      - id: serve_plaintiff
+        number: 5
+        title: "Serve the Plaintiff"
+        description: "Have someone 18+ deliver a copy to the plaintiff. Same service rules apply as the original claim."
+        icon: "mail"
+        required: true
+        deadline_type: "before_hearing"
+        deadline_days: 10
+
+      - id: file_proof_of_service
+        number: 6
+        title: "File Proof of Service"
+        description: "File the Proof of Service (SC-104) with the court before your hearing."
+        icon: "file-check"
+        required: true
+        related_form: "SC-104"
+
+      - id: prepare
+        number: 7
+        title: "Prepare for Hearing"
+        description: "You'll defend against the plaintiff's claim AND present your counter-claim at the same hearing."
+        icon: "calendar"
+        required: true
+        tips:
+          - "Prepare evidence for both your defense and your counter-claim"
+          - "Practice explaining why the plaintiff owes YOU money"
+          - "Be ready to address the plaintiff's claims as well"
+
+    related_forms:
+      - code: "SC-104"
+        reason: "Required to prove service on plaintiff"
+
+  SC-104:
+    title: "After Completing Proof of Service"
+    intro: "You've completed your Proof of Service (SC-104). Make sure it's filed correctly to avoid case dismissal."
+    steps:
+      - id: verify_server
+        number: 1
+        title: "Verify Server Information"
+        description: "Confirm the person who served the papers has signed the form. You CANNOT sign this form yourself."
+        icon: "check-circle"
+        required: true
+        important: true
+
+      - id: file_with_court
+        number: 2
+        title: "File with the Court"
+        description: "File the original Proof of Service with the court clerk. This proves you properly notified the other party."
+        icon: "building"
+        required: true
+        tips:
+          - "File at the same court where your case is pending"
+          - "Keep a copy with your case number stamped by the clerk"
+
+      - id: keep_copy
+        number: 3
+        title: "Keep Your Copy"
+        description: "Keep a copy with your records. You may need it at the hearing."
+        icon: "folder"
+        required: true
+
+      - id: await_hearing
+        number: 4
+        title: "Wait for Your Hearing"
+        description: "Mark your calendar! Hearings are typically 30-70 days after the case is filed."
+        icon: "calendar"
+        required: true
+        tips:
+          - "Arrive early on your hearing date"
+          - "If you need to change the date, file a Request to Postpone (SC-150)"
+
+  SC-100A:
+    title: "After Completing Additional Defendants Form"
+    intro: "You've completed your form for additional defendants. Each defendant must be properly served."
+    steps:
+      - id: attach
+        number: 1
+        title: "Attach to Main Claim"
+        description: "Staple this form (SC-100A) to your SC-100 Plaintiff's Claim form."
+        icon: "paperclip"
+        required: true
+
+      - id: copies_per_defendant
+        number: 2
+        title: "Make Copies for Each Defendant"
+        description: "Make extra copies - one for EACH additional defendant plus your records."
+        icon: "copy"
+        required: true
+        tips:
+          - "Each defendant needs their own copy of the complete claim package"
+          - "Include both SC-100 and SC-100A in each package"
+
+      - id: serve_all
+        number: 3
+        title: "Serve ALL Defendants"
+        description: "Every defendant listed must be personally served with the court papers."
+        icon: "mail"
+        required: true
+        important: true
+        tips:
+          - "You can serve defendants at different times"
+          - "Each defendant needs a separate Proof of Service (SC-104)"
+
+      - id: file_proof_for_each
+        number: 4
+        title: "File Proof of Service for Each"
+        description: "File a separate SC-104 Proof of Service for each defendant you served."
+        icon: "file-check"
+        required: true
+        related_form: "SC-104"
+
+  SC-107:
+    title: "After Requesting Dismissal"
+    intro: "You've completed your Request for Dismissal (SC-107). Here's what happens next."
+    steps:
+      - id: file
+        number: 1
+        title: "File with the Court"
+        description: "File the original with the court clerk. Keep a copy for your records."
+        icon: "building"
+        required: true
+
+      - id: understand_types
+        number: 2
+        title: "Understand the Dismissal Type"
+        description: "Know whether your dismissal is 'with prejudice' (cannot refile) or 'without prejudice' (can refile)."
+        icon: "info"
+        required: false
+        tips:
+          - "With prejudice: Case is permanently closed, cannot sue for same issue"
+          - "Without prejudice: Can refile within statute of limitations"
+
+      - id: notify_defendant
+        number: 3
+        title: "Notify the Defendant"
+        description: "The defendant should be informed the case is dismissed. The court may send notice, but you can also notify them directly."
+        icon: "mail"
+        required: false
+
+  SC-132:
+    title: "After Recording Satisfaction of Judgment"
+    intro: "You've completed your Acknowledgment of Satisfaction of Judgment (SC-132). This clears the judgment from court records."
+    steps:
+      - id: file
+        number: 1
+        title: "File with the Court"
+        description: "File this form with the court to officially record that the judgment has been paid."
+        icon: "building"
+        required: true
+
+      - id: notify_debtor
+        number: 2
+        title: "Send Copy to Judgment Debtor"
+        description: "Provide a copy to the person who paid the judgment. They may need it for their records or credit reports."
+        icon: "mail"
+        required: true
+        tips:
+          - "Keep proof that you sent the copy"
+          - "This helps them clear any liens or credit issues"
+
+      - id: remove_liens
+        number: 3
+        title: "Remove Any Liens"
+        description: "If you recorded an Abstract of Judgment (EJ-001), you should file a Release of Lien with the County Recorder."
+        icon: "x-circle"
+        required: false
+        tips:
+          - "File in every county where you recorded the abstract"
+          - "Small fee required for recording the release"
+
+  SC-134:
+    title: "Filing Request to Vacate Judgment"
+    intro: "You've completed your Request to Vacate Judgment (SC-134). Time limits apply, so file promptly."
+    steps:
+      - id: check_deadline
+        number: 1
+        title: "Verify Your Deadline"
+        description: "You generally have 30 days from when you learned of the judgment, or specific statutory time limits."
+        icon: "clock"
+        required: true
+        important: true
+        tips:
+          - "Different deadlines apply depending on the grounds for vacating"
+          - "Missing the deadline may result in denial"
+
+      - id: file
+        number: 2
+        title: "File with the Court"
+        description: "File the original and copies with the court clerk."
+        icon: "building"
+        required: true
+
+      - id: serve_other_party
+        number: 3
+        title: "Serve the Other Party"
+        description: "Serve a copy on the other party at least 16 days before the hearing (or 21 days if served by mail)."
+        icon: "mail"
+        required: true
+        important: true
+
+      - id: attend_hearing
+        number: 4
+        title: "Attend the Hearing"
+        description: "You must appear at the hearing to explain why the judgment should be vacated."
+        icon: "calendar"
+        required: true
+
+  SC-150:
+    title: "After Requesting Postponement"
+    intro: "You've completed your Request to Postpone Hearing (SC-150). Submit it as soon as possible."
+    steps:
+      - id: file_immediately
+        number: 1
+        title: "File Immediately"
+        description: "File this request with the court as soon as possible. The earlier you file, the better chance of approval."
+        icon: "clock"
+        required: true
+        important: true
+
+      - id: serve_other_party
+        number: 2
+        title: "Serve the Other Party"
+        description: "Serve a copy on the other party by the fastest means possible (personal service or mail)."
+        icon: "mail"
+        required: true
+
+      - id: await_ruling
+        number: 3
+        title: "Wait for Court's Decision"
+        description: "The court will decide whether to grant the postponement. You may be notified by mail or phone."
+        icon: "calendar"
+        required: true
+        tips:
+          - "If not approved, you must appear at the original hearing date"
+          - "If approved, note the new hearing date carefully"
+
+  EJ-001:
+    title: "Using Your Abstract of Judgment"
+    intro: "You've completed your Abstract of Judgment (EJ-001). This powerful document creates a lien on the debtor's property."
+    steps:
+      - id: get_certified
+        number: 1
+        title: "Get Court Certification"
+        description: "File the original with the court. The clerk will certify the abstract."
+        icon: "building"
+        required: true
+        tips:
+          - "There may be a certification fee"
+          - "Ask for certified copies for recording"
+
+      - id: record_with_county
+        number: 2
+        title: "Record with County Recorder"
+        description: "Record the certified abstract with the County Recorder in any county where the debtor owns real property."
+        icon: "lock"
+        required: true
+        important: true
+        link:
+          text: "Find Your County Recorder"
+          url: "https://www.courts.ca.gov/find-my-court.htm"
+        tips:
+          - "Recording fee is typically $15-25 per document"
+          - "Can record in multiple counties"
+          - "Creates a 10-year lien that can be renewed"
+
+      - id: understand_lien
+        number: 3
+        title: "Understand the Lien Effect"
+        description: "The recorded abstract creates a lien on all real property owned by the debtor in that county."
+        icon: "info"
+        required: false
+        tips:
+          - "Lien attaches to any property debtor buys in that county"
+          - "Property generally cannot be sold without paying the judgment"
+          - "Lien lasts 10 years and can be renewed before expiration"
+
+      - id: consider_other_methods
+        number: 4
+        title: "Consider Other Collection Methods"
+        description: "Liens are passive. For faster collection, consider wage garnishment or bank levies."
+        icon: "dollar-sign"
+        required: false
+        link:
+          text: "Collection Options"
+          url: "https://selfhelp.courts.ca.gov/small-claims/collect"
+        tips:
+          - "Wage Garnishment: Use form WG-001"
+          - "Bank Levy: Use form EJ-100 and contact the sheriff"
+          - "Asset Information: Use form SC-134 to request debtor examination"
+
+  SC-103:
+    title: "Fee Waiver Application"
+    intro: "You've completed your Fee Waiver application. This can save you significant court costs."
+    steps:
+      - id: gather_documents
+        number: 1
+        title: "Gather Financial Documents"
+        description: "Be prepared to show proof of income if the court requests it."
+        icon: "folder"
+        required: true
+        tips:
+          - "Pay stubs, benefit letters, or tax returns"
+          - "Not always required, but have them ready"
+
+      - id: file_with_case
+        number: 2
+        title: "File with Your Case Documents"
+        description: "Submit the fee waiver with your claim or other court papers."
+        icon: "building"
+        required: true
+
+      - id: await_decision
+        number: 3
+        title: "Wait for Decision"
+        description: "The court will approve, deny, or schedule a hearing on your fee waiver."
+        icon: "clock"
+        required: true
+        tips:
+          - "If approved, fees are waived"
+          - "If denied, you must pay fees or appeal the denial"
+
+# Category-level checklists (fallback when no form-specific config)
+categories:
+  plaintiff:
+    title: "Filing Your Claim"
+    intro: "Complete these steps to file your claim and prepare for your hearing."
+    steps:
+      - id: review
+        number: 1
+        title: "Review Your Form"
+        description: "Check all information for accuracy."
+        icon: "check-circle"
+        required: true
+
+      - id: file
+        number: 2
+        title: "File with the Court"
+        description: "Take your completed form to the court clerk."
+        icon: "building"
+        required: true
+
+      - id: serve
+        number: 3
+        title: "Serve the Defendant"
+        description: "Have someone else deliver the court papers to the defendant."
+        icon: "mail"
+        required: true
+
+      - id: prepare
+        number: 4
+        title: "Prepare for Your Hearing"
+        description: "Gather evidence and practice explaining your case."
+        icon: "calendar"
+        required: true
+
+  defendant:
+    title: "Responding to the Claim"
+    intro: "Complete these steps to respond to the claim against you."
+    steps:
+      - id: review
+        number: 1
+        title: "Review Your Response"
+        description: "Make sure your response is complete and accurate."
+        icon: "check-circle"
+        required: true
+
+      - id: file_before_deadline
+        number: 2
+        title: "File Before Your Deadline"
+        description: "Your response must be filed by the deadline shown on your notice."
+        icon: "clock"
+        required: true
+        important: true
+
+      - id: serve_plaintiff
+        number: 3
+        title: "Serve the Plaintiff"
+        description: "Have someone deliver a copy to the plaintiff."
+        icon: "mail"
+        required: true
+
+      - id: attend
+        number: 4
+        title: "Attend Your Hearing"
+        description: "Appear at court on your scheduled hearing date."
+        icon: "calendar"
+        required: true
+
+  judgment:
+    title: "After Judgment"
+    intro: "Complete these steps to finalize your judgment-related documents."
+    steps:
+      - id: file
+        number: 1
+        title: "File with the Court"
+        description: "Submit the completed form to the court clerk."
+        icon: "building"
+        required: true
+
+      - id: serve
+        number: 2
+        title: "Notify Other Parties"
+        description: "Send copies to all other parties in the case."
+        icon: "mail"
+        required: true
+
+  enforcement:
+    title: "Collecting Your Judgment"
+    intro: "Complete these steps to enforce your judgment and collect what you're owed."
+    steps:
+      - id: file
+        number: 1
+        title: "File with the Court"
+        description: "Submit the enforcement paperwork to the court clerk."
+        icon: "building"
+        required: true
+
+      - id: record
+        number: 2
+        title: "Record the Document"
+        description: "File with the County Recorder or other appropriate office."
+        icon: "lock"
+        required: true
+
+      - id: enforce
+        number: 3
+        title: "Begin Collection"
+        description: "Use the appropriate legal methods to collect your judgment."
+        icon: "dollar-sign"
+        required: true
+
+  service:
+    title: "Proof of Service Documents"
+    intro: "Complete these steps to properly document service of process."
+    steps:
+      - id: verify
+        number: 1
+        title: "Verify Service Was Proper"
+        description: "Confirm the service method complies with court rules."
+        icon: "check-circle"
+        required: true
+
+      - id: file
+        number: 2
+        title: "File with the Court"
+        description: "Submit the proof of service before your hearing date."
+        icon: "building"
+        required: true
+        deadline_type: "before_hearing"
+        deadline_days: 5
+
+  appeal:
+    title: "Filing Your Appeal"
+    intro: "Complete these steps to appeal your case. Time limits are strict."
+    steps:
+      - id: check_deadline
+        number: 1
+        title: "Verify Appeal Deadline"
+        description: "Most appeals must be filed within 30 days of the judgment."
+        icon: "clock"
+        required: true
+        important: true
+
+      - id: file
+        number: 2
+        title: "File Notice of Appeal"
+        description: "File your appeal with the court clerk and pay the filing fee."
+        icon: "building"
+        required: true
+
+      - id: serve
+        number: 3
+        title: "Serve Other Parties"
+        description: "Serve a copy of the notice of appeal on all other parties."
+        icon: "mail"
+        required: true
+
+  pre_trial:
+    title: "Pre-Trial Preparation"
+    intro: "Complete these steps before your hearing or trial."
+    steps:
+      - id: file
+        number: 1
+        title: "File Required Documents"
+        description: "Submit all required pre-trial documents to the court."
+        icon: "building"
+        required: true
+
+      - id: prepare
+        number: 2
+        title: "Prepare Your Case"
+        description: "Organize evidence and prepare your presentation."
+        icon: "briefcase"
+        required: true

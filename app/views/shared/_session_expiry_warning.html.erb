@@ -1,0 +1,105 @@
+<%#
+  Session Expiry Warning Banner
+  Displays countdown warnings for anonymous 72-hour sessions to prevent data loss.
+  Shows non-intrusive banners at 48h, 24h, 6h, and 1h marks.
+%>
+
+<% if anonymous_session? && session_expires_at.present? %>
+  <div data-controller="session-expiry"
+       data-session-expiry-expires-at-value="<%= session_expires_at.iso8601 %>"
+       class="session-expiry-container">
+
+    <%# Warning Banner - Hidden by default, shown by Stimulus controller %>
+    <div data-session-expiry-target="banner"
+         class="hidden session-expiry-banner session-expiry-info"
+         role="status"
+         aria-live="polite">
+
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between gap-4 py-3">
+
+          <%# Left: Icon and Message %>
+          <div class="flex items-center gap-3 flex-1 min-w-0">
+            <%# Urgency Icon - Updated dynamically by controller %>
+            <svg data-session-expiry-target="urgencyIcon"
+                 class="w-5 h-5 flex-shrink-0"
+                 fill="none"
+                 stroke="currentColor"
+                 viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+
+            <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 min-w-0">
+              <%# Warning Message - Updated dynamically %>
+              <span data-session-expiry-target="message" class="text-sm font-medium truncate">
+                Your anonymous session will expire soon.
+              </span>
+
+              <%# Countdown Timer %>
+              <span data-session-expiry-target="countdown"
+                    class="text-sm font-bold whitespace-nowrap session-expiry-countdown">
+                --
+              </span>
+            </div>
+          </div>
+
+          <%# Right: Action Buttons %>
+          <div class="flex items-center gap-2 flex-shrink-0">
+            <%# Create Account CTA %>
+            <%= link_to new_user_registration_path,
+                        class: "btn btn-sm btn-primary gap-1 min-h-[36px] hidden sm:inline-flex",
+                        data: { turbo: false } do %>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              <span class="hidden md:inline">Save Progress</span>
+              <span class="md:hidden">Save</span>
+            <% end %>
+
+            <%# Export Data Button %>
+            <button type="button"
+                    class="btn btn-sm btn-ghost gap-1 min-h-[36px] hidden sm:inline-flex"
+                    data-action="click->session-expiry#exportData"
+                    title="Export your form data as a backup">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span class="hidden lg:inline">Export</span>
+            </button>
+
+            <%# Dismiss Button %>
+            <button type="button"
+                    class="btn btn-sm btn-ghost btn-circle min-h-[36px] min-w-[36px]"
+                    data-action="click->session-expiry#dismiss"
+                    aria-label="Dismiss warning">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <%# Mobile-only action row %>
+        <div class="flex sm:hidden items-center justify-center gap-3 pb-3 -mt-1">
+          <%= link_to new_user_registration_path,
+                      class: "btn btn-sm btn-primary gap-1 flex-1",
+                      data: { turbo: false } do %>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+            Create Account
+          <% end %>
+
+          <button type="button"
+                  class="btn btn-sm btn-ghost gap-1"
+                  data-action="click->session-expiry#exportData">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

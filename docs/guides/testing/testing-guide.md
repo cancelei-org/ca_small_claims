@@ -1,6 +1,6 @@
 # Testing Guide
 
-**Last Updated**: December 25, 2025
+**Last Updated**: January 6, 2026
 **Document Type**: Guide
 **Audience**: All developers
 
@@ -9,6 +9,29 @@
 ## Overview
 
 This project uses RSpec for Ruby testing and Jest for JavaScript testing.
+
+### Current Test Statistics
+
+| Metric | Value |
+|--------|-------|
+| Total RSpec Examples | 1,241 |
+| Test Coverage | 65.04% |
+| System Tests | 38 |
+| Model Tests | 250+ |
+| Request/Controller Tests | 150+ |
+| Service Tests | 100+ |
+
+### CI/CD Integration
+
+Tests run automatically on:
+- Pull requests to any branch
+- Pushes to `main` branch
+
+CI pipeline includes:
+- Security scanning (Brakeman, bundler-audit)
+- Code linting (RuboCop)
+- RSpec tests with coverage reporting
+- Playwright E2E tests (Mobile Chrome & Safari)
 
 ### Test Types
 
@@ -205,9 +228,27 @@ open coverage/index.html
 
 ### Coverage Thresholds
 
-- Line coverage: 75% minimum
-- Branch coverage: 50% minimum
-- Per-file: 50% minimum
+**Primary Code (Controllers, Models, Services)**
+- Target: 90%+ coverage
+- Current: Focus areas for improvement
+
+**Secondary Code (Helpers, Components, Policies)**
+- Target: 80%+ coverage
+
+**Per-file Minimum**: 50%
+
+### Running Coverage Report
+
+```bash
+# Generate detailed coverage report
+COVERAGE=true bundle exec rspec
+
+# Open HTML report in browser
+open coverage/index.html
+
+# Check coverage summary
+cat coverage/.last_run.json
+```
 
 ---
 

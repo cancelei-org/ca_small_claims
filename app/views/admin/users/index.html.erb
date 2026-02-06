@@ -1,0 +1,222 @@
+<% content_for :title, "Users - Admin" %>
+
+<div class="space-y-6">
+  <h1 class="sr-only">User Management</h1>
+  <div class="flex items-center justify-between">
+    <h2 class="text-2xl font-bold">Users</h2>
+    <div class="flex gap-2">
+      <div class="badge badge-neutral gap-1">
+        <%= @total_count %> total
+      </div>
+      <div class="badge badge-info gap-1">
+        <%= @registered_count %> registered
+      </div>
+      <div class="badge badge-warning gap-1">
+        <%= @guest_count %> guests
+      </div>
+    </div>
+  </div>
+
+  <%# Search and Filters %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body p-4">
+      <%= form_with url: admin_users_path, method: :get, data: { turbo_frame: "users-list" } do |f| %>
+        <div class="flex flex-wrap gap-4 items-end">
+          <div class="form-control w-full sm:w-64">
+            <label class="label py-1" for="search">
+              <span class="label-text text-xs">Search by Email or Name</span>
+            </label>
+            <%= f.text_field :search,
+                             value: params[:search],
+                             placeholder: "user@email.com or John",
+                             class: "input input-bordered input-sm w-full",
+                             id: "search" %>
+          </div>
+
+          <div class="form-control w-full sm:w-auto">
+            <label class="label py-1" for="user_type">
+              <span class="label-text text-xs">User Type</span>
+            </label>
+            <%= f.select :user_type,
+                         options_for_select([["Registered", "registered"], ["Guest", "guest"]], params[:user_type]),
+                         { include_blank: "All Types" },
+                         class: "select select-bordered select-sm",
+                         id: "user_type" %>
+          </div>
+
+          <div class="form-control w-full sm:w-auto">
+            <label class="label py-1" for="admin_status">
+              <span class="label-text text-xs">Admin Status</span>
+            </label>
+            <%= f.select :admin_status,
+                         options_for_select([["Admin", "admin"], ["Regular", "regular"]], params[:admin_status]),
+                         { include_blank: "All" },
+                         class: "select select-bordered select-sm",
+                         id: "admin_status" %>
+          </div>
+
+          <div class="form-control w-full sm:w-32">
+            <label class="label py-1" for="date_from">
+              <span class="label-text text-xs">From Date</span>
+            </label>
+            <%= f.date_field :date_from,
+                             value: params[:date_from],
+                             class: "input input-bordered input-sm w-full",
+                             id: "date_from" %>
+          </div>
+
+          <div class="form-control w-full sm:w-32">
+            <label class="label py-1" for="date_to">
+              <span class="label-text text-xs">To Date</span>
+            </label>
+            <%= f.date_field :date_to,
+                             value: params[:date_to],
+                             class: "input input-bordered input-sm w-full",
+                             id: "date_to" %>
+          </div>
+
+          <div class="flex gap-2">
+            <%= f.submit "Filter", class: "btn btn-primary btn-sm" %>
+            <%= link_to "Clear", admin_users_path, class: "btn btn-ghost btn-sm" %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Users List %>
+  <%= turbo_frame_tag "users-list" do %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body p-0">
+        <% if @users.any? %>
+          <%# Mobile: Card layout %>
+          <div class="md:hidden divide-y divide-base-200">
+            <% @users.each do |user| %>
+              <div class="p-4 space-y-3" id="<%= dom_id(user) %>-mobile">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0 flex-1">
+                    <div class="font-medium"><%= user.display_name %></div>
+                    <div class="text-sm opacity-60 truncate"><%= user.email %></div>
+                  </div>
+                  <div class="flex gap-1 flex-shrink-0">
+                    <% if user.admin? %>
+                      <span class="badge badge-primary badge-sm">Admin</span>
+                    <% end %>
+                    <% if user.guest? %>
+                      <span class="badge badge-warning badge-sm">Guest</span>
+                    <% else %>
+                      <span class="badge badge-success badge-sm">Registered</span>
+                    <% end %>
+                  </div>
+                </div>
+
+                <div class="flex items-center gap-4 text-sm">
+                  <div class="flex items-center gap-1 opacity-60">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                    </svg>
+                    <span><%= user.submissions.count %> submissions</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between text-sm">
+                  <span class="opacity-60">Joined <%= time_ago_in_words(user.created_at) %> ago</span>
+                  <%= link_to admin_user_path(user), class: "btn btn-ghost btn-sm min-h-[44px]" do %>
+                    View
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                    </svg>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
+
+          <%# Desktop: Table layout %>
+          <div class="hidden md:block overflow-x-auto">
+            <table class="table table-zebra">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>User</th>
+                  <th>Type</th>
+                  <th>Role</th>
+                  <th>Submissions</th>
+                  <th>Feedbacks</th>
+                  <th>Joined</th>
+                  <th class="text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% @users.each do |user| %>
+                  <tr id="<%= dom_id(user) %>">
+                    <td class="font-mono text-sm"><%= user.id %></td>
+                    <td>
+                      <div class="flex items-center gap-2">
+                        <div class="avatar placeholder">
+                          <div class="bg-neutral text-neutral-content rounded-full w-8">
+                            <span class="text-xs"><%= user.display_name.first(2).upcase %></span>
+                          </div>
+                        </div>
+                        <div>
+                          <div class="font-medium text-sm"><%= user.display_name %></div>
+                          <div class="text-xs opacity-60"><%= user.email %></div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <% if user.guest? %>
+                        <span class="badge badge-warning badge-sm">Guest</span>
+                      <% else %>
+                        <span class="badge badge-success badge-sm">Registered</span>
+                      <% end %>
+                    </td>
+                    <td>
+                      <% if user.admin? %>
+                        <span class="badge badge-primary badge-sm">Admin</span>
+                      <% else %>
+                        <span class="badge badge-ghost badge-sm">User</span>
+                      <% end %>
+                    </td>
+                    <td class="text-sm"><%= user.submissions.count %></td>
+                    <td class="text-sm"><%= user.form_feedbacks.count %></td>
+                    <td class="text-sm"><%= user.created_at.strftime("%b %d, %Y") %></td>
+                    <td class="text-right">
+                      <div class="flex justify-end gap-1">
+                        <%= link_to admin_user_path(user), class: "btn btn-ghost btn-sm" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        <% end %>
+                        <%= link_to activity_admin_user_path(user), class: "btn btn-ghost btn-sm" do %>
+                          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                        <% end %>
+                      </div>
+                    </td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
+
+          <% if @pagy && @pagy.pages > 1 %>
+            <div class="p-4 border-t flex justify-center">
+              <%== pagy_nav(@pagy) %>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="text-center py-12 text-base-content/60">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-2 opacity-50">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z" />
+            </svg>
+            <p class="font-medium">No users found</p>
+            <p class="text-sm">Try adjusting your filters</p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

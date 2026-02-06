@@ -1,0 +1,85 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <div style="background-color: <%= @days_until_deadline <= 3 ? '#dc2626' : '#1e40af' %>; padding: 24px; text-align: center;">
+    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">CA Small Claims Court Forms</h1>
+  </div>
+
+  <div style="padding: 32px 24px; background-color: #ffffff;">
+    <% if @days_until_deadline <= 0 %>
+      <div style="background-color: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 8px;">&#9888;</div>
+        <h2 style="color: #dc2626; margin: 0; font-size: 20px;">Deadline Has Passed</h2>
+        <p style="color: #991b1b; margin: 8px 0 0;">Please take immediate action</p>
+      </div>
+    <% elsif @days_until_deadline <= 3 %>
+      <div style="background-color: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 8px;">&#9888;</div>
+        <h2 style="color: #dc2626; margin: 0; font-size: 20px;">Urgent: <%= @days_until_deadline %> Day<%= @days_until_deadline == 1 ? '' : 's' %> Remaining</h2>
+        <p style="color: #991b1b; margin: 8px 0 0;">Action required soon</p>
+      </div>
+    <% elsif @days_until_deadline <= 7 %>
+      <div style="background-color: #fffbeb; border: 2px solid #f59e0b; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 8px;">&#128197;</div>
+        <h2 style="color: #b45309; margin: 0; font-size: 20px;"><%= @days_until_deadline %> Days Until Deadline</h2>
+        <p style="color: #92400e; margin: 8px 0 0;">Plan ahead to meet your deadline</p>
+      </div>
+    <% else %>
+      <div style="background-color: #eff6ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 20px; margin-bottom: 24px; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 8px;">&#128197;</div>
+        <h2 style="color: #1d4ed8; margin: 0; font-size: 20px;">Upcoming Deadline</h2>
+        <p style="color: #1e40af; margin: 8px 0 0;"><%= @deadline_date.strftime("%B %d, %Y") %></p>
+      </div>
+    <% end %>
+
+    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+      Hello <%= @user.display_name %>,
+    </p>
+
+    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+      This is a reminder about an important deadline for your <strong><%= @form_definition.code %></strong> form (<%= @form_definition.title %>).
+    </p>
+
+    <div style="background-color: #f3f4f6; border-radius: 8px; padding: 20px; margin: 24px 0;">
+      <h3 style="color: #1f2937; margin: 0 0 12px; font-size: 16px;">Deadline Details</h3>
+      <table style="width: 100%; border-collapse: collapse;">
+        <tr>
+          <td style="color: #6b7280; padding: 8px 0;">Form:</td>
+          <td style="color: #1f2937; padding: 8px 0; font-weight: 600;"><%= @form_definition.code %></td>
+        </tr>
+        <tr>
+          <td style="color: #6b7280; padding: 8px 0;">Deadline Date:</td>
+          <td style="color: #1f2937; padding: 8px 0; font-weight: 600;"><%= @deadline_date.strftime("%B %d, %Y") %></td>
+        </tr>
+        <tr>
+          <td style="color: #6b7280; padding: 8px 0;">Days Remaining:</td>
+          <td style="color: <%= @days_until_deadline <= 3 ? '#dc2626' : '#1f2937' %>; padding: 8px 0; font-weight: 600;">
+            <%= @days_until_deadline <= 0 ? 'Past due' : "#{@days_until_deadline} day#{'s' unless @days_until_deadline == 1}" %>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="<%= submission_url(@submission) %>" style="display: inline-block; background-color: <%= @days_until_deadline <= 3 ? '#dc2626' : '#1e40af' %>; color: #ffffff; padding: 14px 36px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+        View Your Form
+      </a>
+    </div>
+
+    <div style="background-color: #f0f9ff; border-radius: 8px; padding: 16px; margin: 24px 0;">
+      <h4 style="color: #0369a1; margin: 0 0 8px; font-size: 14px;">Need Help?</h4>
+      <p style="color: #0c4a6e; font-size: 14px; margin: 0;">
+        If you need assistance completing your form, visit our help center or contact your local Small Claims Court clerk's office.
+      </p>
+    </div>
+  </div>
+
+  <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+    <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">
+      California Small Claims Court Forms
+    </p>
+    <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+      You received this email because you have deadline reminders enabled.
+      <br>
+      <a href="#" style="color: #6b7280;">Manage notification preferences</a>
+    </p>
+  </div>
+</div>

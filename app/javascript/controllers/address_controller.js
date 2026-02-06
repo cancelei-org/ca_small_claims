@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { formatZip } from '../utils/inputFormatting';
 
 /**
  * Address Controller
@@ -75,23 +76,12 @@ export default class extends Controller {
   /**
    * Format ZIP code as user types (XXXXX or XXXXX-XXXX)
    */
-  formatZip() {
+  formatZipCode() {
     if (!this.hasZipTarget) {
       return;
     }
 
-    const input = this.zipTarget;
-    let value = input.value.replace(/\D/gu, '');
-
-    // Limit to 9 digits
-    value = value.slice(0, 9);
-
-    // Format with dash for ZIP+4
-    if (value.length > 5) {
-      value = `${value.slice(0, 5)}-${value.slice(5)}`;
-    }
-
-    input.value = value;
+    this.zipTarget.value = formatZip(this.zipTarget.value);
     this.updateCombined();
   }
 
@@ -129,16 +119,18 @@ export default class extends Controller {
     );
 
     if (cityStateZipMatch) {
+      const [, city, state, zip] = cityStateZipMatch;
+
       if (this.hasCityTarget) {
-        this.cityTarget.value = cityStateZipMatch[1].trim();
+        this.cityTarget.value = city.trim();
       }
 
       if (this.hasStateTarget) {
-        this.stateTarget.value = cityStateZipMatch[2].toUpperCase();
+        this.stateTarget.value = state.toUpperCase();
       }
 
       if (this.hasZipTarget) {
-        this.zipTarget.value = cityStateZipMatch[3];
+        this.zipTarget.value = zip;
       }
     }
   }

@@ -33,151 +33,6 @@
 }
 
 /* ============================================
-   Form/PDF Grid Layout (Side-by-Side)
-   ============================================ */
-.form-pdf-layout {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  min-height: var(--viewport-height);
-}
-
-@media (min-width: 768px) {
-  .form-pdf-layout {
-    grid-template-columns: 1.2fr 1fr;
-  }
-}
-
-@media (min-width: 1280px) {
-  .form-pdf-layout {
-    grid-template-columns: 1.4fr 1fr;
-  }
-}
-
-/* Form scroll container */
-.form-scroll-container {
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: var(--viewport-height);
-  padding-right: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: oklch(var(--bc) / 0.2) transparent;
-}
-
-.form-scroll-container::-webkit-scrollbar {
-  width: 6px;
-}
-
-.form-scroll-container::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.form-scroll-container::-webkit-scrollbar-thumb {
-  background: oklch(var(--bc) / 0.2);
-  border-radius: 3px;
-}
-
-.form-scroll-container::-webkit-scrollbar-thumb:hover {
-  background: oklch(var(--bc) / 0.3);
-}
-
-/* PDF preview container */
-.pdf-preview-container {
-  position: sticky;
-  top: 1rem;
-  height: fit-content;
-  max-height: var(--viewport-height);
-}
-
-/* PDF preview card - responsive height */
-.pdf-preview-card {
-  display: flex;
-  flex-direction: column;
-  height: calc(var(--viewport-height) - 1rem);
-  min-height: 400px;
-  max-height: 900px;
-}
-
-/* ============================================
-   Mobile/Tablet PDF Drawer
-   ============================================ */
-.pdf-drawer-backdrop {
-  position: fixed;
-  inset: 0;
-  background: oklch(0% 0 0 / 0.5);
-  z-index: 50;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.pdf-drawer-backdrop.open {
-  opacity: 1;
-}
-
-.pdf-drawer-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 100%;
-  max-width: 500px;
-  background: oklch(var(--b1));
-  z-index: 51;
-  transform: translateX(100%);
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  box-shadow: -4px 0 20px oklch(0% 0 0 / 0.1);
-}
-
-.pdf-drawer-panel.open {
-  transform: translateX(0);
-}
-
-.pdf-drawer-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1rem;
-  border-bottom: 1px solid oklch(var(--bc) / 0.1);
-  flex-shrink: 0;
-}
-
-.pdf-drawer-content {
-  flex: 1;
-  min-height: 0;
-  overflow: hidden;
-}
-
-.pdf-drawer-content .pdf-preview-card {
-  height: 100%;
-  max-height: none;
-  border-radius: 0;
-  box-shadow: none;
-}
-
-/* Preview loading pulse */
-.preview-loading-pulse {
-  animation: previewPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes previewPulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
-}
-
-/* Preview iframe container */
-.preview-iframe-container {
-  background: repeating-linear-gradient(
-    45deg,
-    transparent,
-    transparent 10px,
-    rgba(0, 0, 0, 0.02) 10px,
-    rgba(0, 0, 0, 0.02) 20px
-  );
-}
-
-/* ============================================
    Wizard Card 3D Flip Animations
    ============================================ */
 .perspective-1000 {
@@ -358,4 +213,60 @@
   .wizard-flip-exit { opacity: 0; }
   .wizard-flip-enter { opacity: 1; }
   .wizard-progress-bar { transition: width 0.15s ease; }
+}
+
+/* ============================================
+   Courthouse Map Markers (Leaflet)
+   ============================================ */
+.courthouse-marker {
+  background: transparent;
+  border: none;
+}
+
+.courthouse-marker > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Leaflet popup styling to match DaisyUI */
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-popup-content {
+  margin: 0;
+  font-family: inherit;
+}
+
+.leaflet-popup-tip {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Map container loading state */
+#courthouse-map .loading,
+#courthouse-detail-map .loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  background: oklch(var(--b2));
+}
+
+/* Map controls styling */
+.leaflet-control-zoom a {
+  background: oklch(var(--b1)) !important;
+  color: oklch(var(--bc)) !important;
+  border-color: oklch(var(--bc) / 0.2) !important;
+}
+
+.leaflet-control-zoom a:hover {
+  background: oklch(var(--b2)) !important;
+}
+
+/* Attribution styling */
+.leaflet-control-attribution {
+  background: oklch(var(--b1) / 0.8) !important;
+  font-size: 0.65rem;
 }

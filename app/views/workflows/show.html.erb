@@ -37,7 +37,7 @@
                   <%= index + 1 %>
                 </span>
               <% else %>
-                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-base-200 text-base-content/50 text-xs font-medium">
+                <span class="inline-flex items-center justify-center h-6 w-6 rounded-full bg-base-200 text-base-content/60 text-xs font-medium">
                   <%= index + 1 %>
                 </span>
               <% end %>
@@ -82,16 +82,19 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <% fields.each do |field| %>
-                    <div class="<%= field.width_class %>">
+                    <% js_conditions = field.conditions_for_js %>
+                    <%= content_tag :div,
+                                    class: field.width_class,
+                                    data: (js_conditions.any? ? { controller: "conditional-field", conditional_field_conditions_value: js_conditions.to_json } : {}) do %>
                       <%= render partial: "forms/fields/#{field.field_type}", locals: { field: field, form: f, submission: @current_submission } rescue render partial: "forms/fields/text", locals: { field: field, form: f, submission: @current_submission } %>
-                    </div>
+                    <% end %>
                   <% end %>
                 </div>
               </div>
             <% end %>
 
             <% if @field_definitions.empty? %>
-              <div class="text-center py-8 text-base-content/50">
+              <div class="text-center py-8 text-base-content/60">
                 <p>This form's fields haven't been configured yet.</p>
               </div>
             <% end %>

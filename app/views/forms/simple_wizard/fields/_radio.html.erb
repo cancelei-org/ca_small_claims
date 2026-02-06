@@ -1,0 +1,20 @@
+<%# Radio buttons for simple wizard
+    locals: field, form, submission, index
+%>
+
+<div class="radio-group space-y-3">
+  <% field.options.each_with_index do |option, opt_index| %>
+    <label class="choice-label">
+      <%= form.radio_button field.name,
+                            option['value'],
+                            id: "simple-wizard-field-#{field.name}-#{opt_index}",
+                            checked: submission.field_value(field.name) == option['value'],
+                            required: field.required && opt_index == 0,
+                            class: "radio radio-primary",
+                            data: {
+                              action: "change->simple-wizard#fieldChanged change->form#fieldChanged"
+                            } %>
+      <span class="choice-text"><%= option['label'] %></span>
+    </label>
+  <% end %>
+</div>

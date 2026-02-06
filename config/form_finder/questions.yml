@@ -1,0 +1,112 @@
+# Form Finder Wizard Questions Configuration
+# This file defines the questions and options for the Form Finder wizard
+
+steps:
+  role:
+    title: "What's your situation?"
+    question: "Are you suing someone or being sued?"
+    options:
+      - value: plaintiff
+        label: "I want to sue someone"
+        description: "You're the plaintiff - starting a new case or managing an existing claim"
+        icon: "scale"
+      - value: defendant
+        label: "Someone is suing me"
+        description: "You're the defendant - responding to a claim filed against you"
+        icon: "clipboard"
+      - value: judgment_holder
+        label: "I won my case"
+        description: "You have a judgment in your favor and need to collect or manage it"
+        icon: "check-circle"
+      - value: judgment_debtor
+        label: "I owe money from a case"
+        description: "You have a judgment against you and need to manage payments or appeal"
+        icon: "credit-card"
+
+  situation:
+    plaintiff:
+      title: "What do you need to do?"
+      question: "Select the option that best describes your situation:"
+      options:
+        - value: new_case
+          label: "Start a new small claims case"
+          description: "File a claim to sue someone for money (up to $12,500)"
+          icon: "plus-circle"
+        - value: modify_claim
+          label: "Modify my existing claim"
+          description: "Change the amount, add or remove parties before the hearing"
+          icon: "edit"
+        - value: subpoena_witness
+          label: "Get a witness to appear"
+          description: "Require someone to testify at your hearing"
+          icon: "user-plus"
+
+    defendant:
+      title: "What do you need to do?"
+      question: "Select the option that best describes your situation:"
+      options:
+        - value: respond_only
+          label: "Just respond to the claim"
+          description: "Appear at the hearing to defend yourself (no forms needed)"
+          icon: "message-circle"
+        - value: counter_claim
+          label: "File a counter-claim"
+          description: "Sue the plaintiff back as part of the same case"
+          icon: "refresh-cw"
+        - value: modify_claim
+          label: "Request changes before hearing"
+          description: "Ask to change the hearing date or other details"
+          icon: "edit"
+
+    judgment_holder:
+      title: "What do you need to do?"
+      question: "You won your case. What's next?"
+      options:
+        - value: record_payment
+          label: "Record that I was paid"
+          description: "File paperwork showing the judgment has been satisfied"
+          icon: "check"
+        - value: enforce_judgment
+          label: "Collect the money owed"
+          description: "Create a lien on property or take enforcement action"
+          icon: "dollar-sign"
+        - value: correct_judgment
+          label: "Fix an error in the judgment"
+          description: "Request correction of clerical or legal errors"
+          icon: "alert-circle"
+
+    judgment_debtor:
+      title: "What do you need to do?"
+      question: "You owe money from a judgment. What's next?"
+      options:
+        - value: payment_plan
+          label: "Request a payment plan"
+          description: "Ask the court to let you pay in installments"
+          icon: "calendar"
+        - value: modify_payments
+          label: "Change my payment plan"
+          description: "Request to modify an existing payment arrangement"
+          icon: "edit-2"
+        - value: appeal
+          label: "Appeal the decision"
+          description: "Challenge the judgment if the court made a legal error"
+          icon: "alert-triangle"
+
+  details:
+    multiple_parties:
+      question: "Are there more than 4 plaintiffs or defendants in your case?"
+      description: "If you have more than 4 people on either side, you'll need an additional form."
+      options:
+        - value: "true"
+          label: "Yes, more than 4"
+        - value: "false"
+          label: "No, 4 or fewer"
+
+    needs_fee_waiver:
+      question: "Do you need a fee waiver?"
+      description: "If you can't afford the filing fee, you may qualify for a fee waiver based on income."
+      options:
+        - value: "true"
+          label: "Yes, I need a fee waiver"
+        - value: "false"
+          label: "No, I'll pay the fee"

@@ -1,13 +1,4 @@
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
-  <%= form.number_field field.name,
-    value: submission.field_value(field.name),
-    placeholder: field.placeholder,
-    required: field.required,
-    min: field.min_length,
-    max: field.max_length,
-    class: standard_input_class,
-    id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-    data: field_data_attributes,
-    **field_aria_attributes(field, prefix: prefix) %>
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
+  <%= render_input_field(form, field, :number, submission, prefix: prefix) %>
 <% end %>

@@ -1,0 +1,40 @@
+<div class="container mx-auto px-4 py-8">
+  <div class="mb-6">
+    <%= link_to "← Back to Templates", templates_path, class: "btn btn-ghost" %>
+  </div>
+
+  <% scenario = @template[:scenario] || {} %>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h1 class="card-title text-3xl mb-4"><%= scenario[:name] %></h1>
+      <p class="text-lg mb-6"><%= scenario[:description] %></p>
+
+      <% if scenario[:category].present? %>
+        <div class="badge badge-primary mb-4"><%= scenario[:category].titleize %></div>
+      <% end %>
+
+      <% if @template[:prefills].present? %>
+        <h2 class="text-xl font-bold mt-6 mb-4">Prefilled Fields</h2>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th>Fields</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @template[:prefills][:default]&.each do |form_code, fields| %>
+                <tr>
+                  <td class="font-semibold"><%= form_code %></td>
+                  <td><%= fields.keys.join(", ") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

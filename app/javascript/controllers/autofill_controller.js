@@ -159,11 +159,18 @@ export default class extends Controller {
       return;
     }
 
-    this.applyValue(suggestion.value);
+    this.applyValue(index);
     this.closeDropdown();
   }
 
-  applyValue(value) {
+  applyValue(index) {
+    const suggestion = this.suggestionsValue[index];
+
+    if (!suggestion) {
+      return;
+    }
+
+    const value = suggestion.value;
     // Find the input within the same form-control group
     const wrapper = this.element.closest('.form-control');
     const input = wrapper?.querySelector('input, textarea, select');
@@ -174,6 +181,18 @@ export default class extends Controller {
       // Trigger events for other controllers (auto-save, validation, etc.)
       input.dispatchEvent(new Event('input', { bubbles: true }));
       input.dispatchEvent(new Event('change', { bubbles: true }));
+
+      // Dispatch custom event for autofill indicator
+      input.dispatchEvent(
+        new CustomEvent('autofill:applied', {
+          bubbles: true,
+          detail: {
+            value,
+            source: suggestion?.source || 'magic-fill',
+            label: suggestion?.label
+          }
+        })
+      );
 
       // Visual feedback - highlight briefly
       input.classList.add('bg-primary/10');
@@ -233,6 +252,9 @@ export default class extends Controller {
 
       case 'Tab':
         this.closeDropdown();
+        break;
+
+      default:
         break;
     }
   }

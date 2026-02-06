@@ -1,0 +1,16 @@
+<%# Text input for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.text_field field.name,
+                    id: "simple-wizard-field-#{field.name}",
+                    value: submission.field_value(field.name),
+                    placeholder: field.placeholder,
+                    required: field.required,
+                    maxlength: field.max_length,
+                    pattern: field.validation_pattern,
+                    class: "input input-bordered w-full",
+                    autocomplete: field.field_type == 'email' ? 'email' : 'off',
+                    data: {
+                      action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                    } %>

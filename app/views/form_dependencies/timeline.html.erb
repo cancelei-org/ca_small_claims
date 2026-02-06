@@ -1,0 +1,233 @@
+<% content_for :title, "Small Claims Process Timeline" %>
+
+<div class="mb-6 md:mb-8">
+  <div class="breadcrumbs text-sm mb-4">
+    <ul>
+      <li><%= link_to "Home", root_path %></li>
+      <li><%= link_to "Forms", forms_path %></li>
+      <li>Process Timeline</li>
+    </ul>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+    <div class="flex-1">
+      <h1 class="text-2xl md:text-3xl font-bold text-base-content mb-2">
+        Small Claims Process Timeline
+      </h1>
+      <p class="text-sm md:text-base text-base-content/70 max-w-3xl">
+        Follow this roadmap to understand the complete small claims process from start to finish. Each stage shows the forms you may need and what happens at that point in your case.
+      </p>
+    </div>
+
+    <div class="flex gap-2">
+      <%= link_to forms_path, class: "btn btn-sm btn-ghost" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        All Forms
+      <% end %>
+      <%= link_to form_dependencies_kits_path, class: "btn btn-sm btn-ghost" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        Form Kits
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<%# Stage Timeline %>
+<div class="space-y-8">
+  <% @stages_with_forms.each_with_index do |(stage_key, form_codes), index| %>
+    <% stage_meta = @stage_metadata[stage_key] %>
+    <% next unless stage_meta %>
+
+    <div class="relative">
+      <%# Connecting line (except for last stage) %>
+      <% unless index == @stages_with_forms.length - 1 %>
+        <div class="hidden md:block absolute left-8 top-24 bottom-0 w-1 bg-<%= stage_meta[:color] %>/20 -mb-8"></div>
+      <% end %>
+
+      <div class="flex gap-4 md:gap-6">
+        <%# Stage number badge %>
+        <div class="flex-shrink-0">
+          <div class="w-16 h-16 rounded-full bg-<%= stage_meta[:color] %> text-<%= stage_meta[:color] %>-content flex items-center justify-center shadow-lg relative z-10">
+            <span class="text-2xl font-bold"><%= stage_meta[:order] %></span>
+          </div>
+        </div>
+
+        <%# Stage content %>
+        <div class="flex-1 pb-8">
+          <%# Stage header %>
+          <div class="mb-4">
+            <div class="flex items-center gap-2 mb-1">
+              <h2 class="text-xl md:text-2xl font-bold text-base-content">
+                <%= stage_meta[:name] %>
+              </h2>
+              <span class="badge badge-<%= stage_meta[:color] %> badge-sm">
+                Stage <%= stage_meta[:order] %>
+              </span>
+            </div>
+            <p class="text-sm md:text-base text-base-content/70">
+              <%= stage_meta[:description] %>
+            </p>
+          </div>
+
+          <%# Forms in this stage %>
+          <% if form_codes.any? %>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <% form_codes.each do |form_code| %>
+                <% form_definition = FormDefinition.find_by(code: form_code) %>
+                <% next unless form_definition %>
+
+                <div class="card bg-base-100 shadow hover:shadow-md transition-shadow border-l-4 border-<%= stage_meta[:color] %>">
+                  <div class="card-body p-4">
+                    <div class="flex items-start justify-between mb-2">
+                      <h3 class="font-bold text-sm"><%= form_definition.code %></h3>
+                      <%= link_to form_dependency_path(form_definition.code), class: "btn btn-xs btn-circle btn-ghost", title: "View dependencies" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                        </svg>
+                      <% end %>
+                    </div>
+
+                    <p class="text-xs text-base-content/60 line-clamp-2 mb-3">
+                      <%= form_definition.title %>
+                    </p>
+
+                    <% if form_definition.estimated_minutes %>
+                      <div class="text-[10px] text-base-content/60 mb-2 flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <%= form_definition.estimated_minutes %> min
+                      </div>
+                    <% end %>
+
+                    <div class="flex gap-1">
+                      <%= link_to "Fill Out", form_path(form_definition), class: "btn btn-xs btn-primary flex-1" %>
+                      <%= link_to "Flow", form_dependency_path(form_definition.code), class: "btn btn-xs btn-ghost flex-1" %>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          <% else %>
+            <div class="alert alert-info">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <span>No forms currently available for this stage.</span>
+            </div>
+          <% end %>
+
+          <%# Stage tips/notes %>
+          <% case stage_key.to_s
+             when "filing" %>
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div class="text-sm">
+                <strong>Important:</strong> Make copies of all forms before filing. Check your local court's filing fees and accepted payment methods.
+              </div>
+            </div>
+
+          <% when "service" %>
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div class="text-sm">
+                <strong>Critical:</strong> You CANNOT serve papers yourself. Someone 18+ who is NOT involved in the case must serve the defendant. Proof of service must be filed before your hearing.
+              </div>
+            </div>
+
+          <% when "hearing" %>
+            <div class="alert alert-info mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              <div class="text-sm">
+                <strong>Tip:</strong> Arrive early, dress professionally, and bring all evidence organized and ready. Bring extra copies of documents for the judge and other party.
+              </div>
+            </div>
+
+          <% when "judgment" %>
+            <div class="alert alert-success mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-sm">
+                <strong>Note:</strong> If you won, the court doesn't collect money for you. You'll need to pursue collection if the defendant doesn't pay voluntarily.
+              </div>
+            </div>
+
+          <% when "enforcement" %>
+            <div class="alert alert-warning mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <div class="text-sm">
+                <strong>Important:</strong> Collection can be complex. Consider consulting with a legal aid organization if you need help collecting your judgment.
+              </div>
+            </div>
+
+          <% when "appeal" %>
+            <div class="alert alert-error mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <div class="text-sm">
+                <strong>Time Sensitive:</strong> You typically have only 30 days from the date of judgment to file an appeal. Don't delay if you're considering this option.
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
+
+<%# Bottom Help Section %>
+<div class="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <h3 class="card-title text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Need Guidance?
+      </h3>
+      <p class="text-sm text-base-content/70 mb-4">
+        Use our Form Finder tool to get personalized recommendations based on your specific situation.
+      </p>
+      <%= link_to "Start Form Finder", form_finder_path, class: "btn btn-sm btn-primary" %>
+    </div>
+  </div>
+
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <h3 class="card-title text-base">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-secondary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        Save Time with Kits
+      </h3>
+      <p class="text-sm text-base-content/70 mb-4">
+        Browse our Form Kits to complete all required paperwork for common scenarios in one go.
+      </p>
+      <%= link_to "Browse Kits", form_dependencies_kits_path, class: "btn btn-sm btn-secondary" %>
+    </div>
+  </div>
+</div>
+
+<%# Disclaimer %>
+<div class="alert mt-8">
+  <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+  </svg>
+  <div class="text-sm">
+    <strong>Legal Disclaimer:</strong> This timeline provides general information about the small claims process. Your specific case may require additional forms or follow a different sequence. When in doubt, consult with court staff or a legal professional. This tool does not provide legal advice.
+  </div>
+</div>

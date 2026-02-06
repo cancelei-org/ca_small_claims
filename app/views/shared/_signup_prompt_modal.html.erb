@@ -1,0 +1,93 @@
+<%# Signup Prompt Modal - Shown when user tries to use email feature without account %>
+<dialog id="signup-prompt-modal" class="modal" data-send-email-target="modal">
+  <div class="modal-box max-w-md">
+    <%# Close button %>
+    <form method="dialog">
+      <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" aria-label="Close">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </form>
+
+    <%# Icon %>
+    <div class="flex justify-center mb-4">
+      <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+        <svg class="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+    </div>
+
+    <%# Title %>
+    <h3 class="font-bold text-xl text-center mb-2">Get Your Form by Email</h3>
+
+    <%# Description %>
+    <p class="text-base-content/70 text-center mb-6">
+      Create a free account to receive your completed form by email. Your progress will be saved automatically!
+    </p>
+
+    <%# Benefits List %>
+    <div class="bg-base-200 rounded-lg p-4 mb-6">
+      <h4 class="font-semibold text-sm mb-3 text-base-content">Benefits of signing up:</h4>
+      <ul class="space-y-2">
+        <li class="flex items-start gap-2 text-sm">
+          <svg class="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Send forms directly to your email</span>
+        </li>
+        <li class="flex items-start gap-2 text-sm">
+          <svg class="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Save your progress permanently</span>
+        </li>
+        <li class="flex items-start gap-2 text-sm">
+          <svg class="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Access your forms from any device</span>
+        </li>
+        <li class="flex items-start gap-2 text-sm">
+          <svg class="w-5 h-5 text-success flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+          </svg>
+          <span>Get deadline reminders</span>
+        </li>
+      </ul>
+    </div>
+
+    <%# Action Buttons %>
+    <div class="flex flex-col gap-3">
+      <a href="#" class="btn btn-primary w-full min-h-[48px]" data-send-email-target="signupLink">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+        </svg>
+        Create Free Account
+      </a>
+
+      <div class="divider text-xs my-1">Already have an account?</div>
+
+      <a href="#" class="btn btn-outline w-full min-h-[48px]" data-send-email-target="loginLink">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+        </svg>
+        Sign In
+      </a>
+    </div>
+
+    <%# Alternative action %>
+    <p class="text-center text-sm text-base-content/60 mt-4">
+      You can still <a href="#" class="link link-primary" data-action="click->send-email#download">download your form</a> without signing up.
+    </p>
+  </div>
+
+  <%# Click outside to close %>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

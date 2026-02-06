@@ -1,0 +1,124 @@
+<%# Quick Fill Template Selector %>
+<%# Shows available scenario templates to help users get started %>
+
+<% templates = Templates::Loader.instance.all %>
+<% return if templates.blank? %>
+
+<div class="mb-6" data-controller="template-selector"
+     data-template-selector-form-code-value="<%= @form_definition.code %>"
+     data-template-selector-apply-url-value="<%= apply_template_form_path(@form_definition.code) %>">
+
+  <%# Collapsed state - show "Quick Start" button %>
+  <div data-template-selector-target="collapsed" class="<%= 'hidden' if @submission.form_data['_template_metadata'].present? %>">
+    <button type="button"
+            class="btn btn-outline btn-primary w-full gap-2"
+            data-action="click->template-selector#expand">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+      </svg>
+      Quick Start with a Template
+      <span class="badge badge-ghost badge-sm"><%= templates.count %> scenarios</span>
+    </button>
+  </div>
+
+  <%# Expanded state - show template cards %>
+  <div data-template-selector-target="expanded" class="hidden">
+    <div class="card bg-base-100 shadow-lg">
+      <div class="card-body">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="card-title text-lg">
+            <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            Quick Start Templates
+          </h3>
+          <button type="button"
+                  class="btn btn-ghost btn-sm btn-circle"
+                  data-action="click->template-selector#collapse"
+                  aria-label="Close template selector">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+
+        <p class="text-sm text-base-content/70 mb-4">
+          Select a common scenario to pre-fill your form with helpful starting text. You can customize everything after applying.
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <% templates.each do |template| %>
+            <button type="button"
+                    class="card bg-base-200 hover:bg-primary/10 transition-colors cursor-pointer text-left"
+                    data-action="click->template-selector#select"
+                    data-template-id="<%= template[:id] %>">
+              <div class="card-body p-4">
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0 w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                    <%= template_icon(template[:icon]) %>
+                  </div>
+                  <div class="min-w-0">
+                    <h4 class="font-semibold text-base-content text-sm"><%= template[:name] %></h4>
+                    <p class="text-xs text-base-content/70 line-clamp-2"><%= template[:description] %></p>
+                  </div>
+                </div>
+              </div>
+            </button>
+          <% end %>
+        </div>
+
+        <div class="mt-4 pt-4 border-t border-base-200">
+          <button type="button"
+                  class="btn btn-ghost btn-sm"
+                  data-action="click->template-selector#collapse">
+            Skip - I'll fill out the form manually
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Applied state - show confirmation %>
+  <% if @submission.form_data['_template_metadata'].present? %>
+    <% meta = @submission.form_data['_template_metadata'] %>
+    <div data-template-selector-target="applied" class="alert alert-success shadow-lg">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <p class="font-semibold">Template Applied: <%= meta['template_name'] %></p>
+        <p class="text-sm opacity-80">Review and customize the pre-filled fields below.</p>
+      </div>
+      <button type="button"
+              class="btn btn-ghost btn-sm"
+              data-action="click->template-selector#clear">
+        Clear
+      </button>
+    </div>
+  <% end %>
+
+  <%# Template customization modal %>
+  <dialog data-template-selector-target="modal" class="modal">
+    <div class="modal-box">
+      <h3 class="font-bold text-lg mb-4" data-template-selector-target="modalTitle">Customize Template</h3>
+      <div data-template-selector-target="modalContent">
+        <%# Customization questions will be loaded dynamically %>
+      </div>
+      <div class="modal-action">
+        <button type="button"
+                class="btn btn-ghost"
+                data-action="click->template-selector#closeModal">
+          Cancel
+        </button>
+        <button type="button"
+                class="btn btn-primary"
+                data-action="click->template-selector#applyTemplate">
+          Apply Template
+        </button>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop">
+      <button>close</button>
+    </form>
+  </dialog>
+</div>

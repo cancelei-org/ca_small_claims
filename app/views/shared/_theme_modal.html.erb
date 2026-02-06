@@ -58,7 +58,7 @@
         High Contrast (Accessibility)
         <span class="badge badge-xs badge-outline">WCAG AAA</span>
       </h4>
-      <p class="text-xs text-base-content/50 mb-3">Enhanced contrast for users with low vision. Meets WCAG 2.1 AAA (7:1 contrast ratio).</p>
+      <p class="text-xs text-base-content/60 mb-3">Enhanced contrast for users with low vision. Meets WCAG 2.1 AAA (7:1 contrast ratio).</p>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         <% available_themes[:accessibility].each do |theme| %>
           <%= render "shared/theme_preview_card", theme: theme, is_selected: current_theme == theme[:id] %>
@@ -75,7 +75,7 @@
         Motion Preferences
         <span class="badge badge-xs badge-outline">Accessibility</span>
       </h4>
-      <p class="text-xs text-base-content/50 mb-3">
+      <p class="text-xs text-base-content/60 mb-3">
         Reduce or disable animations for users with vestibular disorders or motion sensitivity.
       </p>
       <div data-controller="motion" class="flex flex-col sm:flex-row gap-4">

@@ -1,0 +1,20 @@
+<%# Currency input for simple wizard
+    locals: field, form, submission, index
+%>
+
+<div class="relative">
+  <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+    <span class="text-base-content/60 text-2xl font-medium">$</span>
+  </div>
+
+  <%= form.number_field field.name,
+                        id: "simple-wizard-field-#{field.name}",
+                        value: submission.field_value(field.name),
+                        placeholder: "0.00",
+                        required: field.required,
+                        step: "0.01",
+                        class: "input input-bordered w-full pl-10",
+                        data: {
+                          action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                        } %>
+</div>

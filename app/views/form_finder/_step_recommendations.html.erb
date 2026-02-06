@@ -1,0 +1,92 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <div class="flex items-center gap-3 mb-2">
+      <div class="p-2 rounded-full bg-success/10 text-success">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <h1 class="card-title text-2xl">Your Recommended Forms</h1>
+    </div>
+    <p class="text-base-content/70 mb-6">Based on your answers, here's what you need:</p>
+
+    <% if recommendation[:info].present? %>
+      <div class="alert alert-info mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 shrink-0">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+        </svg>
+        <span><%= recommendation[:info] %></span>
+      </div>
+    <% end %>
+
+    <% if recommendation[:forms].any? %>
+      <div class="space-y-4 mb-6">
+        <% recommendation[:forms].each do |form| %>
+          <div class="p-4 rounded-lg border border-base-300 bg-base-50">
+            <div class="flex items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="badge badge-primary"><%= form.code %></span>
+                  <h3 class="font-semibold"><%= form.title %></h3>
+                </div>
+                <p class="text-base-content/60 text-sm"><%= form.description %></p>
+              </div>
+              <%= link_to form_path(form), class: "btn btn-sm btn-outline min-h-[44px]" do %>
+                Fill Out
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if recommendation[:workflow].present? %>
+      <div class="alert alert-success mb-6">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6 shrink-0">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+        </svg>
+        <div>
+          <h3 class="font-bold">Guided Workflow Available</h3>
+          <p class="text-sm">We have a step-by-step guide that walks you through filling out all required forms.</p>
+        </div>
+        <%= link_to workflow_path(recommendation[:workflow]), class: "btn btn-sm btn-success" do %>
+          Start Guided Process
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if recommendation[:next_steps].any? %>
+      <div class="mt-6">
+        <h2 class="font-semibold text-lg mb-3">Next Steps</h2>
+        <ol class="list-decimal list-inside space-y-2 text-base-content/80">
+          <% recommendation[:next_steps].each do |step| %>
+            <li><%= step %></li>
+          <% end %>
+        </ol>
+      </div>
+    <% end %>
+
+    <div class="divider"></div>
+
+    <div class="card-actions justify-between">
+      <%= button_to "Start Over", restart_form_finder_path, method: :post, class: "btn btn-ghost min-h-[44px]", data: { turbo_frame: "_top" } %>
+      <div class="flex gap-2">
+        <%= link_to "Browse All Forms", forms_path, class: "btn btn-outline min-h-[44px]" %>
+        <% if recommendation[:forms].any? %>
+          <%= link_to form_path(recommendation[:forms].first), class: "btn btn-primary min-h-[44px]" do %>
+            Start with <%= recommendation[:forms].first.code %>
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+            </svg>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>

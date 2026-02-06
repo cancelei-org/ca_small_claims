@@ -1,0 +1,112 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h1 class="card-title text-2xl mb-2">What's your situation?</h1>
+    <p class="text-base-content/70 mb-6">Select the option that best describes where you are in the small claims process.</p>
+
+    <%= form_with url: update_form_finder_path, method: :post, data: { turbo_frame: "_top" } do |f| %>
+      <div class="space-y-3" role="radiogroup" aria-label="Select your role">
+        <%# Plaintiff Option %>
+        <label class="block cursor-pointer">
+          <input type="radio"
+                 name="role"
+                 value="plaintiff"
+                 class="peer hidden"
+                 <%= "checked" if answers[:role] == "plaintiff" %>
+                 data-action="change->form-finder#selectOption">
+          <div class="p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all min-h-[44px]">
+            <div class="flex items-start gap-4">
+              <div class="p-2 rounded-full bg-primary/10 text-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v17.25m0 0c-1.472 0-2.882.265-4.185.75M12 20.25c1.472 0 2.882.265 4.185.75M18.75 4.97A48.416 48.416 0 0012 4.5c-2.291 0-4.545.16-6.75.47m13.5 0c1.01.143 2.01.317 3 .52m-3-.52l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.988 5.988 0 01-2.031.352 5.988 5.988 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L18.75 4.971zm-16.5.52c.99-.203 1.99-.377 3-.52m0 0l2.62 10.726c.122.499-.106 1.028-.589 1.202a5.989 5.989 0 01-2.031.352 5.989 5.989 0 01-2.031-.352c-.483-.174-.711-.703-.59-1.202L5.25 4.971z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">I want to sue someone</h3>
+                <p class="text-base-content/60 text-sm">You're the plaintiff - starting a new case or managing an existing claim</p>
+              </div>
+            </div>
+          </div>
+        </label>
+
+        <%# Defendant Option %>
+        <label class="block cursor-pointer">
+          <input type="radio"
+                 name="role"
+                 value="defendant"
+                 class="peer hidden"
+                 <%= "checked" if answers[:role] == "defendant" %>
+                 data-action="change->form-finder#selectOption">
+          <div class="p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all min-h-[44px]">
+            <div class="flex items-start gap-4">
+              <div class="p-2 rounded-full bg-secondary/10 text-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 002.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 00-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75 2.25 2.25 0 00-.1-.664m-5.8 0A2.251 2.251 0 0113.5 2.25H15c1.012 0 1.867.668 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25zM6.75 12h.008v.008H6.75V12zm0 3h.008v.008H6.75V15zm0 3h.008v.008H6.75V18z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">Someone is suing me</h3>
+                <p class="text-base-content/60 text-sm">You're the defendant - responding to a claim filed against you</p>
+              </div>
+            </div>
+          </div>
+        </label>
+
+        <%# Judgment Holder Option %>
+        <label class="block cursor-pointer">
+          <input type="radio"
+                 name="role"
+                 value="judgment_holder"
+                 class="peer hidden"
+                 <%= "checked" if answers[:role] == "judgment_holder" %>
+                 data-action="change->form-finder#selectOption">
+          <div class="p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all min-h-[44px]">
+            <div class="flex items-start gap-4">
+              <div class="p-2 rounded-full bg-success/10 text-success">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">I won my case</h3>
+                <p class="text-base-content/60 text-sm">You have a judgment in your favor and need to collect or manage it</p>
+              </div>
+            </div>
+          </div>
+        </label>
+
+        <%# Judgment Debtor Option %>
+        <label class="block cursor-pointer">
+          <input type="radio"
+                 name="role"
+                 value="judgment_debtor"
+                 class="peer hidden"
+                 <%= "checked" if answers[:role] == "judgment_debtor" %>
+                 data-action="change->form-finder#selectOption">
+          <div class="p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all min-h-[44px]">
+            <div class="flex items-start gap-4">
+              <div class="p-2 rounded-full bg-warning/10 text-warning">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5v.75A.75.75 0 013 6h-.75m0 0v-.375c0-.621.504-1.125 1.125-1.125H20.25M2.25 6v9m18-10.5v.75c0 .414.336.75.75.75h.75m-1.5-1.5h.375c.621 0 1.125.504 1.125 1.125v9.75c0 .621-.504 1.125-1.125 1.125h-.375m1.5-1.5H21a.75.75 0 00-.75.75v.75m0 0H3.75m0 0h-.375a1.125 1.125 0 01-1.125-1.125V15m1.5 1.5v-.75A.75.75 0 003 15h-.75M15 10.5a3 3 0 11-6 0 3 3 0 016 0zm3 0h.008v.008H18V10.5zm-12 0h.008v.008H6V10.5z" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="font-semibold text-lg">I owe money from a case</h3>
+                <p class="text-base-content/60 text-sm">You have a judgment against you and need to manage payments or appeal</p>
+              </div>
+            </div>
+          </div>
+        </label>
+      </div>
+
+      <div class="card-actions justify-between mt-8">
+        <%= link_to "Cancel", root_path, class: "btn btn-ghost min-h-[44px]" %>
+        <button type="submit" class="btn btn-primary min-h-[44px]" data-form-finder-target="nextButton" disabled>
+          Continue
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

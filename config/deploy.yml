@@ -1,62 +1,84 @@
+# ==============================================================================
+# Kamal Deployment Configuration - California Small Claims Court Forms
+# ==============================================================================
+# Documentation: https://kamal-deploy.org/docs/configuration
+#
+# Before deploying:
+# 1. Update 'servers' with your actual server IP addresses
+# 2. Configure 'registry' with your container registry (ghcr.io, Docker Hub, etc.)
+# 3. Set up secrets in .kamal/secrets
+# 4. Uncomment 'proxy' section for SSL/HTTPS
+# ==============================================================================
+
 # Name of your application. Used to uniquely configure containers.
 service: ca_small_claims
 
 # Name of the container image (use your-user/app-name on external registries).
 image: ca_small_claims
 
-# Deploy to these servers.
+# ==============================================================================
+# SERVERS - Update these with your actual server addresses
+# ==============================================================================
 servers:
   web:
-    - 192.168.0.1
+    - 192.168.0.1  # TODO: Replace with your production server IP
+  # Uncomment to run background jobs on a separate server:
   # job:
   #   hosts:
-  #     - 192.168.0.1
+  #     - 192.168.0.2  # Dedicated job server
   #   cmd: bin/jobs
 
-# Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
-# If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
-#
-# Using an SSL proxy like this requires turning on config.assume_ssl and config.force_ssl in production.rb!
-#
-# Don't use this when deploying to multiple web servers (then you have to terminate SSL at your load balancer).
-#
+# ==============================================================================
+# SSL/HTTPS - Enable for production
+# ==============================================================================
+# Uncomment to enable automatic SSL via Let's Encrypt:
 # proxy:
 #   ssl: true
-#   host: app.example.com
+#   host: yourdomain.com  # TODO: Replace with your domain
+#
+# Note: Requires config.assume_ssl = true and config.force_ssl = true in production.rb
+# If using Cloudflare, set encryption mode to "Full" in SSL/TLS settings.
 
-# Where you keep your container images.
+# ==============================================================================
+# CONTAINER REGISTRY
+# ==============================================================================
 registry:
-  # Alternatives: hub.docker.com / registry.digitalocean.com / ghcr.io / ...
-  server: localhost:5555
+  # Options: ghcr.io / hub.docker.com / registry.digitalocean.com / AWS ECR
+  server: localhost:5555  # TODO: Replace with your registry
 
-  # Needed for authenticated registries.
-  # username: your-user
-
-  # Always use an access token rather than real password when possible.
+  # For authenticated registries:
+  # username: your-username
   # password:
   #   - KAMAL_REGISTRY_PASSWORD
 
-# Inject ENV variables into containers (secrets come from .kamal/secrets).
+# ==============================================================================
+# ENVIRONMENT VARIABLES
+# ==============================================================================
 env:
   secret:
     - RAILS_MASTER_KEY
+    # Add additional secrets as needed:
+    # - DATABASE_URL
+    # - SENTRY_DSN
+    # - EMAILIT_API_KEY
   clear:
-    # Run the Solid Queue Supervisor inside the web server's Puma process to do jobs.
-    # When you start using multiple servers, you should split out job processing to a dedicated machine.
+    # Solid Queue: Run job supervisor in Puma process (single-server setup)
     SOLID_QUEUE_IN_PUMA: true
 
-    # Set number of processes dedicated to Solid Queue (default: 1)
-    # JOB_CONCURRENCY: 3
+    # Performance tuning (adjust based on your server resources):
+    # JOB_CONCURRENCY: 3      # Solid Queue workers
+    # WEB_CONCURRENCY: 2      # Puma workers (set to CPU cores)
+    # RAILS_MAX_THREADS: 5    # Database connection pool
 
-    # Set number of cores available to the application on each server (default: 1).
-    # WEB_CONCURRENCY: 2
+    # Database (if using external PostgreSQL):
+    # DB_HOST: your-db-host.com
 
-    # Match this to any external database server to configure Active Record correctly
-    # Use ca_small_claims-db for a db accessory server on same machine via local kamal docker network.
-    # DB_HOST: 192.168.0.2
+    # Application settings:
+    # APP_HOST: yourdomain.com
+    # MAILER_FROM_ADDRESS: noreply@yourdomain.com
 
-    # Log everything from Rails
-    # RAILS_LOG_LEVEL: debug
+    # Logging level (debug, info, warn, error):
+    # RAILS_LOG_LEVEL: info
 
 # Aliases are triggered with "bin/kamal <alias>". You can overwrite arguments on invocation:
 # "bin/kamal logs -r job" will tail logs from the first server in the job section.

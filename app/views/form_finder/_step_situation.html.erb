@@ -1,0 +1,54 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <% case answers[:role] %>
+    <% when "plaintiff" %>
+      <h1 class="card-title text-2xl mb-2">What do you need to do?</h1>
+      <p class="text-base-content/70 mb-6">You're the plaintiff. Select what you need help with:</p>
+    <% when "defendant" %>
+      <h1 class="card-title text-2xl mb-2">What do you need to do?</h1>
+      <p class="text-base-content/70 mb-6">You're the defendant. Select what you need help with:</p>
+    <% when "judgment_holder" %>
+      <h1 class="card-title text-2xl mb-2">What's next for your case?</h1>
+      <p class="text-base-content/70 mb-6">You won your case. Select what you need to do:</p>
+    <% when "judgment_debtor" %>
+      <h1 class="card-title text-2xl mb-2">What's next for your case?</h1>
+      <p class="text-base-content/70 mb-6">You owe money from a judgment. Select what you need:</p>
+    <% end %>
+
+    <%= form_with url: update_form_finder_path, method: :post, data: { turbo_frame: "_top" } do |f| %>
+      <div class="space-y-3" role="radiogroup" aria-label="Select your situation">
+        <% situation_options_for(answers[:role]).each do |option| %>
+          <label class="block cursor-pointer">
+            <input type="radio"
+                   name="situation"
+                   value="<%= option[:value] %>"
+                   class="peer hidden"
+                   <%= "checked" if answers[:situation] == option[:value] %>
+                   data-action="change->form-finder#selectOption">
+            <div class="p-4 rounded-lg border-2 border-base-300 peer-checked:border-primary peer-checked:bg-primary/5 hover:border-primary/50 transition-all min-h-[44px]">
+              <div class="flex items-start gap-4">
+                <div class="p-2 rounded-full bg-base-200">
+                  <%= render_situation_icon(option[:icon]) %>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg"><%= option[:label] %></h3>
+                  <p class="text-base-content/60 text-sm"><%= option[:description] %></p>
+                </div>
+              </div>
+            </div>
+          </label>
+        <% end %>
+      </div>
+
+      <div class="card-actions justify-between mt-8">
+        <%= button_to "Back", back_form_finder_path, method: :post, class: "btn btn-ghost min-h-[44px]", data: { turbo_frame: "_top" } %>
+        <button type="submit" class="btn btn-primary min-h-[44px]" data-form-finder-target="nextButton" disabled>
+          Continue
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

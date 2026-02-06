@@ -11,7 +11,14 @@ FactoryBot.define do
 
     trait :admin do
       admin { true }
+      role { "admin" }
       full_name { "Admin User" }
+    end
+
+    trait :super_admin do
+      admin { true }
+      role { "super_admin" }
+      full_name { "Super Admin User" }
     end
 
     trait :guest do

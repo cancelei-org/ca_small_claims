@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { FocusTrap } from 'utils/modal_behavior';
 
 /**
  * Modal Accessibility Controller
@@ -8,15 +9,13 @@ export default class extends Controller {
   static targets = ['dialog'];
 
   connect() {
-    this.previouslyFocusedElement = null;
-
     // Bind event handlers
-    this.handleKeydown = this.handleKeydown.bind(this);
     this.handleDialogOpen = this.handleDialogOpen.bind(this);
     this.handleDialogClose = this.handleDialogClose.bind(this);
 
     // Listen for dialog open/close
     if (this.hasDialogTarget) {
+      this.focusManager = FocusTrap.createManager(this.dialogTarget);
       this.dialogTarget.addEventListener('close', this.handleDialogClose);
 
       // Use MutationObserver to detect when dialog opens
@@ -37,7 +36,7 @@ export default class extends Controller {
   disconnect() {
     if (this.hasDialogTarget) {
       this.dialogTarget.removeEventListener('close', this.handleDialogClose);
-      document.removeEventListener('keydown', this.handleKeydown);
+      this.focusManager?.deactivate();
     }
 
     if (this.observer) {
@@ -46,101 +45,11 @@ export default class extends Controller {
   }
 
   handleDialogOpen() {
-    // Store the previously focused element
-    this.previouslyFocusedElement = document.activeElement;
-
-    // Add keyboard listener for focus trap
-    document.addEventListener('keydown', this.handleKeydown);
-
-    // Focus the first focusable element in the dialog
-    requestAnimationFrame(() => {
-      this.focusFirstElement();
-    });
+    this.focusManager?.activate();
   }
 
   handleDialogClose() {
-    // Remove keyboard listener
-    document.removeEventListener('keydown', this.handleKeydown);
-
-    // Restore focus to the previously focused element
-    if (this.previouslyFocusedElement && this.previouslyFocusedElement.focus) {
-      this.previouslyFocusedElement.focus();
-    }
-  }
-
-  handleKeydown(event) {
-    if (event.key === 'Tab') {
-      this.trapFocus(event);
-    }
-  }
-
-  /**
-   * Trap focus within the modal dialog
-   */
-  trapFocus(event) {
-    if (!this.hasDialogTarget || !this.dialogTarget.open) {
-      return;
-    }
-
-    const focusableElements = this.getFocusableElements();
-
-    if (focusableElements.length === 0) {
-      return;
-    }
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    if (event.shiftKey) {
-      // Shift + Tab: If on first element, go to last
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else {
-      // Tab: If on last element, go to first
-      if (document.activeElement === lastElement) {
-        event.preventDefault();
-        firstElement.focus();
-      }
-    }
-  }
-
-  /**
-   * Focus the first focusable element in the dialog
-   */
-  focusFirstElement() {
-    if (!this.hasDialogTarget) {
-      return;
-    }
-
-    const focusableElements = this.getFocusableElements();
-
-    if (focusableElements.length > 0) {
-      focusableElements[0].focus();
-    }
-  }
-
-  /**
-   * Get all focusable elements within the dialog
-   */
-  getFocusableElements() {
-    if (!this.hasDialogTarget) {
-      return [];
-    }
-
-    const selector = [
-      'button:not([disabled])',
-      'a[href]',
-      'input:not([disabled]):not([type="hidden"])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
-    ].join(', ');
-
-    return Array.from(this.dialogTarget.querySelectorAll(selector)).filter(
-      el => el.offsetParent !== null // Filter out hidden elements
-    );
+    this.focusManager?.deactivate();
   }
 
   /**

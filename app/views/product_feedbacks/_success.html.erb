@@ -1,0 +1,37 @@
+<div class="text-center py-8">
+  <div class="text-6xl mb-4">
+    <% case product_feedback.category %>
+    <% when "general" %>
+      <% end %>
+    <% when "bug" %>
+      <% end %>
+    <% when "feature" %>
+      <% end %>
+    <% when "partnership" %>
+      <% end %>
+  </div>
+
+  <h2 class="text-2xl font-bold mb-4">Thank You!</h2>
+
+  <p class="text-base-content/70 mb-6">
+    Your <%= product_feedback.category_display_name.downcase %> has been submitted successfully.
+    <% if product_feedback.bug? %>
+      Our team will investigate and get back to you if we need more information.
+    <% elsif product_feedback.feature? %>
+      We'll review your suggestion and consider it for our roadmap.
+    <% elsif product_feedback.partnership? %>
+      Someone from our team will reach out to discuss collaboration opportunities.
+    <% else %>
+      We appreciate you taking the time to share your thoughts.
+    <% end %>
+  </p>
+
+  <div class="flex flex-col sm:flex-row justify-center gap-4">
+    <%= link_to product_feedback_path(product_feedback), class: "btn btn-primary" do %>
+      View Your Feedback
+    <% end %>
+    <%= link_to product_feedbacks_path, class: "btn btn-ghost" do %>
+      See All Feedback
+    <% end %>
+  </div>
+</div>

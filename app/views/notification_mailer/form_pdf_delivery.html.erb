@@ -1,0 +1,53 @@
+<%# Email template for PDF form delivery %>
+<div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 30px; border-radius: 12px 12px 0 0; text-align: center;">
+    <h1 style="color: white; margin: 0; font-size: 24px;">Your Form is Ready!</h1>
+  </div>
+
+  <div style="background: #ffffff; padding: 30px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 12px 12px;">
+    <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">
+      Hi <%= @user.first_name.presence || "there" %>,
+    </p>
+
+    <p style="font-size: 16px; color: #374151; margin-bottom: 20px;">
+      Great news! Your completed <strong><%= @form_definition.code %></strong> form is attached to this email.
+    </p>
+
+    <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 25px 0;">
+      <h2 style="font-size: 18px; color: #1f2937; margin: 0 0 15px 0;">
+        <%= @form_definition.code %> - <%= @form_definition.title %>
+      </h2>
+      <p style="font-size: 14px; color: #6b7280; margin: 0;">
+        <strong>Completion:</strong> <%= @submission.completion_percentage %>% complete
+      </p>
+    </div>
+
+    <h3 style="font-size: 16px; color: #1f2937; margin: 25px 0 15px 0;">What's Next?</h3>
+
+    <ol style="font-size: 14px; color: #374151; padding-left: 20px; margin-bottom: 25px;">
+      <li style="margin-bottom: 10px;"><strong>Review your form</strong> - Open the attached PDF and verify all information is correct.</li>
+      <li style="margin-bottom: 10px;"><strong>Print the form</strong> - You'll need to submit physical copies to the court.</li>
+      <li style="margin-bottom: 10px;"><strong>Sign where required</strong> - Some fields require your handwritten signature.</li>
+      <li style="margin-bottom: 10px;"><strong>File with the court</strong> - Bring your forms to the small claims clerk's office.</li>
+    </ol>
+
+    <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 0 8px 8px 0;">
+      <p style="font-size: 14px; color: #92400e; margin: 0;">
+        <strong>Important:</strong> Keep a copy of all documents for your records. The court will stamp your copies when you file.
+      </p>
+    </div>
+
+    <p style="font-size: 14px; color: #6b7280; margin-top: 30px;">
+      Need to make changes? You can continue editing your form anytime at
+      <%= link_to "CA Small Claims", root_url, style: "color: #3b82f6; text-decoration: none;" %>.
+    </p>
+
+    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+
+    <p style="font-size: 12px; color: #9ca3af; text-align: center; margin: 0;">
+      This email was sent because you requested your form via email.
+      <br>
+      &copy; <%= Date.current.year %> CA Small Claims Court Forms
+    </p>
+  </div>
+</div>

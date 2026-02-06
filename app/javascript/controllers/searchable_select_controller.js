@@ -37,6 +37,10 @@ export default class extends Controller {
   buildCustomDropdown() {
     const select = this.selectTarget;
 
+    // Generate unique ID for ARIA relationships
+    // eslint-disable-next-line sonarjs/pseudo-random -- Safe: Used for UI element IDs, not security
+    this.uniqueId = `searchable-select-${Math.random().toString(36).substr(2, 9)}`;
+
     // Hide native select (but keep it for form submission)
     select.classList.add('sr-only');
     select.setAttribute('tabindex', '-1');
@@ -52,10 +56,19 @@ export default class extends Controller {
     const button = document.createElement('button');
 
     button.type = 'button';
+    button.id = `${this.uniqueId}-trigger`;
     button.className =
       'searchable-select-trigger select select-bordered w-full min-h-[48px] text-base text-left flex items-center justify-between';
     button.setAttribute('aria-haspopup', 'listbox');
     button.setAttribute('aria-expanded', 'false');
+    button.setAttribute('aria-controls', `${this.uniqueId}-listbox`);
+
+    // Copy aria-labelledby from original select if it exists
+    const labelId = select.getAttribute('aria-labelledby');
+
+    if (labelId) {
+      button.setAttribute('aria-labelledby', labelId);
+    }
 
     const selectedOption = select.options[select.selectedIndex];
     const buttonText = document.createElement('span');
@@ -64,10 +77,11 @@ export default class extends Controller {
     buttonText.textContent = selectedOption?.text || 'Select...';
     button.appendChild(buttonText);
 
-    // Chevron icon
+    // Chevron icon (decorative)
     const chevron = document.createElement('span');
 
-    chevron.innerHTML = `<svg class="w-4 h-4 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    chevron.setAttribute('aria-hidden', 'true');
+    chevron.innerHTML = `<svg class="w-4 h-4 text-base-content/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
     </svg>`;
     button.appendChild(chevron);
@@ -79,9 +93,11 @@ export default class extends Controller {
     // Create dropdown
     const dropdown = document.createElement('div');
 
+    dropdown.id = `${this.uniqueId}-listbox`;
     dropdown.className =
       'searchable-select-dropdown hidden absolute z-50 w-full mt-1 bg-base-100 border border-base-300 rounded-lg shadow-lg max-h-60 overflow-hidden';
     dropdown.setAttribute('role', 'listbox');
+    dropdown.setAttribute('aria-label', 'Options');
 
     // Search input
     const searchWrapper = document.createElement('div');
@@ -105,6 +121,8 @@ export default class extends Controller {
     optionsList.className =
       'searchable-select-options overflow-y-auto max-h-48';
 
+    let optionIndex = 0;
+
     Array.from(select.options).forEach((option, index) => {
       if (index === 0 && option.value === '') {
         return; // Skip placeholder option
@@ -112,11 +130,13 @@ export default class extends Controller {
 
       const optionEl = document.createElement('div');
 
+      optionEl.id = `${this.uniqueId}-option-${optionIndex}`;
       optionEl.className =
         'searchable-select-option px-3 py-2 cursor-pointer hover:bg-base-200 transition-colors';
       optionEl.setAttribute('role', 'option');
       optionEl.setAttribute('data-value', option.value);
       optionEl.setAttribute('data-searchable-select-target', 'option');
+      optionEl.setAttribute('aria-selected', 'false');
       optionEl.textContent = option.text;
 
       if (option.selected) {
@@ -125,6 +145,7 @@ export default class extends Controller {
       }
 
       optionsList.appendChild(optionEl);
+      optionIndex += 1;
     });
 
     dropdown.appendChild(optionsList);
@@ -133,7 +154,7 @@ export default class extends Controller {
     const noResults = document.createElement('div');
 
     noResults.className =
-      'searchable-select-no-results hidden px-3 py-4 text-center text-base-content/50 text-sm';
+      'searchable-select-no-results hidden px-3 py-4 text-center text-base-content/60 text-sm';
     noResults.textContent = this.noResultsValue;
     dropdown.appendChild(noResults);
 
@@ -311,6 +332,9 @@ export default class extends Controller {
 
     option.classList.add('bg-base-200');
     option.scrollIntoView({ block: 'nearest' });
+
+    // Update aria-activedescendant for screen readers
+    this.triggerButton.setAttribute('aria-activedescendant', option.id);
   }
 
   handleClickOutside(event) {

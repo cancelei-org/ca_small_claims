@@ -1,0 +1,56 @@
+<tr id="<%= dom_id(product_feedback) %>">
+  <td>
+    <span class="badge badge-outline">
+      <%= category_emoji(product_feedback.category) %>
+      <%= product_feedback.category_display_name %>
+    </span>
+  </td>
+  <td>
+    <%= link_to product_feedback.title, admin_product_feedback_path(product_feedback), class: "link link-hover font-medium" %>
+    <% if product_feedback.attachments.attached? %>
+      <span class="badge badge-xs badge-ghost ml-1" title="<%= product_feedback.attachments.count %> attachment(s)">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+        </svg>
+      </span>
+    <% end %>
+  </td>
+  <td>
+    <%= link_to product_feedback.user.display_name, admin_user_path(product_feedback.user), class: "link link-hover" %>
+  </td>
+  <td>
+    <span class="badge <%= product_feedback.status_color %>"><%= product_feedback.status_display_name %></span>
+  </td>
+  <td>
+    <span class="font-medium"><%= product_feedback.votes_count %></span>
+  </td>
+  <td>
+    <span class="text-sm" title="<%= product_feedback.created_at.strftime('%B %d, %Y at %I:%M %p') %>">
+      <%= time_ago_in_words(product_feedback.created_at) %> ago
+    </span>
+  </td>
+  <td>
+    <div class="dropdown dropdown-end">
+      <div tabindex="0" role="button" class="btn btn-ghost btn-xs">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+        </svg>
+      </div>
+      <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52">
+        <li><%= link_to "View Details", admin_product_feedback_path(product_feedback) %></li>
+        <li class="menu-title">Change Status</li>
+        <% ProductFeedback.statuses.keys.each do |status| %>
+          <% unless product_feedback.status == status %>
+            <li>
+              <%= button_to ProductFeedback.status_display_name(status),
+                            update_status_admin_product_feedback_path(product_feedback),
+                            method: :patch,
+                            params: { status: status },
+                            class: "text-left" %>
+            </li>
+          <% end %>
+        <% end %>
+      </ul>
+    </div>
+  </td>
+</tr>

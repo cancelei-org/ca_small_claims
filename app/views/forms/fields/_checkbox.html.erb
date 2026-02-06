@@ -6,7 +6,7 @@
       { checked: submission.field_value(field.name) == "1" || submission.field_value(field.name) == true,
         class: "checkbox checkbox-primary w-6 h-6",
         id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-        data: field_data_attributes,
+        data: field_data_attributes.merge(validation_target: "input"),
         "aria-required": field.required ? "true" : nil,
         "aria-describedby": [field.help_text.present? ? field_help_id(field, prefix: prefix) : nil, field_error_id(field, prefix: prefix)].compact.join(" ") },
       "1", "0" %>

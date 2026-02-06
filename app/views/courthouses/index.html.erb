@@ -1,0 +1,150 @@
+<% content_for :title, "Find Your Courthouse - California Small Claims Court" %>
+
+<%# Include Leaflet CSS %>
+<% content_for :head do %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<% end %>
+
+<div class="space-y-6" data-controller="court-finder" data-court-finder-markers-url-value="<%= markers_courthouses_path(format: :json) %>">
+  <%# Header %>
+  <div class="text-center">
+    <h1 class="text-3xl lg:text-4xl font-bold mb-2">Find Your Courthouse</h1>
+    <p class="text-base-content/70 max-w-2xl mx-auto">
+      Locate your nearest California Small Claims Court. Search by city, county, or ZIP code.
+    </p>
+  </div>
+
+  <%# Search Section %>
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-col lg:flex-row gap-4">
+        <%# Search Input %>
+        <div class="flex-1">
+          <div class="form-control">
+            <label class="label" for="courthouse-search">
+              <span class="label-text font-medium">Search by city, county, or ZIP code</span>
+            </label>
+            <div class="join w-full">
+              <input type="text"
+                     id="courthouse-search"
+                     name="search"
+                     placeholder="e.g., Los Angeles, 90012, or Alameda County"
+                     class="input input-bordered join-item flex-1 min-h-[48px]"
+                     data-court-finder-target="searchInput"
+                     data-action="input->court-finder#debounceSearch keydown.enter->court-finder#search"
+                     value="<%= params[:search] %>">
+              <button type="button"
+                      class="btn btn-primary join-item min-h-[48px]"
+                      data-action="click->court-finder#search">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
+                </svg>
+                <span class="hidden sm:inline">Search</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <%# County Filter %>
+        <div class="w-full lg:w-64">
+          <div class="form-control">
+            <label class="label" for="county-filter">
+              <span class="label-text font-medium">Filter by County</span>
+            </label>
+            <select id="county-filter"
+                    name="county"
+                    class="select select-bordered w-full min-h-[48px]"
+                    data-court-finder-target="countySelect"
+                    data-action="change->court-finder#filterByCounty">
+              <option value="">All Counties</option>
+              <% @counties.each do |county| %>
+                <option value="<%= county %>" <%= "selected" if params[:county] == county %>><%= county %> County</option>
+              <% end %>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <%# Quick Filter Pills %>
+      <div class="flex flex-wrap gap-2 mt-4">
+        <span class="text-sm text-base-content/60">Popular:</span>
+        <button type="button" class="btn btn-xs btn-outline" data-action="click->court-finder#quickSearch" data-search="Los Angeles">Los Angeles</button>
+        <button type="button" class="btn btn-xs btn-outline" data-action="click->court-finder#quickSearch" data-search="San Francisco">San Francisco</button>
+        <button type="button" class="btn btn-xs btn-outline" data-action="click->court-finder#quickSearch" data-search="San Diego">San Diego</button>
+        <button type="button" class="btn btn-xs btn-outline" data-action="click->court-finder#quickSearch" data-search="Sacramento">Sacramento</button>
+        <button type="button" class="btn btn-xs btn-outline" data-action="click->court-finder#quickSearch" data-search="Orange">Orange County</button>
+      </div>
+    </div>
+  </div>
+
+  <%# Map and Results Layout %>
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <%# Map Container %>
+    <div class="card bg-base-100 shadow-xl order-2 lg:order-1">
+      <div class="card-body p-0 overflow-hidden rounded-2xl">
+        <div id="courthouse-map"
+             class="h-[400px] lg:h-[600px] w-full"
+             data-court-finder-target="map">
+          <%# Map will be initialized by JavaScript %>
+          <div class="flex items-center justify-center h-full bg-base-200">
+            <div class="text-center">
+              <span class="loading loading-spinner loading-lg"></span>
+              <p class="mt-2 text-base-content/60">Loading map...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Results List %>
+    <div class="order-1 lg:order-2">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-semibold">
+          <span data-court-finder-target="resultCount"><%= @courthouses.count %></span> Courthouses Found
+        </h2>
+        <div class="badge badge-primary badge-outline">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+          </svg>
+          Map View
+        </div>
+      </div>
+
+      <div id="courthouse-results"
+           class="space-y-4 max-h-[600px] overflow-y-auto pr-2"
+           data-court-finder-target="results">
+        <%= render "courthouses/results", courthouses: @courthouses %>
+      </div>
+    </div>
+  </div>
+
+  <%# Help Section %>
+  <div class="card bg-base-200">
+    <div class="card-body">
+      <h3 class="card-title text-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="m11.25 11.25.041-.02a.75.75 0 0 1 1.063.852l-.708 2.836a.75.75 0 0 0 1.063.853l.041-.021M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9-3.75h.008v.008H12V8.25Z" />
+        </svg>
+        Which courthouse should I file at?
+      </h3>
+      <div class="prose prose-sm max-w-none">
+        <p>
+          In California Small Claims Court, you generally file your case at the courthouse in the county where:
+        </p>
+        <ul>
+          <li>The defendant lives or does business</li>
+          <li>The contract was signed or was to be performed</li>
+          <li>The injury or property damage occurred</li>
+        </ul>
+        <p>
+          If you're unsure which courthouse to use, contact the court clerk or visit the
+          <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="link link-primary">California Courts Self-Help Center</a>.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Leaflet JS %>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>

@@ -29,7 +29,7 @@ module Pdf
     end
 
     def field_names
-      extract.map { |f| f[:name] }
+      extract.pluck(:name)
     end
 
     private

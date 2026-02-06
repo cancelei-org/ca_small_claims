@@ -1,6 +1,8 @@
+/* eslint-disable max-classes-per-file */
 /**
  * Offline Storage Utility
  * Provides IndexedDB storage with localStorage fallback for form data
+ * Refactored using Strategy pattern for cleaner storage backend abstraction
  *
  * Usage:
  *   import { OfflineStorage } from 'utils/offline_storage'
@@ -24,118 +26,138 @@ export const SYNC_STATUS = {
   ERROR: 'error' // Sync failed
 };
 
-export class OfflineStorage {
-  constructor() {
-    this.db = null;
-    this.dbReady = this._initDB();
-    this.useIndexedDB = true;
+/**
+ * Abstract Storage Strategy base class
+ * Defines the interface for storage backends
+ */
+class StorageStrategy {
+  async save(_record) {
+    throw new Error('save() must be implemented');
   }
 
-  /**
-   * Initialize IndexedDB connection
-   * Falls back to localStorage if IndexedDB is unavailable
-   */
-  async _initDB() {
-    if (!window.indexedDB) {
-      console.warn('IndexedDB not available, using localStorage fallback');
-      this.useIndexedDB = false;
+  async load(_pathname) {
+    throw new Error('load() must be implemented');
+  }
 
-      return;
-    }
+  async delete(_pathname) {
+    throw new Error('delete() must be implemented');
+  }
 
+  async getByStatus(_status) {
+    throw new Error('getByStatus() must be implemented');
+  }
+
+  async deleteByStatus(_status) {
+    throw new Error('deleteByStatus() must be implemented');
+  }
+}
+
+/**
+ * IndexedDB Storage Strategy
+ */
+class IndexedDBStrategy extends StorageStrategy {
+  constructor(db) {
+    super();
+    this.db = db;
+  }
+
+  async save(record) {
     return new Promise((resolve, reject) => {
-      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
 
-      request.onerror = () => {
-        console.warn('IndexedDB failed, using localStorage fallback');
-        this.useIndexedDB = false;
-        resolve();
+      // Get existing record to preserve createdAt
+      const getRequest = store.get(record.pathname);
+
+      getRequest.onsuccess = () => {
+        if (getRequest.result) {
+          record.createdAt = getRequest.result.createdAt;
+          record.syncAttempts = getRequest.result.syncAttempts || 0;
+        }
+
+        const putRequest = store.put(record);
+
+        putRequest.onsuccess = () => resolve(true);
+        putRequest.onerror = () => reject(putRequest.error);
       };
+      getRequest.onerror = () => reject(getRequest.error);
+    });
+  }
+
+  async load(pathname) {
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.get(pathname);
+
+      request.onsuccess = () => resolve(request.result || null);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async delete(pathname) {
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const request = store.delete(pathname);
+
+      request.onsuccess = () => resolve(true);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async getByStatus(status) {
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction([STORE_NAME], 'readonly');
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index('status');
+      const request = index.getAll(status);
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  }
+
+  async deleteByStatus(status) {
+    return new Promise((resolve, reject) => {
+      const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+      const store = transaction.objectStore(STORE_NAME);
+      const index = store.index('status');
+      const request = index.openCursor(status);
 
       request.onsuccess = event => {
-        this.db = event.target.result;
-        resolve();
-      };
+        const cursor = event.target.result;
 
-      request.onupgradeneeded = event => {
-        const db = event.target.result;
-
-        // Create object store for form submissions
-        if (!db.objectStoreNames.contains(STORE_NAME)) {
-          const store = db.createObjectStore(STORE_NAME, {
-            keyPath: 'pathname'
-          });
-
-          store.createIndex('status', 'status', { unique: false });
-          store.createIndex('updatedAt', 'updatedAt', { unique: false });
+        if (cursor) {
+          cursor.delete();
+          cursor.continue();
+        } else {
+          resolve(true);
         }
       };
+      request.onerror = () => reject(request.error);
     });
   }
+}
 
-  /**
-   * Save form data to offline storage
-   * @param {string} pathname - The form URL pathname (e.g., '/forms/SC-100')
-   * @param {Object} formData - Form field data
-   * @param {string} status - Sync status (default: PENDING)
-   * @returns {Promise<boolean>} Success status
-   */
-  async save(pathname, formData, status = SYNC_STATUS.PENDING) {
-    await this.dbReady;
-
-    const record = {
-      pathname,
-      formData,
-      status,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      syncAttempts: 0
-    };
-
-    if (this.useIndexedDB && this.db) {
-      return this._saveToIndexedDB(record);
-    }
-
-    return this._saveToLocalStorage(record);
+/**
+ * LocalStorage Storage Strategy (fallback)
+ */
+class LocalStorageStrategy extends StorageStrategy {
+  _getKey(pathname) {
+    return `offline_data_${pathname}`;
   }
 
-  async _saveToIndexedDB(record) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-
-        // Get existing record to preserve createdAt
-        const getRequest = store.get(record.pathname);
-
-        getRequest.onsuccess = () => {
-          if (getRequest.result) {
-            record.createdAt = getRequest.result.createdAt;
-            record.syncAttempts = getRequest.result.syncAttempts || 0;
-          }
-
-          const putRequest = store.put(record);
-
-          putRequest.onsuccess = () => resolve(true);
-          putRequest.onerror = () => reject(putRequest.error);
-        };
-        getRequest.onerror = () => reject(getRequest.error);
-      } catch (error) {
-        console.error('IndexedDB save failed:', error);
-        resolve(this._saveToLocalStorage(record));
-      }
-    });
-  }
-
-  _saveToLocalStorage(record) {
+  async save(record) {
     try {
-      const key = `offline_data_${record.pathname}`;
+      const key = this._getKey(record.pathname);
 
-      // Preserve createdAt from existing record (like IndexedDB does)
-      // Only preserve if not already set in the record being saved
+      // Preserve createdAt from existing record
       const existing = localStorage.getItem(key);
+
       if (existing) {
         const parsed = JSON.parse(existing);
+
         if (!record.createdAt) {
           record.createdAt = parsed.createdAt;
         }
@@ -154,40 +176,9 @@ export class OfflineStorage {
     }
   }
 
-  /**
-   * Load form data from offline storage
-   * @param {string} pathname - The form URL pathname
-   * @returns {Promise<Object|null>} Stored record or null
-   */
   async load(pathname) {
-    await this.dbReady;
-
-    if (this.useIndexedDB && this.db) {
-      return this._loadFromIndexedDB(pathname);
-    }
-
-    return this._loadFromLocalStorage(pathname);
-  }
-
-  async _loadFromIndexedDB(pathname) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.get(pathname);
-
-        request.onsuccess = () => resolve(request.result || null);
-        request.onerror = () => reject(request.error);
-      } catch (error) {
-        console.error('IndexedDB load failed:', error);
-        resolve(this._loadFromLocalStorage(pathname));
-      }
-    });
-  }
-
-  _loadFromLocalStorage(pathname) {
     try {
-      const key = `offline_data_${pathname}`;
+      const key = this._getKey(pathname);
       const data = localStorage.getItem(key);
 
       if (data) {
@@ -216,42 +207,9 @@ export class OfflineStorage {
     }
   }
 
-  /**
-   * Delete form data from offline storage
-   * @param {string} pathname - The form URL pathname
-   * @returns {Promise<boolean>} Success status
-   */
   async delete(pathname) {
-    await this.dbReady;
-
-    if (this.useIndexedDB && this.db) {
-      return this._deleteFromIndexedDB(pathname);
-    }
-
-    return this._deleteFromLocalStorage(pathname);
-  }
-
-  async _deleteFromIndexedDB(pathname) {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const request = store.delete(pathname);
-
-        request.onsuccess = () => resolve(true);
-        request.onerror = () => reject(request.error);
-      } catch (error) {
-        console.error('IndexedDB delete failed:', error);
-        resolve(this._deleteFromLocalStorage(pathname));
-      }
-    });
-  }
-
-  _deleteFromLocalStorage(pathname) {
     try {
-      const key = `offline_data_${pathname}`;
-
-      localStorage.removeItem(key);
+      localStorage.removeItem(this._getKey(pathname));
 
       return true;
     } catch (error) {
@@ -261,39 +219,8 @@ export class OfflineStorage {
     }
   }
 
-  /**
-   * Get all pending submissions (not yet synced)
-   * @returns {Promise<Array>} Array of pending records
-   */
-  async getPendingSubmissions() {
-    await this.dbReady;
-
-    if (this.useIndexedDB && this.db) {
-      return this._getPendingFromIndexedDB();
-    }
-
-    return this._getPendingFromLocalStorage();
-  }
-
-  async _getPendingFromIndexedDB() {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([STORE_NAME], 'readonly');
-        const store = transaction.objectStore(STORE_NAME);
-        const index = store.index('status');
-        const request = index.getAll(SYNC_STATUS.PENDING);
-
-        request.onsuccess = () => resolve(request.result || []);
-        request.onerror = () => reject(request.error);
-      } catch (error) {
-        console.error('IndexedDB getPending failed:', error);
-        resolve(this._getPendingFromLocalStorage());
-      }
-    });
-  }
-
-  _getPendingFromLocalStorage() {
-    const pending = [];
+  async getByStatus(status) {
+    const results = [];
 
     try {
       for (let i = 0; i < localStorage.length; i++) {
@@ -305,17 +232,171 @@ export class OfflineStorage {
           if (data) {
             const record = JSON.parse(data);
 
-            if (record.status === SYNC_STATUS.PENDING || !record.status) {
-              pending.push(record);
+            if (
+              record.status === status ||
+              (!record.status && status === SYNC_STATUS.PENDING)
+            ) {
+              results.push(record);
             }
           }
         }
       }
     } catch (error) {
-      console.error('localStorage getPending failed:', error);
+      console.error('localStorage getByStatus failed:', error);
     }
 
-    return pending;
+    return results;
+  }
+
+  async deleteByStatus(status) {
+    try {
+      const keysToRemove = [];
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+
+        if (key && key.startsWith('offline_data_')) {
+          const data = localStorage.getItem(key);
+
+          if (data) {
+            const record = JSON.parse(data);
+
+            if (record.status === status) {
+              keysToRemove.push(key);
+            }
+          }
+        }
+      }
+
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+
+      return true;
+    } catch (error) {
+      console.error('localStorage deleteByStatus failed:', error);
+
+      return false;
+    }
+  }
+}
+
+/**
+ * Main OfflineStorage class
+ * Uses Strategy pattern to delegate to appropriate storage backend
+ */
+export class OfflineStorage {
+  constructor() {
+    this.strategy = null;
+    this.fallbackStrategy = new LocalStorageStrategy();
+    this.dbReady = this._initDB();
+  }
+
+  /**
+   * Initialize IndexedDB connection
+   * Falls back to localStorage if IndexedDB is unavailable
+   */
+  async _initDB() {
+    if (!window.indexedDB) {
+      console.warn('IndexedDB not available, using localStorage fallback');
+      this.strategy = this.fallbackStrategy;
+
+      return undefined;
+    }
+
+    await new Promise(resolve => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+
+      request.onerror = () => {
+        console.warn('IndexedDB failed, using localStorage fallback');
+        this.strategy = this.fallbackStrategy;
+        resolve();
+      };
+
+      request.onsuccess = event => {
+        const db = event.target.result;
+
+        this.strategy = new IndexedDBStrategy(db);
+        resolve();
+      };
+
+      request.onupgradeneeded = event => {
+        const db = event.target.result;
+
+        if (!db.objectStoreNames.contains(STORE_NAME)) {
+          const store = db.createObjectStore(STORE_NAME, {
+            keyPath: 'pathname'
+          });
+
+          store.createIndex('status', 'status', { unique: false });
+          store.createIndex('updatedAt', 'updatedAt', { unique: false });
+        }
+      };
+    });
+
+    return undefined;
+  }
+
+  /**
+   * Execute a storage operation with automatic fallback
+   */
+  async _execute(operation) {
+    await this.dbReady;
+
+    try {
+      return await operation(this.strategy);
+    } catch (error) {
+      console.error('Storage operation failed, trying fallback:', error);
+      // Fallback to localStorage if IndexedDB fails
+      if (this.strategy !== this.fallbackStrategy) {
+        return await operation(this.fallbackStrategy);
+      }
+      throw error;
+    }
+  }
+
+  /**
+   * Save form data to offline storage
+   * @param {string} pathname - The form URL pathname (e.g., '/forms/SC-100')
+   * @param {Object} formData - Form field data
+   * @param {string} status - Sync status (default: PENDING)
+   * @returns {Promise<boolean>} Success status
+   */
+  async save(pathname, formData, status = SYNC_STATUS.PENDING) {
+    const record = {
+      pathname,
+      formData,
+      status,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      syncAttempts: 0
+    };
+
+    return this._execute(strategy => strategy.save(record));
+  }
+
+  /**
+   * Load form data from offline storage
+   * @param {string} pathname - The form URL pathname
+   * @returns {Promise<Object|null>} Stored record or null
+   */
+  async load(pathname) {
+    return this._execute(strategy => strategy.load(pathname));
+  }
+
+  /**
+   * Delete form data from offline storage
+   * @param {string} pathname - The form URL pathname
+   * @returns {Promise<boolean>} Success status
+   */
+  async delete(pathname) {
+    return this._execute(strategy => strategy.delete(pathname));
+  }
+
+  /**
+   * Get all pending submissions (not yet synced)
+   * @returns {Promise<Array>} Array of pending records
+   */
+  async getPendingSubmissions() {
+    return this._execute(strategy => strategy.getByStatus(SYNC_STATUS.PENDING));
   }
 
   /**
@@ -326,8 +407,6 @@ export class OfflineStorage {
    * @returns {Promise<boolean>} Success status
    */
   async updateStatus(pathname, status, incrementAttempts = false) {
-    await this.dbReady;
-
     const record = await this.load(pathname);
 
     if (!record) {
@@ -340,12 +419,7 @@ export class OfflineStorage {
       record.syncAttempts = (record.syncAttempts || 0) + 1;
     }
 
-    // Save the full record directly instead of calling save() which loses syncAttempts
-    if (this.useIndexedDB && this.db) {
-      return this._saveToIndexedDB(record);
-    }
-
-    return this._saveToLocalStorage(record);
+    return this._execute(strategy => strategy.save(record));
   }
 
   /**
@@ -373,68 +447,9 @@ export class OfflineStorage {
    * @returns {Promise<boolean>} Success status
    */
   async clearSynced() {
-    await this.dbReady;
-
-    if (this.useIndexedDB && this.db) {
-      return this._clearSyncedFromIndexedDB();
-    }
-
-    return this._clearSyncedFromLocalStorage();
-  }
-
-  async _clearSyncedFromIndexedDB() {
-    return new Promise((resolve, reject) => {
-      try {
-        const transaction = this.db.transaction([STORE_NAME], 'readwrite');
-        const store = transaction.objectStore(STORE_NAME);
-        const index = store.index('status');
-        const request = index.openCursor(SYNC_STATUS.SYNCED);
-
-        request.onsuccess = event => {
-          const cursor = event.target.result;
-
-          if (cursor) {
-            cursor.delete();
-            cursor.continue();
-          } else {
-            resolve(true);
-          }
-        };
-        request.onerror = () => reject(request.error);
-      } catch (error) {
-        console.error('IndexedDB clearSynced failed:', error);
-        resolve(this._clearSyncedFromLocalStorage());
-      }
-    });
-  }
-
-  _clearSyncedFromLocalStorage() {
-    try {
-      const keysToRemove = [];
-
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-
-        if (key && key.startsWith('offline_data_')) {
-          const data = localStorage.getItem(key);
-
-          if (data) {
-            const record = JSON.parse(data);
-
-            if (record.status === SYNC_STATUS.SYNCED) {
-              keysToRemove.push(key);
-            }
-          }
-        }
-      }
-      keysToRemove.forEach(key => localStorage.removeItem(key));
-
-      return true;
-    } catch (error) {
-      console.error('localStorage clearSynced failed:', error);
-
-      return false;
-    }
+    return this._execute(strategy =>
+      strategy.deleteByStatus(SYNC_STATUS.SYNCED)
+    );
   }
 }
 

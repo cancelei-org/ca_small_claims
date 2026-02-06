@@ -440,9 +440,6 @@ test.describe('Reduced Motion (WCAG 2.3.3)', () => {
       await expect(motionToggle).toBeVisible();
       await expect(motionToggle).toBeEnabled();
 
-      // Check initial state
-      const initialChecked = await motionToggle.isChecked();
-
       // Toggle the preference
       await motionToggle.click();
 
@@ -520,7 +517,7 @@ test.describe('Reduced Motion (WCAG 2.3.3)', () => {
         const announcement = await liveRegion.textContent();
 
         expect(announcement).toBeTruthy();
-        expect(announcement).toMatch(/motion/i);
+        expect(announcement).toMatch(/motion/iu);
       }
     }
   });

@@ -1,13 +1,76 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="x-apple-disable-message-reformatting">
+    <meta name="format-detection" content="telephone=no, address=no, email=no, date=no">
+    <title><%= message.subject %></title>
+    <!--[if mso]>
+    <noscript>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+    </noscript>
+    <![endif]-->
     <style>
-      /* Email styles need to be inline */
+      /* Reset styles */
+      body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+      table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+      img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+
+      /* Base styles */
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        background-color: #f3f4f6;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      }
+
+      /* Link styles */
+      a {
+        color: #1e40af;
+        text-decoration: underline;
+      }
+
+      /* Button styles */
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #1e40af;
+        color: #ffffff !important;
+        text-decoration: none;
+        border-radius: 6px;
+        font-weight: 600;
+      }
+
+      /* Dark mode support */
+      @media (prefers-color-scheme: dark) {
+        body {
+          background-color: #1f2937 !important;
+        }
+      }
+
+      /* Mobile responsive */
+      @media only screen and (max-width: 600px) {
+        .container {
+          width: 100% !important;
+          padding: 0 16px !important;
+        }
+      }
     </style>
   </head>
 
-  <body>
-    <%= yield %>
+  <body style="margin: 0; padding: 0; background-color: #f3f4f6;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f3f4f6;">
+      <tr>
+        <td align="center" style="padding: 24px 0;">
+          <%= yield %>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

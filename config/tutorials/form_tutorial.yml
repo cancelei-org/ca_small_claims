@@ -1,0 +1,55 @@
+# Form Page Tutorial Configuration
+# Shown to first-time users when visiting a form page
+
+tutorial:
+  id: form_page_tutorial
+  title: "Quick Tour"
+
+steps:
+  - id: welcome
+    title: "Welcome to the Form Filler!"
+    content: "We'll show you around in about 30 seconds. You can skip this tour anytime."
+    target: null
+    position: center
+
+  - id: wizard_toggle
+    title: "Choose Your View"
+    content: "Switch between Wizard mode (one field at a time) and Traditional mode (all fields visible). Wizard mode is great for mobile!"
+    target: "[data-view-toggle-target='toggle']"
+    position: bottom
+    highlight: true
+
+  - id: first_field
+    title: "Fill In Your Information"
+    content: "Just type in each field. Your progress is saved automatically as you go."
+    target: ".wizard-card, .form-control:first-of-type"
+    position: bottom
+    highlight: true
+
+  - id: preview_download
+    title: "Preview & Download"
+    content: "Use the Preview button to see your filled form, or Download when you're ready to save the completed PDF."
+    target: "a[href*='preview'], .btn-success"
+    position: top
+    highlight: true
+
+  - id: save_download
+    title: "Save & Download"
+    content: "When you're done, download your completed PDF. Create an account to save your progress across sessions!"
+    target: "[data-action*='download'], .btn-success"
+    position: top
+    highlight: true
+
+  - id: complete
+    title: "You're All Set!"
+    content: "That's it! Start filling out your form. Need help? Look for the (?) icons next to fields."
+    target: null
+    position: center
+
+settings:
+  show_progress: true
+  allow_skip: true
+  show_dont_show_again: true
+  auto_advance_delay: null  # null = manual advance only
+  spotlight_padding: 12
+  spotlight_radius: 8

@@ -1,0 +1,82 @@
+<% prefix ||= "faq" %>
+<%# Shared FAQ content that can be rendered on the help page or in a modal %>
+<div class="space-y-4">
+  <%# General Court Questions %>
+  <div id="<%= "#{prefix}-general" %>" class="scroll-mt-20">
+    <h2 class="text-xl font-bold mb-4 border-b pb-2">General Questions</h3>
+    
+    <div class="grid gap-4">
+      <div class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="save progress autosave continue later account">
+        <h3 class="font-semibold text-base-content mb-2">How do I save my progress?</h4>
+        <p class="text-sm text-base-content/80">
+          Your form data is automatically saved as you type. If you're not logged in, it's stored in your
+          browser session for 72 hours. Create a free account to save your forms permanently.
+        </p>
+      </div>
+
+      <div id="<%= "#{prefix}-which-form" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="which form do i need sc-100 sc-120 proof of service">
+        <h3 class="font-semibold text-base-content mb-2">Which form do I need?</h4>
+        <p class="text-sm text-base-content/80">
+          If you're suing someone, start with <strong>SC-100</strong>. If you've been sued, use <strong>SC-120</strong>. 
+          After filing, you'll need <strong>SC-104</strong> (Proof of Service).
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <%# Form Field Specific Questions %>
+  <div id="<%= "#{prefix}-fields" %>" class="scroll-mt-20 pt-4">
+    <h2 class="text-xl font-bold mb-4 border-b pb-2">Form Help & Formats</h3>
+    
+    <div class="grid gap-4">
+      <div id="<%= "#{prefix}-date-format" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="date format mm/dd/yyyy">
+        <h3 class="font-semibold text-base-content mb-2">How should I enter dates?</h4>
+        <p class="text-sm text-base-content/80">
+          Use the <strong>MM/DD/YYYY</strong> format. For example, January 15, 2024 should be entered as 01/15/2024.
+          The slashes are required.
+        </p>
+      </div>
+
+      <div id="<%= "#{prefix}-case-number" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="case number format court code">
+        <h3 class="font-semibold text-base-content mb-2">Where do I find my case number?</h4>
+        <p class="text-sm text-base-content/80">
+          If you are filing a new case, leave this blank; the court will assign one. If you have an existing case,
+          it's usually at the top right of your court papers. It looks like "24STSC12345".
+        </p>
+      </div>
+
+      <div id="<%= "#{prefix}-claim-amount" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="claim limits maximum money">
+        <h3 class="font-semibold text-base-content mb-2">How much can I sue for?</h4>
+        <p class="text-sm text-base-content/80">
+          Individuals can sue for up to <strong>$12,500</strong>. Businesses and other entities can sue for up to <strong>$6,250</strong>.
+          You can only file 2 claims over $2,500 in a single calendar year.
+        </p>
+      </div>
+
+      <div id="<%= "#{prefix}-filing-fees" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="filing fees cost how much">
+        <h3 class="font-semibold text-base-content mb-2">How much does it cost to file?</h4>
+        <ul class="text-sm text-base-content/80 list-disc list-inside">
+          <li>Claims up to $1,500: $30</li>
+          <li>$1,500.01 to $5,000: $50</li>
+          <li>$5,000.01 to $12,500: $75</li>
+        </ul>
+      </div>
+
+      <div id="<%= "#{prefix}-serving-papers" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="serving papers service date proof of service">
+        <h3 class="font-semibold text-base-content mb-2">How do I serve papers?</h4>
+        <p class="text-sm text-base-content/80">
+          You cannot serve the papers yourself. Someone else (18+) or the Sheriff must hand them to the defendant.
+          Deadlines depend on whether the defendant is in your county (15 days) or outside (20 days).
+        </p>
+      </div>
+
+      <div id="<%= "#{prefix}-phone-format" %>" class="bg-base-200 rounded-lg p-4" data-faq-search-target="item" data-faq-text="phone number format">
+        <h3 class="font-semibold text-base-content mb-2">Phone Number Format</h4>
+        <p class="text-sm text-base-content/80">
+          Enter your 10-digit phone number including area code: (555) 555-5555. 
+          We'll handle the formatting as you type.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>

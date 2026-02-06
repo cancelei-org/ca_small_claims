@@ -1,0 +1,62 @@
+<%# Repeating Group Partial %>
+<%# locals: field, form, submission, prefix %>
+
+<div data-controller="repeating"
+     data-repeating-max-items-value="<%= field.max_repetitions || 10 %>"
+     data-repeating-min-items-value="1"
+     class="col-span-full border border-base-300 rounded-lg p-4 bg-base-200/30">
+
+  <div class="flex items-center justify-between mb-4">
+    <h4 class="font-bold text-base-content/80"><%= field.label %></h4>
+    <button type="button"
+            data-repeating-target="addBtn"
+            data-action="click->repeating#add"
+            class="btn btn-primary btn-sm gap-2">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Add Another
+    </button>
+  </div>
+
+  <div data-repeating-target="container" class="space-y-6">
+    <%# Template for new items (hidden) %>
+    <template data-repeating-target="template">
+      <div data-repeating-target="item" class="repeating-item relative bg-base-100 p-4 rounded-md border border-base-200 shadow-sm animate-in fade-in slide-in-from-top-2">
+        <button type="button"
+                data-repeating-target="removeBtn"
+                data-action="click->repeating#remove"
+                class="absolute top-2 right-2 btn btn-ghost btn-xs btn-circle text-error"
+                title="Remove this item">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+          <%# We need a way to render sub-fields here %>
+          <p class="text-xs italic text-base-content/60">Item NEW_INDEX</p>
+        </div>
+      </div>
+    </template>
+
+    <%# Existing items %>
+    <%# For now, we assume at least one item %>
+    <div data-repeating-target="item" class="repeating-item relative bg-base-100 p-4 rounded-md border border-base-200 shadow-sm">
+      <button type="button"
+              data-repeating-target="removeBtn"
+              data-action="click->repeating#remove"
+              class="absolute top-2 right-2 btn btn-ghost btn-xs btn-circle text-error"
+              title="Remove this item">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
+        <%# Sub-fields would go here %>
+        <p class="text-xs italic text-base-content/60">Item 0</p>
+      </div>
+    </div>
+  </div>
+</div>

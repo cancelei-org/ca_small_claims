@@ -1,0 +1,160 @@
+# Quick Fill Template: Unpaid Debt
+# Common scenarios: Personal loans, unpaid invoices, bounced checks
+
+scenario:
+  id: unpaid_debt
+  name: "Unpaid Debt or Loan"
+  description: "For recovering money owed from personal loans, unpaid invoices, or bounced checks"
+  icon: "dollar-sign"
+  category: financial
+
+  claim_types:
+    - loan
+    - contract
+    - services
+
+  customization:
+    - id: debt_type
+      question: "What type of debt are you trying to collect?"
+      type: select
+      options:
+        - value: personal_loan
+          label: "Personal Loan"
+          description: "Money you lent to a friend, family member, or acquaintance"
+        - value: business_invoice
+          label: "Unpaid Invoice"
+          description: "Invoice for goods or services not paid"
+        - value: bounced_check
+          label: "Bounced Check"
+          description: "Check that was returned for insufficient funds"
+        - value: promissory_note
+          label: "Promissory Note"
+          description: "Formal written promise to repay"
+
+    - id: written_agreement
+      question: "Do you have written documentation of the debt?"
+      type: select
+      options:
+        - value: signed_contract
+          label: "Yes, signed contract or promissory note"
+        - value: written_informal
+          label: "Yes, text messages, emails, or informal writing"
+        - value: verbal
+          label: "No, it was a verbal agreement"
+
+    - id: partial_payment
+      question: "Has the defendant made any partial payments?"
+      type: select
+      options:
+        - value: yes
+          label: "Yes"
+        - value: no
+          label: "No"
+
+prefills:
+  personal_loan:
+    SC-100:
+      claim_basis: loan
+      claim_description: |
+        On [DATE OF LOAN], I loaned the defendant $[LOAN AMOUNT].
+
+        [IF WRITTEN: We agreed in writing that the defendant would repay the loan by [DUE DATE].]
+        [IF VERBAL: We verbally agreed that the defendant would repay the loan by [DUE DATE].]
+
+        [IF PARTIAL PAYMENTS: The defendant has made partial payments totaling $[PARTIAL AMOUNT], leaving a balance of $[REMAINING BALANCE].]
+
+        The defendant has failed to repay the loan despite my repeated requests for payment.
+
+        I am owed the principal amount of $[AMOUNT] plus [any agreed-upon interest of $[INTEREST AMOUNT]].
+
+        Total amount owed: $[TOTAL]
+      venue_reason: defendant_residence
+      demand_made: true
+
+  business_invoice:
+    SC-100:
+      claim_basis: contract
+      claim_description: |
+        I provided the following goods/services to the defendant:
+
+        [DESCRIBE GOODS OR SERVICES PROVIDED]
+
+        Date of service/delivery: [DATE]
+        Invoice amount: $[AMOUNT]
+        Invoice date: [INVOICE DATE]
+        Payment due date: [DUE DATE]
+
+        Despite my invoice and subsequent requests for payment, the defendant has failed to pay.
+
+        [IF PARTIAL PAYMENTS: The defendant has made partial payments totaling $[PARTIAL AMOUNT], leaving a balance of $[REMAINING BALANCE].]
+
+        I am owed $[AMOUNT] for the goods/services provided.
+      venue_reason: contract_performance
+      demand_made: true
+
+  bounced_check:
+    SC-100:
+      claim_basis: contract
+      claim_description: |
+        On [DATE], the defendant wrote me a check for $[CHECK AMOUNT].
+
+        Check number: [CHECK NUMBER]
+        Bank: [BANK NAME]
+
+        When I attempted to deposit/cash the check on [DEPOSIT DATE], it was returned due to insufficient funds / account closed / [OTHER REASON].
+
+        I notified the defendant of the bounced check and requested payment. The defendant has failed to pay.
+
+        Under California Civil Code Section 1719, I am entitled to:
+        - The original check amount: $[CHECK AMOUNT]
+        - Treble damages (up to $1,500): $[PENALTY AMOUNT]
+        - Bank fees incurred: $[BANK FEES]
+
+        Total amount owed: $[TOTAL]
+      venue_reason: defendant_residence
+      demand_made: true
+
+  promissory_note:
+    SC-100:
+      claim_basis: loan
+      claim_description: |
+        On [DATE], the defendant signed a promissory note promising to pay me $[PRINCIPAL AMOUNT].
+
+        The terms of the note were:
+        - Principal amount: $[PRINCIPAL]
+        - Interest rate: [RATE]% per [month/year]
+        - Payment due date: [DUE DATE]
+        - [OTHER TERMS]
+
+        [IF PARTIAL PAYMENTS: The defendant has made partial payments totaling $[PARTIAL AMOUNT].]
+
+        The defendant defaulted on the note by failing to make the required payments.
+
+        Amount owed:
+        - Principal: $[PRINCIPAL BALANCE]
+        - Accrued interest: $[INTEREST]
+        - Total: $[TOTAL]
+      venue_reason: defendant_residence
+      demand_made: true
+
+tips:
+  - title: "Document Everything"
+    content: "Bring all written evidence: loan agreements, promissory notes, text messages, emails, bank statements showing the loan, cancelled checks, invoices."
+
+  - title: "Bounced Check Penalties"
+    content: "Under California law, you may recover up to three times the check amount (up to $1,500) plus bank fees for a bounced check written in bad faith."
+
+  - title: "Statute of Limitations"
+    content: "Written contracts: 4 years. Oral agreements: 2 years. Start counting from the date payment was due or the last payment made."
+
+  - title: "Demand Letter Required for Bounced Checks"
+    content: "To claim treble damages for a bounced check, you must first send a written demand by certified mail and wait 30 days."
+
+  - title: "Interest Calculations"
+    content: "If you agreed to interest, you can claim it. If not, California legal interest rate is 10% per year. Calculate from due date to trial date."
+
+related_forms:
+  - code: SC-104
+    reason: "To request a court date/time"
+  - code: SC-103
+    reason: "If you cannot afford the filing fee"

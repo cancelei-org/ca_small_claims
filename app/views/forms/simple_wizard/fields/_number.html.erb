@@ -1,0 +1,13 @@
+<%# Number input for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.number_field field.name,
+                      id: "simple-wizard-field-#{field.name}",
+                      value: submission.field_value(field.name),
+                      placeholder: field.placeholder,
+                      required: field.required,
+                      class: "input input-bordered w-full",
+                      data: {
+                        action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                      } %>

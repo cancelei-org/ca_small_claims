@@ -1,5 +1,5 @@
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
   <% options = field.options.map { |opt| [opt["label"] || opt[:label], opt["value"] || opt[:value]] } %>
   <% searchable = options.length >= 5 %>
 
@@ -14,7 +14,11 @@
         { required: field.required,
           class: standard_select_class,
           id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-          data: field_data_attributes.merge(searchable_select_target: "select"),
+          data: field_data_attributes.merge(
+            searchable_select_target: "select",
+            validation_target: "input",
+            action: "change->form#fieldChanged keydown->keyboard-nav#handleKeydown"
+          ),
           **field_aria_attributes(field, prefix: prefix) } %>
     </div>
   <% else %>
@@ -25,7 +29,10 @@
       { required: field.required,
         class: standard_select_class,
         id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-        data: field_data_attributes,
+        data: field_data_attributes.merge(
+          validation_target: "input",
+          action: "change->form#fieldChanged keydown->keyboard-nav#handleKeydown"
+        ),
         **field_aria_attributes(field, prefix: prefix) } %>
   <% end %>
 <% end %>

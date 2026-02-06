@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full" data-theme="<%= current_theme %>">
+<html lang="<%= I18n.locale %>" class="h-full" data-theme="<%= current_theme %>">
   <head>
     <%# Theme initialization - runs before page paint to prevent flash %>
     <script>
@@ -107,6 +107,9 @@
   </head>
 
   <body class="min-h-screen bg-base-100 text-base-content">
+    <%# Impersonation Banner - displays when admin is impersonating a user %>
+    <%= render "shared/impersonation_banner" %>
+
     <%# Skip to content link for keyboard users - visible only on focus %>
     <a href="#main-content"
        class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-content focus:rounded-lg focus:shadow-lg focus:outline-none focus:ring-2 focus:ring-primary-focus">
@@ -128,6 +131,7 @@
         <ul class="menu menu-horizontal px-1">
           <li><%= link_to t("navigation.forms"), forms_path %></li>
           <li><%= link_to t("navigation.workflows"), workflows_path %></li>
+          <li><%= link_to t("navigation.find_courthouse"), courthouses_path %></li>
           <li><%= link_to t("navigation.my_forms"), submissions_path %></li>
         </ul>
       </div>
@@ -167,6 +171,7 @@
               <li class="menu-title"><%= current_user.display_name %></li>
               <li><%= link_to t("navigation.my_profile"), profile_path %></li>
               <li><%= link_to t("navigation.my_forms"), submissions_path %></li>
+              <li><%= link_to t("navigation.feedback", default: "Send Feedback"), product_feedbacks_path %></li>
               <% if current_user.admin? %>
                 <li><%= link_to t("navigation.admin"), admin_root_path %></li>
               <% end %>
@@ -188,6 +193,7 @@
           <ul tabindex="0" class="menu dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 text-base-content rounded-box w-56">
             <li><%= link_to t("navigation.forms"), forms_path, class: "text-base py-3 min-h-[44px]" %></li>
             <li><%= link_to t("navigation.workflows"), workflows_path, class: "text-base py-3 min-h-[44px]" %></li>
+            <li><%= link_to t("navigation.find_courthouse"), courthouses_path, class: "text-base py-3 min-h-[44px]" %></li>
             <li><%= link_to t("navigation.my_forms"), submissions_path, class: "text-base py-3 min-h-[44px]" %></li>
             <li>
               <button type="button"
@@ -204,6 +210,9 @@
         </div>
       </div>
     </nav>
+
+    <!-- Session Expiry Warning for Anonymous Users -->
+    <%= render "shared/session_expiry_warning" %>
 
     <!-- Flash Messages -->
     <% if notice.present? %>
@@ -240,6 +249,7 @@
         <a href="https://www.courts.ca.gov/forms.htm" target="_blank" class="link link-hover min-h-[44px] flex items-center"><%= t("footer.official_forms") %></a>
         <%= link_to t("footer.help"), help_path, class: "link link-hover min-h-[44px] flex items-center" %>
         <%= link_to t("footer.accessibility", default: "Accessibility"), accessibility_path, class: "link link-hover min-h-[44px] flex items-center" %>
+        <%= link_to t("footer.feedback", default: "Feedback"), product_feedbacks_path, class: "link link-hover min-h-[44px] flex items-center" %>
       </nav>
       <div class="text-center">
         <p class="text-base md:text-lg">
@@ -256,7 +266,11 @@
 
     <%# Theme Selector Modal - globally available %>
     <%= render "shared/theme_modal" %>
+    <%= render "shared/faq_modal" %>
     <%= render "shared/command_bar" %>
     <%= render "shared/toast_container" %>
+
+    <%# Product Feedback Button - floating action button %>
+    <%= render "shared/product_feedback_button" %>
   </body>
 </html>

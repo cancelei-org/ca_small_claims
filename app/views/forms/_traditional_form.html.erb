@@ -8,7 +8,7 @@
          aria-label="Form sections"
          data-scroll-spy-target="nav">
       <div class="bg-base-100 rounded-lg shadow-lg p-4 border border-base-200">
-        <h4 class="text-xs font-semibold text-base-content/50 uppercase tracking-wider mb-3">Sections</h4>
+        <h4 class="text-xs font-semibold text-base-content/60 uppercase tracking-wider mb-3">Sections</h4>
         <ul class="space-y-1">
           <% sections.each do |section_name, fields| %>
             <% section_id = section_name.to_s.parameterize %>
@@ -55,7 +55,7 @@
     </div>
 
     <div class="p-6 space-y-8">
-      <% sections.each do |section_name, fields| %>
+      <% @form_definition.sections_with_groups.each do |section_name, items| %>
         <% section_id = section_name.to_s.parameterize %>
         <section id="section-<%= section_id %>"
                  class="border-b border-base-200 pb-6 last:border-b-0 last:pb-0 scroll-mt-24"
@@ -65,11 +65,60 @@
           </h3>
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <% fields.each do |field| %>
-              <div class="<%= field.width_class %>">
-                <%= render partial: "forms/fields/#{field.field_type}",
-                           locals: { field: field, form: form, submission: submission, prefix: "traditional" } %>
-              </div>
+            <% items.each do |item| %>
+              <% if item[:type] == :single %>
+                <% field = item[:field] %>
+                <% js_conditions = field.conditions_for_js %>
+                <%= content_tag :div,
+                                class: field.width_class,
+                                data: (js_conditions.any? ? { controller: "conditional-field", conditional_field_conditions_value: js_conditions.to_json } : {}) do %>
+                  <%= render partial: "forms/fields/#{field.field_type}",
+                             locals: { field: field, form: form, submission: submission, prefix: "traditional" } %>
+                <% end %>
+              <% else %>
+                <%# Handle repeating group %>
+                <div class="col-span-full"
+                     data-controller="repeating"
+                     data-repeating-max-items-value="<%= item[:fields].first.max_repetitions || 10 %>">
+                  <div class="flex items-center justify-between mb-4">
+                    <h4 class="font-medium text-base-content/70"><%= item[:name].to_s.titleize %></h4>
+                    <button type="button" data-action="click->repeating#add" data-repeating-target="addBtn" class="btn btn-ghost btn-xs text-primary">
+                      + Add Another
+                    </button>
+                  </div>
+
+                  <div data-repeating-target="container" class="space-y-4">
+                    <%# Item Template %>
+                    <template data-repeating-target="template">
+                      <div data-repeating-target="item" class="relative p-4 border border-base-200 rounded-lg bg-base-200/20">
+                        <button type="button" data-action="click->repeating#remove" data-repeating-target="removeBtn" class="absolute top-2 right-2 text-error hover:text-error-focus">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                        </button>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <% item[:fields].each do |field| %>
+                            <div class="<%= field.width_class %>">
+                              <%= render partial: "forms/fields/#{field.field_type}",
+                                         locals: { field: field, form: form, submission: submission, prefix: "repeat-NEW_INDEX" } %>
+                            </div>
+                          <% end %>
+                        </div>
+                      </div>
+                    </template>
+
+                    <%# Initial Item %>
+                    <div data-repeating-target="item" class="relative p-4 border border-base-200 rounded-lg">
+                      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <% item[:fields].each do |field| %>
+                          <div class="<%= field.width_class %>">
+                            <%= render partial: "forms/fields/#{field.field_type}",
+                                       locals: { field: field, form: form, submission: submission, prefix: "traditional" } %>
+                          </div>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <% end %>
             <% end %>
           </div>
         </section>

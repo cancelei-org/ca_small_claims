@@ -1,0 +1,109 @@
+# Quick Fill Template: Auto Accident
+# Common scenarios: Property damage, personal injury from car accidents
+
+scenario:
+  id: auto_accident
+  name: "Auto Accident"
+  description: "For disputes arising from motor vehicle accidents"
+  icon: "car"
+  category: vehicle
+
+  claim_types:
+    - auto_accident
+    - property_damage
+    - personal_injury
+
+  customization:
+    - id: damage_type
+      question: "What type of damages are you claiming?"
+      type: multi_select
+      options:
+        - value: vehicle_damage
+          label: "Vehicle Repair/Replacement"
+          description: "Cost to repair or replace your vehicle"
+        - value: medical_expenses
+          label: "Medical Expenses"
+          description: "Doctor visits, hospital bills, medication"
+        - value: lost_wages
+          label: "Lost Wages"
+          description: "Income lost due to inability to work"
+        - value: rental_car
+          label: "Rental Car Costs"
+          description: "Cost of rental while your car was being repaired"
+
+    - id: police_report
+      question: "Was a police report filed?"
+      type: select
+      options:
+        - value: yes
+          label: "Yes"
+        - value: no
+          label: "No"
+
+    - id: insurance_claim
+      question: "Did you file an insurance claim?"
+      type: select
+      options:
+        - value: yes_denied
+          label: "Yes, but it was denied or underpaid"
+        - value: yes_deductible
+          label: "Yes, seeking deductible recovery"
+        - value: no_uninsured
+          label: "No, defendant was uninsured"
+        - value: no_other
+          label: "No, for other reasons"
+
+prefills:
+  default:
+    SC-100:
+      claim_basis: auto_accident
+      claim_description: |
+        On [DATE OF ACCIDENT], I was involved in a motor vehicle accident with the defendant at [LOCATION/INTERSECTION].
+
+        I was driving [YOUR VEHICLE: year, make, model] and the defendant was driving [DEFENDANT'S VEHICLE: year, make, model].
+
+        The accident occurred as follows:
+        [DESCRIBE WHAT HAPPENED: e.g., "The defendant ran a red light and struck my vehicle on the driver's side" or "The defendant rear-ended my vehicle while I was stopped at a traffic light"]
+
+        The defendant was at fault because:
+        [EXPLAIN WHY DEFENDANT IS LIABLE: e.g., "ran a red light," "was following too closely," "failed to yield"]
+
+        As a result of this accident, I suffered the following damages:
+
+        Vehicle damage/repair costs: $[AMOUNT]
+        [IF APPLICABLE: Medical expenses: $[AMOUNT]]
+        [IF APPLICABLE: Lost wages: $[AMOUNT]]
+        [IF APPLICABLE: Rental car: $[AMOUNT]]
+
+        Total damages: $[TOTAL AMOUNT]
+
+        [IF POLICE REPORT: A police report was filed (Report #[NUMBER]).]
+      venue_reason: incident_location
+      demand_made: true
+
+    SC-104:
+      interpreter_needed: false
+
+tips:
+  - title: "Gather Documentation"
+    content: "Collect the police report, photos of vehicle damage, repair estimates or invoices, medical bills, and any correspondence with insurance companies."
+
+  - title: "Statute of Limitations"
+    content: "For property damage, you have 3 years to file. For personal injury, you have 2 years from the date of the accident."
+
+  - title: "Small Claims Limits"
+    content: "Small claims court limit is $12,500. If your damages exceed this, you may waive the excess or file in a higher court."
+
+  - title: "Insurance Subrogation"
+    content: "If your insurance paid for repairs, they may have a subrogation claim. You can typically recover your deductible in small claims."
+
+  - title: "Prove Fault"
+    content: "Bring evidence that proves the defendant was at fault: police report, witness statements, photos of the scene, traffic camera footage if available."
+
+related_forms:
+  - code: SC-104
+    reason: "To request a court date/time"
+  - code: SC-103
+    reason: "If you cannot afford the filing fee"
+  - code: SC-105
+    reason: "If suing a business or need to identify the correct defendant"

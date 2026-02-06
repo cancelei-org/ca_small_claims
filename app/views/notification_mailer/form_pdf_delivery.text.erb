@@ -1,0 +1,27 @@
+Your Form is Ready!
+====================
+
+Hi <%= @user.first_name.presence || "there" %>,
+
+Great news! Your completed <%= @form_definition.code %> form is attached to this email.
+
+Form Details:
+-------------
+<%= @form_definition.code %> - <%= @form_definition.title %>
+Completion: <%= @submission.completion_percentage %>% complete
+
+What's Next?
+------------
+1. Review your form - Open the attached PDF and verify all information is correct.
+2. Print the form - You'll need to submit physical copies to the court.
+3. Sign where required - Some fields require your handwritten signature.
+4. File with the court - Bring your forms to the small claims clerk's office.
+
+IMPORTANT: Keep a copy of all documents for your records. The court will stamp your copies when you file.
+
+Need to make changes? You can continue editing your form anytime at:
+<%= root_url %>
+
+---
+This email was sent because you requested your form via email.
+(c) <%= Date.current.year %> CA Small Claims Court Forms

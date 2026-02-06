@@ -7,15 +7,16 @@
           class="btn btn-outline btn-primary gap-2 min-h-[48px] order-2 sm:order-1"
           data-wizard-target="prevBtn"
           data-action="click->wizard#previous"
+          aria-label="Go to previous field"
           disabled>
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
     </svg>
     <span>Previous</span>
   </button>
 
   <%# Keyboard Hints (Desktop only) %>
-  <div class="hidden lg:flex items-center gap-2 text-xs text-base-content/50 order-2">
+  <div class="hidden lg:flex items-center gap-2 text-xs text-base-content/60 order-2">
     <kbd class="kbd kbd-sm">Enter</kbd>
     <span>or</span>
     <kbd class="kbd kbd-sm">Ctrl</kbd>
@@ -24,21 +25,33 @@
     <span>to navigate</span>
   </div>
 
-  <%# Swipe hint (Mobile only) %>
-  <div class="flex sm:hidden items-center justify-center gap-2 text-xs text-base-content/50 order-3">
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
-    </svg>
-    <span>Swipe to navigate</span>
+  <%# Mobile navigation hints %>
+  <div class="flex sm:hidden items-center justify-center gap-3 text-xs text-base-content/60 order-3"
+       role="status"
+       aria-live="polite">
+    <span class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+      </svg>
+      <span>Swipe</span>
+    </span>
+    <span aria-hidden="true">|</span>
+    <span class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path>
+      </svg>
+      <span>Tap buttons</span>
+    </span>
   </div>
 
   <%# Next Button - full width on mobile, primary action first %>
   <button type="button"
           class="btn btn-primary gap-2 min-h-[48px] order-1 sm:order-3"
           data-wizard-target="nextBtn"
-          data-action="click->wizard#next">
+          data-action="click->wizard#next"
+          aria-label="Go to next field">
     <span>Next</span>
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
     </svg>
   </button>
@@ -46,8 +59,9 @@
   <%# Finish Button (hidden until last field) %>
   <button type="submit"
           class="btn btn-success gap-2 min-h-[48px] hidden order-1 sm:order-3"
-          data-wizard-target="finishBtn">
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          data-wizard-target="finishBtn"
+          aria-label="Complete and submit form">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
     </svg>
     <span>Complete Form</span>

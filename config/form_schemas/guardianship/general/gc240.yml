@@ -279,10 +279,10 @@ sections:
   checkbox3:
     title: Checkbox3\
     fields:
-    - name: ''
+    - name: checkbox3_1
       pdf_field_name: topmostSubform[0].Page1[0].Checkbox3\.\.1[0]
       type: checkbox
-      label: "\\"
+      label: Checkbox3
       required: false
       width: full
     - name: checkbox3

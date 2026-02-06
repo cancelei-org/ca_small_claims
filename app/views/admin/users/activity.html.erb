@@ -1,0 +1,128 @@
+<% content_for :title, "Activity - #{@user.display_name} - Admin" %>
+
+<div class="space-y-6">
+  <%# Breadcrumb %>
+  <div class="text-sm breadcrumbs">
+    <ul>
+      <li><%= link_to "Admin", admin_root_path %></li>
+      <li><%= link_to "Users", admin_users_path %></li>
+      <li><%= link_to @user.display_name, admin_user_path(@user) %></li>
+      <li>Activity</li>
+    </ul>
+  </div>
+
+  <%# Header %>
+  <div class="flex items-center justify-between">
+    <div class="flex items-center gap-4">
+      <div class="avatar placeholder">
+        <div class="bg-neutral text-neutral-content rounded-full w-12">
+          <span class="text-lg"><%= @user.display_name.first(2).upcase %></span>
+        </div>
+      </div>
+      <div>
+        <h1 class="text-2xl font-bold">Activity Timeline</h1>
+        <p class="opacity-60"><%= @user.display_name %> - <%= @user.email %></p>
+      </div>
+    </div>
+    <div class="badge badge-neutral"><%= @total_activities %> activities</div>
+  </div>
+
+  <%# Timeline %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <% if @activities.any? %>
+        <ul class="timeline timeline-vertical">
+          <% @activities.each_with_index do |activity, index| %>
+            <li>
+              <% if index > 0 %>
+                <hr class="<%= activity_timeline_color(activity[:type]) %>"/>
+              <% end %>
+              <div class="timeline-start text-sm opacity-60">
+                <%= activity[:timestamp].strftime("%b %d, %Y") %><br>
+                <%= activity[:timestamp].strftime("%I:%M %p") %>
+              </div>
+              <div class="timeline-middle">
+                <%= activity_timeline_icon(activity[:type]) %>
+              </div>
+              <div class="timeline-end timeline-box">
+                <div class="flex items-start gap-3">
+                  <div class="flex-1">
+                    <div class="font-medium"><%= activity[:title] %></div>
+                    <div class="text-sm opacity-70"><%= activity[:description] %></div>
+                    <% if activity[:metadata].present? %>
+                      <div class="mt-2 flex flex-wrap gap-2">
+                        <% if activity[:metadata][:form_code].present? %>
+                          <span class="badge badge-outline badge-sm"><%= activity[:metadata][:form_code] %></span>
+                        <% end %>
+                        <% if activity[:metadata][:status].present? %>
+                          <span class="badge badge-ghost badge-sm"><%= activity[:metadata][:status] %></span>
+                        <% end %>
+                        <% if activity[:metadata][:completion_percentage].present? %>
+                          <span class="badge badge-info badge-sm"><%= activity[:metadata][:completion_percentage] %>% complete</span>
+                        <% end %>
+                        <% if activity[:metadata][:rating].present? %>
+                          <span class="badge badge-warning badge-sm"><%= activity[:metadata][:rating] %>/5 rating</span>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  </div>
+                  <% if activity[:metadata][:submission_id].present? %>
+                    <%= link_to admin_submission_path(activity[:metadata][:submission_id]), class: "btn btn-ghost btn-xs" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                    <% end %>
+                  <% elsif activity[:metadata][:feedback_id].present? %>
+                    <%= link_to admin_feedback_path(activity[:metadata][:feedback_id]), class: "btn btn-ghost btn-xs" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+                      </svg>
+                    <% end %>
+                  <% end %>
+                </div>
+              </div>
+              <% if index < @activities.length - 1 %>
+                <hr class="<%= activity_timeline_color(activity[:type]) %>"/>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+
+        <%# Pagination %>
+        <% if @total_pages > 1 %>
+          <div class="flex justify-center gap-2 mt-6">
+            <% if @current_page > 1 %>
+              <%= link_to activity_admin_user_path(@user, page: @current_page - 1), class: "btn btn-outline btn-sm" do %>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                </svg>
+                Previous
+              <% end %>
+            <% end %>
+
+            <span class="btn btn-disabled btn-sm">
+              Page <%= @current_page %> of <%= @total_pages %>
+            </span>
+
+            <% if @current_page < @total_pages %>
+              <%= link_to activity_admin_user_path(@user, page: @current_page + 1), class: "btn btn-outline btn-sm" do %>
+                Next
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              <% end %>
+            <% end %>
+          </div>
+        <% end %>
+      <% else %>
+        <div class="text-center py-12 text-base-content/60">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-2 opacity-50">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="font-medium">No activity yet</p>
+          <p class="text-sm">This user has no recorded activity</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

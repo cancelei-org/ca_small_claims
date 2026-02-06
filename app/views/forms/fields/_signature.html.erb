@@ -1,18 +1,163 @@
-<%# Signature Field - Basic text field for typed signature %>
+<%# Signature Field - Canvas-based signature capture with accessibility fallback %>
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
-  <div class="border-2 border-dashed border-base-300 rounded-lg p-4 bg-base-200 text-center">
-    <div class="font-signature text-2xl mb-2 text-base-content/30 italic">
-      <%= submission.field_value(field.name).presence || "Sign Here" %>
-    </div>
-    <%= form.text_field field.name,
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
+  <div data-controller="signature-pad"
+       data-signature-pad-required-value="<%= field.required %>"
+       data-signature-pad-min-stroke-length-value="50"
+       data-signature-pad-line-width-value="2.5"
+       data-signature-pad-line-color-value="#1a1a2e">
+
+    <%# Hidden input to store base64 signature data %>
+    <%= form.hidden_field field.name,
       value: submission.field_value(field.name),
       required: field.required,
-      placeholder: "Type your full name to sign",
-      class: "#{standard_input_class} font-signature text-xl",
       id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-      data: field_data_attributes,
+      data: field_data_attributes.merge(signature_pad_target: "input"),
       **field_aria_attributes(field, prefix: prefix) %>
-    <p class="text-[10px] uppercase tracking-widest text-base-content/40 mt-2">Digital Signature</p>
+
+    <%# Signature capture interface (shown by default) %>
+    <div data-signature-pad-target="signatureMode">
+      <%# Mode switcher - Draw vs Type %>
+      <div class="flex gap-2 mb-3">
+        <button type="button"
+                class="btn btn-sm btn-primary flex-1"
+                data-signature-pad-target="drawMode"
+                data-action="click->signature-pad#switchToDrawMode">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+          </svg>
+          Draw Signature
+        </button>
+        <button type="button"
+                class="btn btn-sm btn-ghost flex-1"
+                data-signature-pad-target="typeMode"
+                data-action="click->signature-pad#switchToTypeMode">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Type Name
+        </button>
+      </div>
+
+      <%# Draw mode - Canvas signature pad %>
+      <div data-signature-pad-target="drawMode">
+        <div class="relative border-2 border-dashed border-base-300 rounded-lg bg-white overflow-hidden"
+             style="touch-action: none;">
+          <%# Landscape hint for mobile users %>
+          <div data-signature-pad-target="landscapeHint"
+               class="absolute top-2 left-2 right-2 z-10 bg-info text-info-content text-xs px-3 py-2 rounded-lg shadow-lg flex items-center gap-2"
+               role="status"
+               aria-live="polite">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Tip: Rotate your device to landscape for easier signing</span>
+          </div>
+
+          <%# Instructions %>
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 pointer-events-none text-base-content/30 text-center px-4">
+            <p class="text-lg font-medium mb-1">Sign here as you would on paper</p>
+            <p class="text-sm">Use your finger or stylus to draw your signature</p>
+          </div>
+
+          <%# Canvas for signature drawing %>
+          <canvas data-signature-pad-target="canvas"
+                  class="w-full cursor-crosshair"
+                  style="height: 200px; touch-action: none;"
+                  aria-label="Signature drawing area"></canvas>
+        </div>
+
+        <%# Action buttons %>
+        <div class="flex gap-2 mt-3">
+          <button type="button"
+                  class="btn btn-sm btn-ghost flex-1"
+                  data-signature-pad-target="clearButton"
+                  data-action="click->signature-pad#clear"
+                  disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Clear
+          </button>
+          <button type="button"
+                  class="btn btn-sm btn-primary flex-1"
+                  data-signature-pad-target="doneButton"
+                  data-action="click->signature-pad#done"
+                  disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Done
+          </button>
+        </div>
+      </div>
+
+      <%# Type mode - Text input for accessibility %>
+      <div data-signature-pad-target="typeMode" class="hidden">
+        <div class="border-2 border-dashed border-base-300 rounded-lg p-4 bg-base-200">
+          <label class="block text-sm font-medium text-base-content/70 mb-2">
+            Type your full legal name
+          </label>
+          <input type="text"
+                 data-signature-pad-target="typedInput"
+                 data-validation-target="input"
+                 placeholder="John Doe"
+                 class="input input-bordered w-full font-signature text-xl"
+                 aria-label="Type your signature">
+          <p class="text-xs text-base-content/60 mt-2">
+            Your typed name will be converted to a signature-style format
+          </p>
+        </div>
+
+        <div class="flex gap-2 mt-3">
+          <button type="button"
+                  class="btn btn-sm btn-primary flex-1"
+                  data-action="click->signature-pad#handleTypedSignature">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Confirm Signature
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <%# Signature preview (shown after signing) %>
+    <div data-signature-pad-target="preview" class="hidden">
+      <div class="border-2 border-success rounded-lg bg-success/5 overflow-hidden">
+        <%# Signature image %>
+        <div class="bg-white p-6 flex items-center justify-center min-h-[120px]">
+          <img data-signature-pad-target="previewImage"
+               alt="Your signature"
+               class="max-w-full max-h-24 object-contain">
+        </div>
+
+        <%# Timestamp %>
+        <div class="bg-base-200 px-4 py-2 border-t border-base-300">
+          <div class="flex items-center justify-between text-xs">
+            <div class="flex items-center gap-2 text-base-content/60">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span data-signature-pad-target="timestamp" class="font-medium">Signature captured</span>
+            </div>
+            <button type="button"
+                    class="btn btn-xs btn-ghost"
+                    data-signature-pad-target="resignButton"
+                    data-action="click->signature-pad#resign">
+              Clear & Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%# Error message container %>
+    <div class="field-error hidden text-error text-sm mt-2" role="alert"></div>
+
+    <%# Accessibility note %>
+    <p class="text-[10px] uppercase tracking-widest text-base-content/40 mt-2 text-center">
+      Legally Binding Digital Signature
+    </p>
   </div>
 <% end %>

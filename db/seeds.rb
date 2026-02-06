@@ -228,6 +228,14 @@ end
 if Rails.env.development? || Rails.env.test?
   puts "\n--- Creating Test Users ---"
 
+  # Skip user creation if encryption credentials are not configured (e.g., in burner containers)
+  begin
+    ActiveRecord::Encryption.config.primary_key
+  rescue ActiveRecord::Encryption::Errors::Configuration => e
+    puts "  Skipping user creation: Encryption credentials not configured (#{e.message})"
+    puts "  This is expected in isolated test environments like burner containers."
+  else
+
   test_users = [
     {
       email: "aline.entrepreneur@flukebase.me",
@@ -294,13 +302,23 @@ if Rails.env.development? || Rails.env.test?
     user.save!
     puts "  Created/Updated user: #{user.email} (#{user.admin? ? 'admin' : 'user'})"
   end
+
+  end # else block for encryption check
 end
+
+# =============================================================================
+# STEP 6: Load Courthouses
+# =============================================================================
+load Rails.root.join("db", "seeds", "courthouses.rb") if File.exist?(Rails.root.join("db", "seeds", "courthouses.rb"))
 
 # =============================================================================
 # Summary
 # =============================================================================
+load Rails.root.join("db", "seeds", "alerts.rb") if File.exist?(Rails.root.join("db", "seeds", "alerts.rb"))
+
 puts "\n=== Seeding Complete ==="
 puts "  Categories: #{Category.count} (#{Category.roots.count} parents, #{Category.where.not(parent_id: nil).count} children)"
 puts "  Forms: #{FormDefinition.count} (#{FormDefinition.where(fillable: true).count} fillable, #{FormDefinition.where(fillable: false).count} non-fillable)"
 puts "  Workflows: #{Workflow.count}"
+puts "  Courthouses: #{Courthouse.count}" if defined?(Courthouse)
 puts "  Users: #{User.count}" if Rails.env.development? || Rails.env.test?

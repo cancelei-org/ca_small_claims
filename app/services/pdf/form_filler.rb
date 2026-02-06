@@ -9,10 +9,14 @@ module Pdf
     def initialize(submission)
       @submission = submission
       @form_definition = submission.form_definition
+
+      raise ArgumentError, "Submission #{submission.id} has no associated form_definition" if @form_definition.nil?
     end
 
     def generate
-      cached_generate { strategy.generate }
+      ActiveSupport::Notifications.instrument("pdf.generate", submission_id: submission.id) do
+        cached_generate { strategy.generate }
+      end
     end
 
     delegate :generate_flattened, to: :strategy

@@ -1,59 +1,86 @@
 <% content_for :title, "Help & FAQ - CA Small Claims Forms" %>
 
-<div class="max-w-3xl mx-auto">
-  <h1 class="text-3xl font-bold text-gray-900 mb-6">Help & Frequently Asked Questions</h1>
+<div class="max-w-4xl mx-auto space-y-8" data-controller="faq-search">
+  <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Help & Frequently Asked Questions</h1>
+      <p class="text-gray-600">Search answers, calculate deadlines, and watch quick tutorials.</p>
+    </div>
+    <div class="form-control w-full sm:w-72">
+      <label class="label pb-1" for="faq-search-input">
+        <span class="label-text text-sm text-base-content/70">Search FAQs</span>
+      </label>
+      <div class="input input-bordered flex items-center gap-2">
+        <svg class="w-4 h-4 text-base-content/60" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"></path>
+        </svg>
+        <input type="search"
+               id="faq-search-input"
+               class="grow bg-transparent focus:outline-none"
+               placeholder="Type a question..."
+               aria-label="Search frequently asked questions"
+               data-faq-search-target="input"
+               data-action="input->faq-search#filter">
+      </div>
+    </div>
+  </div>
 
-  <div class="space-y-6">
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">How do I save my progress?</h2>
-      <p class="text-gray-600">
-        Your form data is automatically saved as you type. If you're not logged in, it's stored in your
-        browser session for 72 hours. Create a free account to save your forms permanently.
-      </p>
+  <div class="grid gap-4">
+    <%= render "shared/faq_content", prefix: "help" %>
+  </div>
+
+  <div class="grid gap-6 md:grid-cols-2">
+    <div class="card bg-base-100 shadow" data-controller="deadline-calculator">
+      <div class="card-body">
+        <h3 class="card-title">Deadline calculator</h3>
+        <p class="text-base-content/70 mb-3">Pick your hearing date and service type to see the last day to serve.</p>
+        <div class="space-y-3">
+          <label class="form-control">
+            <span class="label-text text-sm text-base-content/70">Hearing date</span>
+            <input type="date"
+                   class="input input-bordered"
+                   data-deadline-calculator-target="hearingDate"
+                   data-action="change->deadline-calculator#update">
+          </label>
+
+          <label class="form-control">
+            <span class="label-text text-sm text-base-content/70">Service type</span>
+            <select class="select select-bordered"
+                    data-deadline-calculator-target="serviceType"
+                    data-action="change->deadline-calculator#update">
+              <option value="15">In-county personal service (15 days before)</option>
+              <option value="20">Out-of-county personal service (20 days before)</option>
+              <option value="25">Certified mail by clerk (25 days before)</option>
+            </select>
+          </label>
+        </div>
+        <div class="mt-4 p-4 rounded-lg bg-base-200">
+          <p class="text-sm text-base-content/70">Last day to serve</p>
+          <p class="text-2xl font-bold" data-deadline-calculator-target="resultDate">Select a hearing date</p>
+          <p class="text-sm text-base-content/60" data-deadline-calculator-target="daysLabel"></p>
+        </div>
+      </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">What is Small Claims Court?</h2>
-      <p class="text-gray-600">
-        Small Claims Court is a special court where disputes are resolved quickly and inexpensively.
-        In California, you can sue for up to $12,500 (or $6,250 if you're a business). You don't need
-        a lawyer, and the rules are simplified to make it easier to represent yourself.
-      </p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">Which form do I need?</h2>
-      <p class="text-gray-600">
-        If you're suing someone, start with <strong>SC-100</strong> (Plaintiff's Claim). If you've been
-        sued and want to file a counter-claim, use <strong>SC-120</strong>. After filing, you'll need
-        <strong>SC-104</strong> (Proof of Service) to prove you properly notified the other party.
-      </p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">Is this an official court website?</h2>
-      <p class="text-gray-600">
-        No, this is an independent, open-source project. We use the official court form templates
-        provided by the California Courts, but we are not affiliated with the courts. The forms we
-        generate are identical to those you'd download from courts.ca.gov.
-      </p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">Do I need to install anything?</h2>
-      <p class="text-gray-600">
-        No installation required. Everything works in your web browser. To print the generated PDFs,
-        you just need a PDF reader like Adobe Reader (free).
-      </p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow p-6">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">Where can I get legal help?</h2>
-      <p class="text-gray-600">
-        The <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="text-blue-600 hover:underline">California Courts Self-Help Center</a>
-        provides free information and resources. Many county courts also have self-help centers where
-        you can get free assistance with your forms.
-      </p>
-    </div>
+    <section class="card bg-base-100 shadow" aria-labelledby="video-walkthroughs-heading">
+      <div class="card-body space-y-4">
+        <h3 id="video-walkthroughs-heading" class="card-title">Video walkthroughs</h3>
+        <p class="text-base-content/70">Short tutorials for the most-used forms.</p>
+        <div class="space-y-3" role="group" aria-label="Tutorial videos">
+          <div class="aspect-video rounded-lg overflow-hidden shadow border border-base-200">
+            <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                    title="Filling out SC-100"
+                    class="w-full h-full"
+                    allowfullscreen></iframe>
+          </div>
+          <div class="aspect-video rounded-lg overflow-hidden shadow border border-base-200">
+            <iframe src="https://www.youtube.com/embed/9bZkp7q19f0"
+                    title="Serving your forms"
+                    class="w-full h-full"
+                    allowfullscreen></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
   </div>
 </div>

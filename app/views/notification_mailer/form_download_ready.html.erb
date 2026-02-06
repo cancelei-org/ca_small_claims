@@ -1,0 +1,58 @@
+<div style="max-width: 600px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
+  <div style="background-color: #1e40af; padding: 24px; text-align: center;">
+    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">CA Small Claims Court Forms</h1>
+  </div>
+
+  <div style="padding: 32px 24px; background-color: #ffffff;">
+    <h2 style="color: #1f2937; margin: 0 0 16px;">Your Form is Ready for Download</h2>
+
+    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+      Hello <%= @user.display_name %>,
+    </p>
+
+    <p style="color: #4b5563; font-size: 16px; line-height: 1.6;">
+      Great news! Your <strong><%= @form_definition.code %></strong> form (<%= @form_definition.title %>) is now ready for download.
+    </p>
+
+    <div style="background-color: #ecfdf5; border: 1px solid #6ee7b7; border-radius: 8px; padding: 20px; margin: 24px 0; text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 12px;">&#9989;</div>
+      <p style="color: #065f46; font-size: 18px; font-weight: 600; margin: 0;">
+        PDF Ready
+      </p>
+      <p style="color: #047857; font-size: 14px; margin: 8px 0 0;">
+        <%= @form_definition.code %> - <%= @form_definition.title %>
+      </p>
+    </div>
+
+    <div style="text-align: center; margin: 32px 0;">
+      <a href="<%= form_url(@form_definition) %>" style="display: inline-block; background-color: #059669; color: #ffffff; padding: 14px 36px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">
+        Download Your Form
+      </a>
+    </div>
+
+    <h3 style="color: #1f2937; margin: 24px 0 12px; font-size: 16px;">What to Do Next</h3>
+    <ul style="color: #4b5563; font-size: 16px; line-height: 1.8; padding-left: 20px;">
+      <li>Download and save your PDF form</li>
+      <li>Review all information for accuracy</li>
+      <li>Print required copies for court filing</li>
+      <li>Keep a copy for your records</li>
+    </ul>
+
+    <div style="background-color: #fef3c7; border-radius: 8px; padding: 16px; margin: 24px 0;">
+      <p style="color: #92400e; font-size: 14px; margin: 0;">
+        <strong>Tip:</strong> Most California courts require the original plus at least one copy. Check with your local court for specific requirements.
+      </p>
+    </div>
+  </div>
+
+  <div style="background-color: #f9fafb; padding: 24px; text-align: center; border-top: 1px solid #e5e7eb;">
+    <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">
+      California Small Claims Court Forms
+    </p>
+    <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+      You received this email because you requested a form download on our platform.
+      <br>
+      <a href="#" style="color: #6b7280;">Manage notification preferences</a>
+    </p>
+  </div>
+</div>

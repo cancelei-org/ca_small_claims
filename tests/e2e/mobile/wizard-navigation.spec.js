@@ -108,7 +108,6 @@ test.describe('Mobile Wizard Navigation', () => {
 
       // Get initial progress counter
       const counter = page.locator('[data-wizard-target="counter"]');
-      const initialText = await counter.textContent();
 
       // Simulate swipe left (next)
       const wizardContainer = page.locator('[data-controller="wizard"]');
@@ -147,7 +146,7 @@ test.describe('Mobile Wizard Navigation', () => {
   test('should work correctly on different mobile viewports', async ({
     page
   }) => {
-    for (const [device, viewport] of Object.entries(mobileViewports)) {
+    for (const [, viewport] of Object.entries(mobileViewports)) {
       await page.setViewportSize(viewport);
       await page.goto('/forms');
 

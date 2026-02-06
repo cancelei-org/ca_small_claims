@@ -1,0 +1,143 @@
+<% content_for :title, "Session Recovery - Admin" %>
+
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Session Recovery</h1>
+      <p class="text-base-content/70">Manage anonymous session submissions and recover expired data</p>
+    </div>
+    <% if @total_expired > 0 %>
+      <%= button_to cleanup_expired_admin_session_submissions_path, method: :delete, class: "btn btn-error btn-outline gap-2", data: { confirm: "Delete all #{@total_expired} expired sessions? This cannot be undone." } do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+        Cleanup Expired (<%= @total_expired %>)
+      <% end %>
+    <% end %>
+  </div>
+
+  <%# Stats Cards %>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-title">Total Sessions</div>
+      <div class="stat-value"><%= @total_count %></div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-title">Active</div>
+      <div class="stat-value text-success"><%= @total_active %></div>
+      <div class="stat-desc">Within 72-hour window</div>
+    </div>
+    <div class="stat bg-base-100 rounded-box shadow">
+      <div class="stat-title">Expired</div>
+      <div class="stat-value text-error"><%= @total_expired %></div>
+      <div class="stat-desc">Awaiting cleanup or recovery</div>
+    </div>
+  </div>
+
+  <%# Filters %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <%= form_with url: admin_session_submissions_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |f| %>
+        <div class="form-control">
+          <label class="label"><span class="label-text">Status</span></label>
+          <%= select_tag :status, options_for_select([["All", ""], ["Active", "active"], ["Expired", "expired"]], params[:status]), class: "select select-bordered select-sm" %>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">Form</span></label>
+          <%= select_tag :form_id, options_for_select([["All Forms", ""]] + FormDefinition.pluck(:code, :id), params[:form_id]), class: "select select-bordered select-sm" %>
+        </div>
+        <div class="form-control">
+          <label class="label"><span class="label-text">Session ID</span></label>
+          <%= text_field_tag :session_id, params[:session_id], class: "input input-bordered input-sm w-48", placeholder: "Search by session..." %>
+        </div>
+        <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+        <%= link_to "Clear", admin_session_submissions_path, class: "btn btn-ghost btn-sm" %>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Sessions Table %>
+  <div class="card bg-base-100 shadow overflow-hidden">
+    <% if @session_submissions.any? %>
+      <div class="overflow-x-auto">
+        <table class="table table-zebra">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Form</th>
+              <th>Session ID</th>
+              <th>Status</th>
+              <th>Created</th>
+              <th>Expires</th>
+              <th>Fields Filled</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @session_submissions.each do |session| %>
+              <tr class="<%= 'opacity-60' if session.expired? %>">
+                <td class="font-mono"><%= session.id %></td>
+                <td>
+                  <span class="font-medium"><%= session.form_definition.code %></span>
+                </td>
+                <td>
+                  <span class="font-mono text-xs"><%= session.session_id.truncate(16) %></span>
+                </td>
+                <td>
+                  <% if session.expired? %>
+                    <span class="badge badge-error badge-sm">Expired</span>
+                  <% else %>
+                    <span class="badge badge-success badge-sm">Active</span>
+                  <% end %>
+                </td>
+                <td class="text-sm"><%= session.created_at.strftime("%b %d, %Y %l:%M %p") %></td>
+                <td class="text-sm">
+                  <% if session.expired? %>
+                    <span class="text-error"><%= time_ago_in_words(session.expires_at) %> ago</span>
+                  <% else %>
+                    in <%= time_ago_in_words(session.expires_at) %>
+                  <% end %>
+                </td>
+                <td>
+                  <span class="badge badge-ghost"><%= session.form_data&.keys&.count || 0 %> fields</span>
+                </td>
+                <td>
+                  <div class="flex gap-1">
+                    <%= link_to admin_session_submission_path(session), class: "btn btn-ghost btn-xs" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    <% end %>
+                    <% if session.expired? %>
+                      <%= button_to recover_admin_session_submission_path(session), method: :patch, class: "btn btn-success btn-xs", title: "Recover session" do %>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                        </svg>
+                      <% end %>
+                    <% end %>
+                    <%= button_to admin_session_submission_path(session), method: :delete, class: "btn btn-error btn-xs", data: { confirm: "Delete this session submission?" }, title: "Delete" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                      </svg>
+                    <% end %>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+      <div class="card-body border-t border-base-200">
+        <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+      </div>
+    <% else %>
+      <div class="card-body text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 mx-auto mb-4 opacity-40">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+        </svg>
+        <p class="text-base-content/70">No session submissions found</p>
+      </div>
+    <% end %>
+  </div>
+</div>

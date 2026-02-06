@@ -1,0 +1,18 @@
+<%# Select dropdown for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.select field.name,
+                options_for_select(
+                  field.options.map { |opt| [opt['label'], opt['value']] },
+                  submission.field_value(field.name)
+                ),
+                { prompt: "Select an option..." },
+                {
+                  id: "simple-wizard-field-#{field.name}",
+                  required: field.required,
+                  class: "select select-bordered w-full",
+                  data: {
+                    action: "change->simple-wizard#fieldChanged change->form#fieldChanged"
+                  }
+                } %>

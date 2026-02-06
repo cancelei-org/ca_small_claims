@@ -1,0 +1,179 @@
+# Docker Compose configuration for burner instances
+# Used by naturalschema plugin for isolated schema testing
+#
+# Usage:
+#   docker-compose -f docker-compose.burner.yml up -d ca1 db_ca1
+#   docker-compose -f docker-compose.burner.yml exec ca1 bin/rails db:migrate
+#   docker-compose -f docker-compose.burner.yml logs -f ca1
+
+services:
+  # ========== CA1 Instance ==========
+  db_ca1:
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_db_ca1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ca_small_claims_ca1
+    volumes:
+      - ca1_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5441:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - burner_network
+
+  ca1:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_ca1
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails db:prepare && bin/rails server -b 0.0.0.0"
+    volumes:
+      - .:/rails:cached
+      - ca1_bundle:/usr/local/bundle
+      - ca1_node_modules:/rails/node_modules
+      - ca1_logs:/rails/log
+    ports:
+      - "3011:3000"
+    environment:
+      DATABASE_HOST: db_ca1
+      DATABASE_NAME: ca_small_claims_ca1
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      RAILS_ENV: development
+      BURNER_INSTANCE: ca1
+      SECRET_KEY_BASE: burner_secret_key_base_ca1_for_testing_only
+    depends_on:
+      db_ca1:
+        condition: service_healthy
+    labels:
+      flukebase.burner: "true"
+      flukebase.instance: "ca1"
+      flukebase.project: "ca_small_claims"
+    networks:
+      - burner_network
+
+  # ========== CA2 Instance ==========
+  db_ca2:
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_db_ca2
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ca_small_claims_ca2
+    volumes:
+      - ca2_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5442:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - burner_network
+
+  ca2:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_ca2
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails db:prepare && bin/rails server -b 0.0.0.0"
+    volumes:
+      - .:/rails:cached
+      - ca2_bundle:/usr/local/bundle
+      - ca2_node_modules:/rails/node_modules
+      - ca2_logs:/rails/log
+    ports:
+      - "3012:3000"
+    environment:
+      DATABASE_HOST: db_ca2
+      DATABASE_NAME: ca_small_claims_ca2
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      RAILS_ENV: development
+      BURNER_INSTANCE: ca2
+      SECRET_KEY_BASE: burner_secret_key_base_ca2_for_testing_only
+    depends_on:
+      db_ca2:
+        condition: service_healthy
+    labels:
+      flukebase.burner: "true"
+      flukebase.instance: "ca2"
+      flukebase.project: "ca_small_claims"
+    networks:
+      - burner_network
+
+  # ========== CA3 Instance ==========
+  db_ca3:
+    image: postgres:16-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_db_ca3
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ca_small_claims_ca3
+    volumes:
+      - ca3_postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5443:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - burner_network
+
+  ca3:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: ${COMPOSE_PROJECT_NAME:-ca_burner}_ca3
+    command: bash -c "rm -f tmp/pids/server.pid && bin/rails db:prepare && bin/rails server -b 0.0.0.0"
+    volumes:
+      - .:/rails:cached
+      - ca3_bundle:/usr/local/bundle
+      - ca3_node_modules:/rails/node_modules
+      - ca3_logs:/rails/log
+    ports:
+      - "3013:3000"
+    environment:
+      DATABASE_HOST: db_ca3
+      DATABASE_NAME: ca_small_claims_ca3
+      DATABASE_USERNAME: postgres
+      DATABASE_PASSWORD: postgres
+      RAILS_ENV: development
+      BURNER_INSTANCE: ca3
+      SECRET_KEY_BASE: burner_secret_key_base_ca3_for_testing_only
+    depends_on:
+      db_ca3:
+        condition: service_healthy
+    labels:
+      flukebase.burner: "true"
+      flukebase.instance: "ca3"
+      flukebase.project: "ca_small_claims"
+    networks:
+      - burner_network
+
+volumes:
+  ca1_postgres_data:
+  ca1_bundle:
+  ca1_node_modules:
+  ca1_logs:
+  ca2_postgres_data:
+  ca2_bundle:
+  ca2_node_modules:
+  ca2_logs:
+  ca3_postgres_data:
+  ca3_bundle:
+  ca3_node_modules:
+  ca3_logs:
+
+networks:
+  burner_network:
+    driver: bridge

@@ -1,6 +1,6 @@
 <%= form_with model: feedback,
               url: form_feedbacks_path(form_definition_id: form_definition.id),
-              data: { feedback_target: "form" } do |f| %>
+              data: { feedback_target: "form", controller: "validation" } do |f| %>
 
   <%# Validation Errors %>
   <% if feedback.errors.any? %>
@@ -41,7 +41,7 @@
   <%# Issue Types Checklist %>
   <div class="form-control mb-4">
     <label class="label">
-      <span class="label-text font-medium">What issues did you experience? <span class="text-base-content/50">(select all that apply)</span></span>
+      <span class="label-text font-medium">What issues did you experience? <span class="text-base-content/60">(select all that apply)</span></span>
     </label>
     <div class="space-y-2">
       <% FormFeedback::ISSUE_TYPES.each do |key, label| %>
@@ -58,13 +58,17 @@
 
   <%# Comment %>
   <div class="form-control mb-4">
-    <label class="label" for="feedback_comment">
-      <span class="label-text font-medium">Additional comments <span class="text-base-content/50">(optional)</span></span>
+    <label class="label" for="feedback-comment-input">
+      <span class="label-text font-medium">Additional comments <span class="text-base-content/60">(optional)</span></span>
     </label>
     <%= f.text_area :comment,
                     rows: 3,
+                    id: "feedback-comment-input",
                     class: "textarea textarea-bordered w-full text-base",
-                    placeholder: "Tell us more about your experience..." %>
+                    placeholder: "Tell us more about your experience...",
+                    "aria-describedby": "feedback-comment-error",
+                    data: { validation_target: "input" } %>
+    <div id="feedback-comment-error" class="field-error text-error text-sm mt-1 hidden" role="alert" aria-live="polite"></div>
   </div>
 
   <%# Submit Button %>
@@ -72,6 +76,6 @@
     <button type="button" class="btn btn-ghost min-h-[44px]" data-action="click->feedback#close">
       Cancel
     </button>
-    <%= f.submit "Submit Feedback", class: "btn btn-primary min-h-[44px]" %>
+    <%= f.submit "Submit Feedback", class: "btn btn-primary min-h-[44px]", data: { turbo_submits_with: "Submitting...", disable_with: "Submitting..." } %>
   </div>
 <% end %>

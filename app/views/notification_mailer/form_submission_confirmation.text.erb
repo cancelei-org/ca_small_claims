@@ -1,0 +1,29 @@
+CA Small Claims Court Forms
+===========================
+
+Form Submission Confirmed
+-------------------------
+
+Hello <%= @user.display_name %>,
+
+Your form <%= @form_definition.code %> (<%= @form_definition.title %>) has been successfully submitted.
+
+SUBMISSION DETAILS
+------------------
+Form Code: <%= @form_definition.code %>
+Form Title: <%= @form_definition.title %>
+Status: <%= @submission.status.titleize %>
+Submitted: <%= @submission.updated_at.strftime("%B %d, %Y at %I:%M %p") %>
+
+NEXT STEPS
+----------
+1. Download your completed form as a PDF
+2. Print the form for your records
+3. File the form with your local Small Claims Court
+4. Serve the required copies to other parties as needed
+
+View your submissions at: <%= submissions_url %>
+
+---
+California Small Claims Court Forms
+You received this email because you submitted a form on our platform.

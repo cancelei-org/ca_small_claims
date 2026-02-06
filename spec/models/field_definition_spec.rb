@@ -108,5 +108,64 @@ RSpec.describe FieldDefinition, type: :model do
         expect(build(:field_definition, field_type: "checkbox_group").component_name).to eq("Forms::CheckboxGroupFieldComponent")
       end
     end
+
+    describe "#conditions_for_js" do
+      it "returns empty array when conditions is nil" do
+        field = build(:field_definition, conditions: nil)
+        expect(field.conditions_for_js).to eq([])
+      end
+
+      it "returns empty array when conditions is empty hash" do
+        field = build(:field_definition, conditions: {})
+        expect(field.conditions_for_js).to eq([])
+      end
+
+      it "transforms show_when condition with string keys" do
+        field = build(:field_definition, conditions: {
+          "show_when" => { "field" => "demand_made", "value" => true }
+        })
+        expect(field.conditions_for_js).to eq([
+          { "field" => "demand_made", "operator" => "equals", "value" => true }
+        ])
+      end
+
+      it "transforms show_when condition with symbol keys" do
+        field = build(:field_definition, conditions: {
+          show_when: { field: "demand_made", value: "yes" }
+        })
+        expect(field.conditions_for_js).to eq([
+          { "field" => "demand_made", "operator" => "equals", "value" => "yes" }
+        ])
+      end
+
+      it "transforms hide_when condition to not_equals operator" do
+        field = build(:field_definition, conditions: {
+          "hide_when" => { "field" => "status", "value" => "inactive" }
+        })
+        expect(field.conditions_for_js).to eq([
+          { "field" => "status", "operator" => "not_equals", "value" => "inactive" }
+        ])
+      end
+
+      it "preserves custom operator from condition" do
+        field = build(:field_definition, conditions: {
+          "show_when" => { "field" => "amount", "operator" => "present", "value" => nil }
+        })
+        expect(field.conditions_for_js).to eq([
+          { "field" => "amount", "operator" => "present", "value" => nil }
+        ])
+      end
+
+      it "handles both show_when and hide_when conditions" do
+        field = build(:field_definition, conditions: {
+          "show_when" => { "field" => "type", "value" => "other" },
+          "hide_when" => { "field" => "disabled", "value" => true }
+        })
+        result = field.conditions_for_js
+        expect(result.length).to eq(2)
+        expect(result).to include({ "field" => "type", "operator" => "equals", "value" => "other" })
+        expect(result).to include({ "field" => "disabled", "operator" => "not_equals", "value" => true })
+      end
+    end
   end
 end

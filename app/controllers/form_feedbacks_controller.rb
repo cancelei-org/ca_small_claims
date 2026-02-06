@@ -8,6 +8,10 @@ class FormFeedbacksController < ApplicationController
     @feedback.user = current_user if user_signed_in?
     @feedback.session_id = session.id.to_s unless user_signed_in?
 
+    # Set default status and priority for new feedback
+    @feedback.status = "open"
+    @feedback.priority = determine_initial_priority(@feedback)
+
     respond_to do |format|
       if @feedback.save
         format.turbo_stream do
@@ -38,5 +42,25 @@ class FormFeedbacksController < ApplicationController
 
   def feedback_params
     params.require(:form_feedback).permit(:rating, :comment, issue_types: [])
+  end
+
+  # Auto-assign priority based on feedback characteristics
+  def determine_initial_priority(feedback)
+    return "medium" if feedback.rating.nil? || feedback.issue_types.blank?
+
+    # PDF-related issues get higher priority
+    pdf_issues = %w[pdf_not_filling pdf_download_failed]
+    has_pdf_issue = (feedback.issue_types & pdf_issues).any?
+
+    # Low ratings indicate urgent issues
+    very_low_rating = feedback.rating <= 2
+
+    if has_pdf_issue && very_low_rating
+      "high"
+    elsif has_pdf_issue || very_low_rating
+      "medium"
+    else
+      "low"
+    end
   end
 end

@@ -1,5 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
-import { ModalUtils } from 'utils/modal_behavior';
+import { FocusTrap, ModalUtils } from 'utils/modal_behavior';
 
 /**
  * Bottom Sheet Controller
@@ -23,8 +23,10 @@ export default class extends Controller {
 
   connect() {
     this._cleanupEscape = ModalUtils.setupEscapeKey(() => this.close());
-    this._handleKeydown = this.handleKeydown.bind(this);
-    this.previouslyFocusedElement = null;
+
+    if (this.hasSheetTarget) {
+      this.focusManager = FocusTrap.createManager(this.sheetTarget);
+    }
 
     // Touch tracking state
     this.touchStartY = 0;
@@ -46,71 +48,8 @@ export default class extends Controller {
   disconnect() {
     this._cleanupEscape?.();
     this.removeTouchListeners();
-    document.removeEventListener('keydown', this._handleKeydown);
+    this.focusManager?.deactivate();
     ModalUtils.enableBodyScroll();
-  }
-
-  /**
-   * Handle keyboard events for focus trap
-   */
-  handleKeydown(event) {
-    if (!this.isOpen) {
-      return;
-    }
-
-    if (event.key === 'Tab') {
-      this.trapFocus(event);
-    }
-  }
-
-  /**
-   * Trap focus within the bottom sheet
-   */
-  trapFocus(event) {
-    if (!this.hasSheetTarget) {
-      return;
-    }
-
-    const focusableElements = this.getFocusableElements();
-
-    if (focusableElements.length === 0) {
-      return;
-    }
-
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
-
-    if (event.shiftKey) {
-      if (document.activeElement === firstElement) {
-        event.preventDefault();
-        lastElement.focus();
-      }
-    } else if (document.activeElement === lastElement) {
-      event.preventDefault();
-      firstElement.focus();
-    }
-  }
-
-  /**
-   * Get all focusable elements within the sheet
-   */
-  getFocusableElements() {
-    if (!this.hasSheetTarget) {
-      return [];
-    }
-
-    const selector = [
-      'button:not([disabled])',
-      'a[href]',
-      'input:not([disabled]):not([type="hidden"])',
-      'select:not([disabled])',
-      'textarea:not([disabled])',
-      '[tabindex]:not([tabindex="-1"])'
-    ].join(', ');
-
-    return Array.from(this.sheetTarget.querySelectorAll(selector)).filter(
-      el => el.offsetParent !== null
-    );
   }
 
   get isOpen() {
@@ -121,12 +60,11 @@ export default class extends Controller {
    * Open the bottom sheet
    */
   open() {
-    this.previouslyFocusedElement = document.activeElement;
-
     if (this.hasBackdropTarget) {
       this.backdropTarget.classList.remove('hidden');
-      // Trigger reflow for transition
-      void this.backdropTarget.offsetWidth;
+      // Trigger reflow for transition (read property to force layout recalculation)
+      // eslint-disable-next-line no-unused-expressions
+      this.backdropTarget.offsetWidth;
       this.backdropTarget.classList.add('open');
     }
 
@@ -138,17 +76,8 @@ export default class extends Controller {
       this.addTouchListeners();
     }
 
-    // Enable focus trap
-    document.addEventListener('keydown', this._handleKeydown);
-
-    // Focus first focusable element
-    requestAnimationFrame(() => {
-      const focusable = this.getFocusableElements();
-
-      if (focusable.length > 0) {
-        focusable[0].focus();
-      }
-    });
+    // Activate focus trap
+    this.focusManager?.activate();
 
     ModalUtils.disableBodyScroll();
     this.triggerHapticFeedback('light');
@@ -176,14 +105,8 @@ export default class extends Controller {
       });
     }
 
-    // Remove focus trap
-    document.removeEventListener('keydown', this._handleKeydown);
-
-    // Restore focus
-    if (this.previouslyFocusedElement?.focus) {
-      this.previouslyFocusedElement.focus();
-      this.previouslyFocusedElement = null;
-    }
+    // Deactivate focus trap and restore focus
+    this.focusManager?.deactivate();
 
     ModalUtils.enableBodyScroll();
     this.dispatch('closed');
@@ -308,6 +231,18 @@ export default class extends Controller {
   // ==========================================
   // Haptic Feedback
   // ==========================================
+
+  /**
+   * Open feedback modal if present on the page
+   */
+  openFeedback() {
+    const modal = document.getElementById('feedback-modal');
+
+    if (modal?.showModal) {
+      modal.showModal();
+      this.close();
+    }
+  }
 
   triggerHapticFeedback(intensity = 'light') {
     if (this.prefersReducedMotion) {

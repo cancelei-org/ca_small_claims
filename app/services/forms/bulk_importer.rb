@@ -212,7 +212,7 @@ module Forms
       )
 
       # Get filenames from parsed forms
-      filenames = parser.parse.map { |f| f[:filename] }
+      filenames = parser.parse.pluck(:filename)
 
       if @options[:category_filter]
         filter = @options[:category_filter].downcase

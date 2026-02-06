@@ -1,0 +1,35 @@
+<%# Signature field for simple wizard
+    locals: field, form, submission, index
+%>
+
+<div class="signature-field">
+  <div class="mb-4">
+    <p class="text-sm text-base-content/70">
+      <%= field.help_text || "Please sign using your mouse, trackpad, or touchscreen." %>
+    </p>
+  </div>
+
+  <%= form.hidden_field field.name,
+                        id: "simple-wizard-field-#{field.name}",
+                        value: submission.field_value(field.name),
+                        data: {
+                          "signature-pad-target": "input",
+                          action: "change->simple-wizard#fieldChanged change->form#fieldChanged"
+                        } %>
+
+  <div class="signature-pad-container border-2 border-base-300 rounded-lg bg-base-100 overflow-hidden"
+       data-controller="signature-pad"
+       data-signature-pad-field-name-value="<%= field.name %>">
+
+    <canvas class="signature-canvas w-full h-48 touch-none"
+            data-signature-pad-target="canvas"></canvas>
+
+    <div class="signature-controls p-3 bg-base-200 flex justify-end gap-2">
+      <button type="button"
+              class="btn btn-sm btn-ghost"
+              data-action="signature-pad#clear">
+        Clear
+      </button>
+    </div>
+  </div>
+</div>

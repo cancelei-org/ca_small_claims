@@ -1,0 +1,100 @@
+<% content_for :title, "Feedback: #{@product_feedback.title} - Admin" %>
+
+<div class="max-w-4xl mx-auto space-y-6">
+  <div class="mb-4">
+    <%= link_to admin_product_feedbacks_path, class: "btn btn-ghost btn-sm gap-2" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back to List
+    <% end %>
+  </div>
+
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <div class="flex flex-wrap items-center gap-2 mb-4">
+        <span class="badge <%= @product_feedback.status_color %> badge-lg"><%= @product_feedback.status_display_name %></span>
+        <span class="badge badge-outline badge-lg">
+          <%= category_emoji(@product_feedback.category) %>
+          <%= @product_feedback.category_display_name %>
+        </span>
+        <span class="badge badge-ghost badge-lg">
+          <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+          </svg>
+          <%= @product_feedback.votes_count %> votes
+        </span>
+      </div>
+
+      <h1 class="text-2xl font-bold mb-4"><%= @product_feedback.title %></h1>
+
+      <div class="flex flex-wrap items-center gap-4 text-sm text-base-content/70 mb-6">
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <%= link_to @product_feedback.user.display_name, admin_user_path(@product_feedback.user), class: "link link-hover" %>
+          (<%= @product_feedback.user.email %>)
+        </span>
+        <span class="flex items-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <%= @product_feedback.created_at.strftime("%B %d, %Y at %I:%M %p") %>
+        </span>
+      </div>
+
+      <div class="prose max-w-none mb-6">
+        <%= simple_format(@product_feedback.description) %>
+      </div>
+
+      <% if @product_feedback.attachments.attached? %>
+        <div class="mb-6">
+          <h3 class="font-semibold mb-2">Attachments (<%= @product_feedback.attachments.count %>)</h3>
+          <div class="flex flex-wrap gap-4">
+            <% @product_feedback.attachments.each do |attachment| %>
+              <% if attachment.image? %>
+                <%= link_to rails_blob_path(attachment, disposition: "attachment"), class: "block", target: "_blank" do %>
+                  <%= image_tag attachment.variant(resize_to_limit: [300, 300]), class: "rounded-lg border border-base-300" %>
+                <% end %>
+              <% else %>
+                <%= link_to attachment.filename, rails_blob_path(attachment, disposition: "attachment"), class: "link link-primary" %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Status Management -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Update Status</h2>
+
+      <div class="flex flex-wrap gap-2 mt-4">
+        <% ProductFeedback.statuses.keys.each do |status| %>
+          <% is_current = @product_feedback.status == status %>
+          <%= button_to update_status_admin_product_feedback_path(@product_feedback),
+                        method: :patch,
+                        params: { status: status },
+                        class: "btn btn-sm #{is_current ? 'btn-primary' : 'btn-outline'}",
+                        disabled: is_current do %>
+            <%= ProductFeedback.status_display_name(status) %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Notes -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body">
+      <h2 class="card-title">Admin Notes</h2>
+
+      <div id="admin-notes-<%= @product_feedback.id %>">
+        <%= render "admin/product_feedbacks/admin_notes", product_feedback: @product_feedback %>
+      </div>
+    </div>
+  </div>
+</div>

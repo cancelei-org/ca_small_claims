@@ -2,12 +2,17 @@
 
 class Submission < ApplicationRecord
   include FormDataAccessor
+  include StatusChecker
+  include Notifiable
 
   belongs_to :user, optional: true
   belongs_to :form_definition
   belongs_to :workflow, optional: true
 
   validates :status, inclusion: { in: %w[draft completed submitted] }
+
+  # Generate status query methods: draft?, completed?, submitted?
+  define_status_methods :draft, :completed, :submitted
 
   scope :drafts, -> { where(status: "draft") }
   scope :completed, -> { where(status: "completed") }
@@ -17,6 +22,21 @@ class Submission < ApplicationRecord
   scope :recent, -> { order(updated_at: :desc) }
 
   before_create :set_defaults
+
+  # Find or create a draft submission for a form
+  # @param form_definition [FormDefinition] The form to create submission for
+  # @param user [User, nil] The authenticated user (if any)
+  # @param session_id [String, nil] The anonymous session ID (if no user)
+  # @param workflow [Workflow, nil] Optional workflow context
+  # @return [Submission] The found or created submission
+  def self.find_or_create_for(form_definition:, user: nil, session_id: nil, workflow: nil)
+    scope = user ? user.submissions : where(session_id: session_id)
+    scope.find_or_create_by!(
+      form_definition: form_definition,
+      workflow: workflow,
+      status: "draft"
+    )
+  end
 
   def anonymous?
     user_id.nil?
@@ -28,14 +48,6 @@ class Submission < ApplicationRecord
 
   def submit!
     update!(status: "submitted")
-  end
-
-  def draft?
-    status == "draft"
-  end
-
-  def completed?
-    status == "completed"
   end
 
   def generate_pdf
@@ -84,9 +96,22 @@ class Submission < ApplicationRecord
     (filled.to_f / form_definition.required_fields.count * 100).round
   end
 
+  after_commit :enqueue_webhook_events, on: [ :create, :update ]
+
   private
 
   def set_defaults
     self.workflow_session_id ||= SecureRandom.uuid if workflow_id.present?
+  end
+
+  def enqueue_webhook_events
+    payload = {
+      id: id,
+      status: status,
+      form_code: form_definition.code,
+      updated_at: updated_at,
+      user_id: user_id
+    }
+    Webhooks::Dispatcher.new.deliver(event: "submission.saved", payload: payload)
   end
 end

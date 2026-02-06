@@ -1,11 +1,23 @@
-<% content_for :title, "Feedback - Admin" %>
+<% content_for :title, "Feedback & Issues - Admin" %>
 
 <div class="space-y-6">
-  <h1 class="sr-only">Form Feedback Management</h1>
-  <div class="flex items-center justify-between">
-    <h2 class="text-2xl font-bold">Form Feedback</h2>
-    <div class="badge badge-warning gap-1" id="pending-count-badge">
-      <span id="pending-count"><%= @pending_count %></span> pending
+  <h1 class="sr-only">Form Feedback & Issue Tracking</h1>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h2 class="text-2xl font-bold">Feedback & Issues</h2>
+    <div class="flex flex-wrap gap-2">
+      <div class="badge badge-warning gap-1">
+        <span id="open-count"><%= @open_count %></span> open
+      </div>
+      <div class="badge badge-info gap-1">
+        <span id="in-progress-count"><%= @in_progress_count %></span> in progress
+      </div>
+      <% if @urgent_count > 0 %>
+        <div class="badge badge-error gap-1 animate-pulse">
+          <span id="urgent-count"><%= @urgent_count %></span> urgent
+        </div>
+      <% end %>
+      <%# Legacy element for backward compatibility %>
+      <span id="pending-count" class="hidden"><%= @pending_count %></span>
     </div>
   </div>
 
@@ -30,10 +42,31 @@
               <span class="label-text text-xs">Status</span>
             </label>
             <%= f.select :status,
-                         options_for_select(FormFeedback::STATUSES.map { |s| [s.titleize, s] }, params[:status]),
+                         options_for_select([
+                           ["Open", "open"],
+                           ["In Progress", "in_progress"],
+                           ["Resolved", "resolved"],
+                           ["Closed", "closed"]
+                         ], params[:status]),
                          { include_blank: "All Statuses" },
                          class: "select select-bordered select-sm",
                          id: "status" %>
+          </div>
+
+          <div class="form-control w-full sm:w-auto">
+            <label class="label py-1" for="priority">
+              <span class="label-text text-xs">Priority</span>
+            </label>
+            <%= f.select :priority,
+                         options_for_select([
+                           ["Low", "low"],
+                           ["Medium", "medium"],
+                           ["High", "high"],
+                           ["Urgent", "urgent"]
+                         ], params[:priority]),
+                         { include_blank: "All Priorities" },
+                         class: "select select-bordered select-sm",
+                         id: "priority" %>
           </div>
 
           <div class="form-control w-full sm:w-auto">
@@ -60,6 +93,7 @@
 
           <div class="flex gap-2">
             <%= f.submit "Filter", class: "btn btn-primary btn-sm" %>
+            <%= link_to "Priority", admin_feedbacks_path(sort: "priority"), class: "btn btn-outline btn-sm" %>
             <%= link_to "Clear", admin_feedbacks_path, class: "btn btn-ghost btn-sm" %>
           </div>
         </div>
@@ -81,14 +115,10 @@
                     <div class="font-medium"><%= feedback.form_definition.code %></div>
                     <div class="text-sm opacity-60 truncate"><%= feedback.form_definition.title %></div>
                   </div>
-                  <% case feedback.status %>
-                  <% when "pending" %>
-                    <span class="badge badge-warning badge-sm flex-shrink-0">Pending</span>
-                  <% when "acknowledged" %>
-                    <span class="badge badge-info badge-sm flex-shrink-0">Acknowledged</span>
-                  <% when "resolved" %>
-                    <span class="badge badge-success badge-sm flex-shrink-0">Resolved</span>
-                  <% end %>
+                  <div class="flex flex-col gap-1 items-end">
+                    <span class="badge <%= feedback.status_badge_class %> badge-sm flex-shrink-0"><%= feedback.status_label %></span>
+                    <span class="badge <%= feedback.priority_badge_class %> badge-sm flex-shrink-0"><%= feedback.priority_label %></span>
+                  </div>
                 </div>
 
                 <div class="flex items-center gap-4 text-sm">
@@ -114,18 +144,17 @@
                 <% end %>
 
                 <div class="flex items-center gap-2 pt-1">
-                  <% unless feedback.resolved? %>
-                    <% if feedback.pending? %>
-                      <%= button_to acknowledge_admin_feedback_path(feedback),
+                  <% if feedback.active? %>
+                    <% if feedback.open? %>
+                      <%= button_to start_progress_admin_feedback_path(feedback),
                                     method: :patch,
                                     class: "btn btn-ghost btn-sm min-h-[44px]",
-                                    title: "Mark as acknowledged",
+                                    title: "Start Progress",
                                     data: { turbo_stream: true } do %>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z" />
                         </svg>
-                        Acknowledge
+                        Start
                       <% end %>
                     <% end %>
 
@@ -138,6 +167,17 @@
                         <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                       </svg>
                       Resolve
+                    <% end %>
+                  <% elsif feedback.resolved? || feedback.closed? %>
+                    <%= button_to reopen_admin_feedback_path(feedback),
+                                  method: :patch,
+                                  class: "btn btn-outline btn-sm min-h-[44px]",
+                                  title: "Reopen",
+                                  data: { turbo_stream: true } do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                      </svg>
+                      Reopen
                     <% end %>
                   <% end %>
 
@@ -158,6 +198,7 @@
               <thead>
                 <tr>
                   <th>Form</th>
+                  <th>Priority</th>
                   <th>Rating</th>
                   <th>Issues</th>
                   <th>Submitted</th>

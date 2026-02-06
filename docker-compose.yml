@@ -7,30 +7,22 @@
 #   docker compose logs -f web     # Follow web logs
 #   docker compose exec web bash   # Open shell in web container
 #
+# Prerequisites:
+#   The shared Tier 2 postgres container must be running:
+#     cd ../tier2-postgres && docker compose up -d
+#
 # First-time setup:
 #   docker compose build
 #   docker compose run --rm web bin/rails db:setup
 #   docker compose up
+#
+# Database:
+#   This project uses the shared tier2-rails-postgres container
+#   Database: ca_small_claims_development
+#   Container: tier2-rails-postgres (on tier2-network)
+#   External port: 5435
 
 services:
-  db:
-    image: postgres:16-alpine
-    container_name: ca_small_claims_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: ca_small_claims_development
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./docker/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
-    ports:
-      - "5434:5432"  # Use 5434 externally to avoid conflict with local PostgreSQL
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
   web:
     build:
       context: .
@@ -44,10 +36,11 @@ services:
     ports:
       - "3001:3000"  # Use 3001 externally to avoid conflict with local Rails
     environment:
-      # Database
-      DATABASE_HOST: db
+      # Database - uses shared tier2-rails-postgres container
+      DATABASE_HOST: tier2-rails-postgres
       DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: postgres
+      DATABASE_PASSWORD: postgres_tier2_dev
+      DATABASE_NAME: ca_small_claims_development
       # Rails
       RAILS_ENV: development
       # PDF generation
@@ -55,9 +48,8 @@ services:
       PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium
       # S3 Storage (disabled by default for local dev)
       USE_S3_STORAGE: "false"
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - tier2-network
     stdin_open: true
     tty: true
 
@@ -72,17 +64,21 @@ services:
       - .:/rails
       - bundle_cache:/usr/local/bundle
     environment:
-      DATABASE_HOST: db
+      # Database - uses shared tier2-rails-postgres container
+      DATABASE_HOST: tier2-rails-postgres
       DATABASE_USERNAME: postgres
-      DATABASE_PASSWORD: postgres
+      DATABASE_PASSWORD: postgres_tier2_dev
+      DATABASE_NAME: ca_small_claims_development
       RAILS_ENV: development
-    depends_on:
-      db:
-        condition: service_healthy
+    networks:
+      - tier2-network
     profiles:
       - worker
 
 volumes:
-  postgres_data:
   bundle_cache:
   node_modules:
+
+networks:
+  tier2-network:
+    external: true  # Use the shared Tier 2 postgres network

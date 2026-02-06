@@ -1,17 +1,4 @@
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
-  <div class="relative">
-    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-base-content/50">$</span>
-    <%= form.number_field field.name,
-      value: submission.field_value(field.name),
-      placeholder: field.placeholder || "0.00",
-      step: "0.01",
-      required: field.required,
-      class: "#{standard_input_class} pl-7",
-      id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-      data: field_data_attributes.merge(
-        action: "input->form#fieldChanged input->input-format#format"
-      ),
-      **field_aria_attributes(field, prefix: prefix) %>
-  </div>
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
+  <%= render_input_field(form, field, :currency, submission, prefix: prefix) %>
 <% end %>

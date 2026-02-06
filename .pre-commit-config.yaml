@@ -1,0 +1,315 @@
+# FlukeBase Rails Pre-commit Hook Template
+# ==========================================
+# Comprehensive quality checks for Rails projects
+# Based on ca_small_claims polish-phase analysis
+#
+# Installation:
+#   1. pip install pre-commit
+#   2. Copy this file to project root as .pre-commit-config.yaml
+#   3. pre-commit install
+#   4. (Optional) pre-commit run --all-files
+#
+# Addresses:
+#   - Security (20% of polish work)
+#   - Testing (18% of polish work)
+#   - Performance (10% of polish work)
+#   - Accessibility (10% of polish work)
+#   - Production hardening
+
+repos:
+  # ===================
+  # Ruby Security Scanning
+  # ===================
+
+  # Brakeman - Static security analysis for Rails
+  - repo: local
+    hooks:
+      - id: brakeman
+        name: Brakeman Security Scanner
+        description: Static analysis security scanner for Ruby on Rails
+        entry: bundle exec brakeman
+        args:
+          - --no-pager
+          - --quiet
+          - --format
+          - text
+          - --confidence-level
+          - "2"  # High and Medium confidence warnings
+        language: system
+        types: [ruby]
+        pass_filenames: false
+        files: \.(rb|erb|haml|slim)$
+
+  # Bundle Audit - Check for vulnerable gem dependencies
+  - repo: local
+    hooks:
+      - id: bundle-audit
+        name: Bundle Audit (Dependency Vulnerabilities)
+        description: Checks Gemfile.lock for gems with known vulnerabilities
+        entry: bundle exec bundle-audit check
+        args:
+          - --update  # Update vulnerability database
+        language: system
+        files: ^Gemfile\.lock$
+        pass_filenames: false
+
+  # ===================
+  # Ruby Linting & Formatting
+  # ===================
+
+  # RuboCop - Ruby linter and formatter
+  - repo: local
+    hooks:
+      - id: rubocop
+        name: RuboCop
+        description: Ruby static code analyzer and formatter
+        entry: bundle exec rubocop
+        args:
+          - --auto-correct
+          - --force-exclusion
+          - --fail-level
+          - error  # Only fail on errors, not warnings
+        language: system
+        types: [ruby]
+        require_serial: true
+
+  # ===================
+  # Rails Performance
+  # ===================
+
+  # Bullet - N+1 query detection (development/test only)
+  - repo: local
+    hooks:
+      - id: bullet-check
+        name: Bullet N+1 Query Check
+        description: Verify Bullet gem is configured for N+1 detection
+        entry: bash -c
+        args: ['grep -q "config.after_initialize do" config/environments/development.rb && echo "✓ Bullet configured" || (echo "⚠ Bullet not configured in development.rb"; exit 1)']
+        language: system
+        files: ^config/environments/development\.rb$
+        pass_filenames: false
+        stages: [manual]  # Only run explicitly
+
+  # ===================
+  # Database
+  # ===================
+
+  # Check for missing database indexes
+  - repo: local
+    hooks:
+      - id: check-db-indexes
+        name: Database Index Check
+        description: Warn about potential missing indexes in migrations
+        entry: bash -c
+        args: ['for file in "$@"; do if grep -q "add_foreign_key\|add_reference" "$file" && ! grep -q "index:" "$file"; then echo "⚠ $file: Consider adding index to foreign key"; fi; done']
+        language: system
+        files: ^db/migrate/.*\.rb$
+
+  # ===================
+  # Testing
+  # ===================
+
+  # RSpec - Run tests on changed files only
+  - repo: local
+    hooks:
+      - id: rspec-changed
+        name: RSpec (Changed Files Only)
+        description: Run RSpec tests for changed spec files
+        entry: bundle exec rspec
+        language: system
+        files: _spec\.rb$
+        stages: [push]  # Only on push, not commit
+
+  # SimpleCov - Ensure coverage doesn't drop
+  - repo: local
+    hooks:
+      - id: simplecov-check
+        name: SimpleCov Coverage Check
+        description: Verify test coverage threshold
+        entry: bash -c
+        args: ['if [ -f coverage/.last_run.json ]; then coverage=$(jq -r .result.line coverage/.last_run.json 2>/dev/null || echo "0"); if (( $(echo "$coverage < 80" | bc -l) )); then echo "⚠ Coverage: $coverage% (minimum: 80%)"; exit 1; fi; echo "✓ Coverage: $coverage%"; fi']
+        language: system
+        files: _spec\.rb$
+        pass_filenames: false
+        stages: [push]
+
+  # ===================
+  # Frontend (JavaScript/ERB)
+  # ===================
+
+  # ESLint - JavaScript linting
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v9.17.0
+    hooks:
+      - id: eslint
+        name: ESLint
+        files: \.(js|jsx|ts|tsx)$
+        args: [--fix]
+        additional_dependencies:
+          - eslint@9.17.0
+          - eslint-plugin-jsx-a11y@6.10.2  # Accessibility linting
+
+  # ERB Lint - ERB template linting
+  - repo: local
+    hooks:
+      - id: erb-lint
+        name: ERB Lint
+        description: Linting for ERB templates (Rails views)
+        entry: bundle exec erb_lint
+        args:
+          - --lint-all
+          - --enable-all-linters
+        language: system
+        files: \.erb$
+
+  # ===================
+  # Accessibility (a11y)
+  # ===================
+
+  # Check for accessibility issues in views
+  - repo: local
+    hooks:
+      - id: a11y-check
+        name: Accessibility Checks (Manual)
+        description: Remind to check accessibility with axe-core
+        entry: bash -c
+        args: ['echo "ℹ Remember to run: npm run a11y-test (if configured)"']
+        language: system
+        files: \.(erb|html|jsx|tsx)$
+        pass_filenames: false
+        stages: [manual]
+        verbose: true
+
+  # ===================
+  # i18n
+  # ===================
+
+  # Check for hardcoded strings in views (potential i18n issues)
+  - repo: local
+    hooks:
+      - id: i18n-hardcoded-strings
+        name: i18n Hardcoded String Detection
+        description: Warn about potential hardcoded strings in views
+        entry: bash -c
+        args: ['for file in "$@"; do if grep -E "\"[A-Za-z ]{10,}\"" "$file" | grep -v -E "t\(|I18n\.t"; then echo "⚠ $file: Potential hardcoded string (consider i18n)"; fi; done']
+        language: system
+        files: \.(erb|rb)$
+        verbose: true
+
+  # ===================
+  # General File Checks
+  # ===================
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: check-yaml
+        name: Check YAML Syntax
+        args: [--safe]
+      - id: check-json
+        name: Check JSON Syntax
+      - id: check-added-large-files
+        name: Check for Large Files
+        args: ['--maxkb=1000']
+      - id: check-merge-conflict
+        name: Check for Merge Conflicts
+      - id: detect-private-key
+        name: Detect Private Keys
+      - id: mixed-line-ending
+        name: Fix Mixed Line Endings
+        args: [--fix=lf]
+
+  # ===================
+  # Secrets Detection
+  # ===================
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect Secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: |
+          (?x)^(
+            Gemfile\.lock|
+            package-lock\.json|
+            yarn\.lock
+          )$
+
+  # ===================
+  # Rails-Specific Checks
+  # ===================
+
+  # Check for Rails upgrade blockers
+  - repo: local
+    hooks:
+      - id: rails-upgrade-check
+        name: Rails Upgrade Blocker Check
+        description: Check for deprecated Rails methods
+        entry: bash -c
+        args: ['grep -rn --include="*.rb" "update_attributes\|before_filter\|after_filter" app/ && echo "⚠ Found deprecated Rails methods" || echo "✓ No deprecated methods found"']
+        language: system
+        files: \.rb$
+        pass_filenames: false
+        verbose: true
+
+  # Ensure migrations are reversible
+  - repo: local
+    hooks:
+      - id: reversible-migrations
+        name: Reversible Migrations Check
+        description: Warn if migration might not be reversible
+        entry: bash -c
+        args: ['for file in "$@"; do if grep -q "def change" "$file" && grep -E "execute|drop_table|remove_column" "$file" && ! grep -q "def down" "$file"; then echo "⚠ $file: Migration might not be reversible"; fi; done']
+        language: system
+        files: ^db/migrate/.*\.rb$
+        verbose: true
+
+  # ===================
+  # Production Safety
+  # ===================
+
+  # Ensure credentials are not committed
+  - repo: local
+    hooks:
+      - id: credentials-safety
+        name: Credentials Safety Check
+        description: Ensure credentials files are encrypted
+        entry: bash -c
+        args: ['if [ -f config/credentials.yml.enc ]; then file config/credentials.yml.enc | grep -q "ASCII text" && echo "⚠ Credentials not encrypted!" && exit 1 || echo "✓ Credentials encrypted"; fi']
+        language: system
+        files: ^config/credentials.*
+        pass_filenames: false
+
+  # Check for debug statements
+  - repo: local
+    hooks:
+      - id: no-debug-statements
+        name: No Debug Statements
+        description: Check for binding.pry, debugger, byebug
+        entry: bash -c
+        args: ['for file in "$@"; do grep -n "binding\.pry\|debugger\|byebug" "$file" && echo "⚠ $file: Remove debug statements"; done; true']
+        language: system
+        files: \.(rb|erb)$
+        verbose: true
+
+# ===================
+# Configuration Tips
+# ===================
+#
+# Enable specific hooks:
+#   pre-commit run <hook-id>
+#   Example: pre-commit run brakeman
+#
+# Skip hooks for a commit:
+#   git commit --no-verify
+#
+# Run all hooks manually:
+#   pre-commit run --all-files
+#
+# Update hook versions:
+#   pre-commit autoupdate

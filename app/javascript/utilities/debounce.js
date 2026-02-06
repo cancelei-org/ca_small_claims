@@ -40,19 +40,19 @@ export const DEBOUNCE_DELAYS = {
 export function debounce(fn, delay = DEBOUNCE_DELAYS.NORMAL) {
   let timeoutId = null;
 
-  const debouncedFn = function (...args) {
+  function debouncedFn(...args) {
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
 
     timeoutId = setTimeout(() => {
-      fn.apply(this, args);
+      fn(...args);
       timeoutId = null;
     }, delay);
-  };
+  }
 
   // Allow canceling the pending debounced call
-  debouncedFn.cancel = function () {
+  debouncedFn.cancel = function cancel() {
     if (timeoutId) {
       clearTimeout(timeoutId);
       timeoutId = null;
@@ -60,7 +60,7 @@ export function debounce(fn, delay = DEBOUNCE_DELAYS.NORMAL) {
   };
 
   // Check if there's a pending call
-  debouncedFn.isPending = function () {
+  debouncedFn.isPending = function isPending() {
     return timeoutId !== null;
   };
 
@@ -90,7 +90,7 @@ export function createDebouncedHandler(fn) {
       }
 
       timeoutId = setTimeout(() => {
-        fn.apply(null, args);
+        fn(...args);
         timeoutId = null;
       }, delay);
     },

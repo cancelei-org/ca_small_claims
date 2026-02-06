@@ -29,16 +29,22 @@
 
 en:
   hello: "Hello world"
+
+  # Navigation
   navigation:
     home: "Home"
     forms: "Forms"
     workflows: "Workflows"
+    find_courthouse: "Find Courthouse"
     my_forms: "My Forms"
+    my_profile: "My Profile"
     sign_in: "Sign In"
     register: "Register"
-    my_profile: "My Profile"
-    admin: "Admin Dashboard"
     sign_out: "Sign Out"
+    admin: "Admin Dashboard"
+    help: "Help"
+
+  # Common buttons
   buttons:
     save: "Save"
     cancel: "Cancel"
@@ -48,15 +54,55 @@ en:
     download: "Download"
     submit: "Submit"
     delete: "Delete"
+    edit: "Edit"
+    view: "View"
+    next: "Next"
+    previous: "Previous"
+    close: "Close"
+    search: "Search"
+    clear: "Clear"
+    reset: "Reset"
+    confirm: "Confirm"
     theme: "Theme"
+    copy_link: "Copy Link"
+    clear_form: "Clear Form"
+    find_forms: "Find Forms"
+
+  # Common form labels
+  labels:
+    name: "Name"
+    first_name: "First Name"
+    last_name: "Last Name"
+    full_name: "Full Name"
+    address: "Address"
+    street_address: "Street Address"
+    city: "City"
+    state: "State"
+    zip_code: "ZIP Code"
+    phone: "Phone"
+    email: "Email"
+    date: "Date"
+    date_of_birth: "Date of Birth"
+    signature: "Signature"
+    amount: "Amount"
+    description: "Description"
+    comments: "Comments"
+    notes: "Notes"
+    case_number: "Case Number"
+    court_name: "Court Name"
+
+  # Footer
   footer:
     self_help: "CA Courts Self-Help"
     official_forms: "Official Court Forms"
     help: "Help & FAQ"
+    accessibility: "Accessibility"
     about_tool: "A free, open-source tool to help Californians fill out Small Claims Court forms online."
     disclaimer: "This tool provides form assistance only. It is not legal advice. Consult an attorney for legal questions."
     license: "Open source software released under the MIT License."
     view_on_github: "View on GitHub"
+
+  # Home page
   home:
     title: "California Small Claims Court Forms"
     subtitle: "Fill out your court forms online, for free. Generate print-ready PDFs."
@@ -65,6 +111,8 @@ en:
       description: "Search or browse all available forms"
       placeholder: "Search forms (e.g., SC-100)"
       browse_all: "Browse All Forms"
+      no_forms_found: "No forms found"
+      try_different_search: "Try a different search term"
     guides:
       title: "Step-by-Step Guides"
       description: "Not sure which forms you need? Follow our guided workflows."
@@ -89,18 +137,6 @@ en:
     disclaimer_title: "Important Disclaimer"
     disclaimer_body: "This tool helps you fill out court forms but does not provide legal advice. For legal questions about your case, consult with an attorney or visit the %{link}."
     self_help_center: "California Courts Self-Help Center"
-  workflows:
-    title: "Step-by-Step Guides"
-    subtitle: "Follow our guided workflows to complete multiple forms for your case."
-    start_button: "Start Workflow"
-    step_count: "%{count} forms"
-    included_forms: "Included Forms"
-    more_count: "more"
-    empty:
-      title: "No workflows available yet"
-      message: "Check back soon or browse individual forms."
-      action: "Browse Forms"
-  forms:
     filing_claim:
       title: "Filing a Claim?"
       desc: "Start with the Plaintiff's Claim form (SC-100) to sue someone in small claims court."
@@ -109,7 +145,61 @@ en:
       title: "Being Sued?"
       desc: "Use the Defendant's Claim form (SC-120) to file a counter-claim against the plaintiff."
       button: "File Counter-Claim"
+    form_finder:
+      title: "Not sure which forms you need?"
+      description: "Answer a few questions and we'll recommend the right forms for your situation."
+    workflows_coming_soon: "Workflows coming soon"
+
+  # Workflows
+  workflows:
+    title: "Step-by-Step Guides"
+    subtitle: "Follow our guided workflows to complete multiple forms for your case."
+    start_button: "Start Workflow"
+    step_count: "%{count} forms"
+    steps: "steps"
+    included_forms: "Included Forms"
+    more_count: "more"
+    empty:
+      title: "No workflows available yet"
+      message: "Check back soon or browse individual forms."
+      action: "Browse Forms"
+
+  # Forms
+  forms:
+    title: "Forms"
+    all_forms: "All Forms"
+    back_to_forms: "Back to Forms"
+    all_fields_complete: "All fields complete!"
+    download_pdf: "Download PDF"
+    preview_pdf: "Preview PDF"
+    categories:
+      all: "All"
+      filing: "Filing"
+      service: "Service"
+      judgment: "Judgment"
+    field_required: "This field is required"
+    auto_saved: "Auto-saved"
+    saving: "Saving..."
+    progress: "Progress"
+
+  # Submissions (My Forms)
+  submissions:
+    title: "My Forms"
+    no_submissions: "You don't have any saved forms yet"
+    start_new: "Start a new form"
+    status:
+      draft: "Draft"
+      completed: "Completed"
+      in_progress: "In Progress"
+    actions:
+      view: "View"
+      edit: "Edit"
+      delete: "Delete"
+      download: "Download"
+
+  # Command bar
   command_bar:
+    title: "Command Bar"
     placeholder: "Type a command or search..."
     navigation: "Navigation"
     actions: "Actions"
@@ -119,3 +209,41 @@ en:
     navigate: "to navigate"
     select: "to select"
     tap_select: "Tap to select"
+    copy_link: "Copy Link"
+    clear_form: "Clear Form"
+    quick_actions: "Quick Actions"
+
+  # Error messages
+  errors:
+    general: "An error occurred. Please try again."
+    not_found: "Page not found"
+    unauthorized: "You are not authorized to perform this action."
+    session_expired: "Your session has expired. Please sign in again."
+    form_invalid: "Please correct the errors below."
+    required_field: "This field is required"
+    invalid_email: "Please enter a valid email address"
+    invalid_phone: "Please enter a valid phone number"
+    invalid_date: "Please enter a valid date"
+    file_too_large: "File is too large"
+
+  # Flash messages
+  flash:
+    success:
+      created: "Successfully created"
+      updated: "Successfully updated"
+      deleted: "Successfully deleted"
+      saved: "Successfully saved"
+      submitted: "Successfully submitted"
+    error:
+      create_failed: "Could not create"
+      update_failed: "Could not update"
+      delete_failed: "Could not delete"
+      save_failed: "Could not save"
+
+  # Accessibility
+  accessibility:
+    skip_to_content: "Skip to main content"
+    menu_open: "Open menu"
+    menu_close: "Close menu"
+    loading: "Loading..."
+    required_field: "Required field"

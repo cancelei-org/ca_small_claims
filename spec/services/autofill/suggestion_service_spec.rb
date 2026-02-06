@@ -92,14 +92,25 @@ RSpec.describe Autofill::SuggestionService do
       it "returns formatted date for dob pattern" do
         suggestions = service.suggestions_for("plaintiff:dob")
 
-        expect(suggestions.first[:value]).to eq(user.date_of_birth.strftime("%m/%d/%Y"))
+        # date_of_birth is encrypted as text, so format_value returns it as-is or formatted
+        expected_value = if user.date_of_birth.respond_to?(:strftime)
+                           user.date_of_birth.strftime("%m/%d/%Y")
+        else
+                           user.date_of_birth.to_s
+        end
+        expect(suggestions.first[:value]).to eq(expected_value)
         expect(suggestions.first[:label]).to eq("Your date of birth")
       end
 
       it "returns suggestion for date_of_birth pattern" do
         suggestions = service.suggestions_for("person:date_of_birth")
 
-        expect(suggestions.first[:value]).to eq(user.date_of_birth.strftime("%m/%d/%Y"))
+        expected_value = if user.date_of_birth.respond_to?(:strftime)
+                           user.date_of_birth.strftime("%m/%d/%Y")
+        else
+                           user.date_of_birth.to_s
+        end
+        expect(suggestions.first[:value]).to eq(expected_value)
       end
     end
 

@@ -93,13 +93,13 @@ const STATUS_CONFIG = {
   [STATUS_TYPES.IDLE]: {
     message: '',
     icon: null,
-    textClass: 'text-base-content/50',
+    textClass: 'text-base-content/60',
     badgeClass: 'badge-ghost'
   },
   [STATUS_TYPES.SAVING]: {
     message: 'Saving...',
     icon: ICONS.spinner,
-    textClass: 'text-base-content/50',
+    textClass: 'text-base-content/60',
     badgeClass: 'badge-info'
   },
   [STATUS_TYPES.SAVED]: {
@@ -111,13 +111,13 @@ const STATUS_CONFIG = {
   [STATUS_TYPES.LOADING]: {
     message: 'Loading...',
     icon: ICONS.spinner,
-    textClass: 'text-base-content/50',
+    textClass: 'text-base-content/60',
     badgeClass: 'badge-info'
   },
   [STATUS_TYPES.UPDATING]: {
     message: 'Updating...',
     icon: ICONS.spinner,
-    textClass: 'text-base-content/50',
+    textClass: 'text-base-content/60',
     badgeClass: 'badge-info'
   },
   [STATUS_TYPES.QUEUED]: {

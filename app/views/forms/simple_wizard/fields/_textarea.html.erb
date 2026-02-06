@@ -1,0 +1,15 @@
+<%# Textarea for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.text_area field.name,
+                   id: "simple-wizard-field-#{field.name}",
+                   value: submission.field_value(field.name),
+                   placeholder: field.placeholder,
+                   required: field.required,
+                   rows: 6,
+                   maxlength: field.max_length,
+                   class: "textarea textarea-bordered w-full",
+                   data: {
+                     action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                   } %>

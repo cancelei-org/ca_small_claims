@@ -1,0 +1,31 @@
+CA Small Claims Court Forms
+===========================
+
+<% if @days_until_deadline <= 0 %>
+*** URGENT: DEADLINE HAS PASSED ***
+<% elsif @days_until_deadline <= 3 %>
+*** URGENT: <%= @days_until_deadline %> DAY<%= @days_until_deadline == 1 ? '' : 'S' %> REMAINING ***
+<% else %>
+Deadline Reminder
+<% end %>
+-----------------
+
+Hello <%= @user.display_name %>,
+
+This is a reminder about an important deadline for your <%= @form_definition.code %> form (<%= @form_definition.title %>).
+
+DEADLINE DETAILS
+----------------
+Form: <%= @form_definition.code %>
+Deadline Date: <%= @deadline_date.strftime("%B %d, %Y") %>
+Days Remaining: <%= @days_until_deadline <= 0 ? 'Past due' : "#{@days_until_deadline} day#{'s' unless @days_until_deadline == 1}" %>
+
+View your form at: <%= submission_url(@submission) %>
+
+NEED HELP?
+----------
+If you need assistance completing your form, visit our help center or contact your local Small Claims Court clerk's office.
+
+---
+California Small Claims Court Forms
+You received this email because you have deadline reminders enabled.

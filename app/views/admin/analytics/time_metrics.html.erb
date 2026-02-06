@@ -1,0 +1,397 @@
+<% content_for :title, "Time-to-Complete Metrics - Admin Analytics" %>
+
+<div class="mb-6 md:mb-8">
+  <div class="breadcrumbs text-sm mb-4">
+    <ul>
+      <li><%= link_to "Admin", admin_root_path %></li>
+      <li><%= link_to "Analytics", admin_analytics_path %></li>
+      <li>Time Metrics</li>
+    </ul>
+  </div>
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Time-to-Complete Metrics</h1>
+      <p class="text-sm md:text-base text-base-content/70">
+        Analyze how long users take to complete forms
+      </p>
+    </div>
+
+    <%= link_to admin_analytics_path, class: "btn btn-sm btn-ghost" do %>
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
+      Back to Dashboard
+    <% end %>
+  </div>
+</div>
+
+<%# Filters %>
+<div class="card bg-base-100 shadow mb-6">
+  <div class="card-body p-4">
+    <%= form_with url: time_metrics_admin_analytics_path, method: :get, local: true, class: "grid grid-cols-1 md:grid-cols-3 gap-4" do %>
+      <%# Period selector %>
+      <div class="form-control">
+        <label class="label"><span class="label-text text-xs">Period</span></label>
+        <select name="period" class="select select-bordered select-sm">
+          <option value="7d" <%= 'selected' if @period == '7d' %>>Last 7 Days</option>
+          <option value="30d" <%= 'selected' if @period == '30d' %>>Last 30 Days</option>
+          <option value="90d" <%= 'selected' if @period == '90d' %>>Last 90 Days</option>
+        </select>
+      </div>
+
+      <%# Form selector %>
+      <div class="form-control">
+        <label class="label"><span class="label-text text-xs">Form</span></label>
+        <select name="form_id" class="select select-bordered select-sm">
+          <option value="">All Forms</option>
+          <% @forms.each do |form| %>
+            <option value="<%= form.id %>" <%= 'selected' if @form_definition_id.to_s == form.id.to_s %>>
+              <%= form.code %> - <%= form.title.truncate(30) %>
+            </option>
+          <% end %>
+        </select>
+      </div>
+
+      <%# Submit button %>
+      <div class="form-control">
+        <label class="label"><span class="label-text text-xs opacity-0">.</span></label>
+        <%= submit_tag "Apply Filters", class: "btn btn-sm btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Statistics Summary %>
+<% if @statistics.present? && @statistics[:count] && @statistics[:count] > 0 %>
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+    <div class="stats shadow bg-base-100">
+      <div class="stat p-4">
+        <div class="stat-title text-xs">Completions</div>
+        <div class="stat-value text-2xl text-primary"><%= number_with_delimiter(@statistics[:count]) %></div>
+      </div>
+    </div>
+
+    <div class="stats shadow bg-base-100">
+      <div class="stat p-4">
+        <div class="stat-title text-xs">Median</div>
+        <div class="stat-value text-2xl text-success"><%= @statistics[:median] %></div>
+        <div class="stat-desc text-xs">minutes</div>
+      </div>
+    </div>
+
+    <div class="stats shadow bg-base-100">
+      <div class="stat p-4">
+        <div class="stat-title text-xs">Mean</div>
+        <div class="stat-value text-2xl text-info"><%= @statistics[:mean] %></div>
+        <div class="stat-desc text-xs">minutes</div>
+      </div>
+    </div>
+
+    <div class="stats shadow bg-base-100">
+      <div class="stat p-4">
+        <div class="stat-title text-xs">75th Percentile</div>
+        <div class="stat-value text-2xl text-warning"><%= @statistics[:p75] %></div>
+        <div class="stat-desc text-xs">minutes</div>
+      </div>
+    </div>
+
+    <div class="stats shadow bg-base-100">
+      <div class="stat p-4">
+        <div class="stat-title text-xs">90th Percentile</div>
+        <div class="stat-value text-2xl text-error"><%= @statistics[:p90] %></div>
+        <div class="stat-desc text-xs">minutes</div>
+      </div>
+    </div>
+  </div>
+
+  <%# Additional Percentiles %>
+  <div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Percentile Breakdown</h2>
+
+      <div class="overflow-x-auto">
+        <table class="table table-sm">
+          <thead>
+            <tr>
+              <th>Percentile</th>
+              <th>Time (minutes)</th>
+              <th>Visual</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% [
+              { label: "Minimum", value: @statistics[:min], color: "success" },
+              { label: "25th (P25)", value: @statistics[:p25], color: "info" },
+              { label: "50th (Median)", value: @statistics[:median], color: "primary" },
+              { label: "75th (P75)", value: @statistics[:p75], color: "warning" },
+              { label: "90th (P90)", value: @statistics[:p90], color: "error" },
+              { label: "95th (P95)", value: @statistics[:p95], color: "error" },
+              { label: "99th (P99)", value: @statistics[:p99], color: "error" },
+              { label: "Maximum", value: @statistics[:max], color: "error" }
+            ].each do |percentile| %>
+              <tr>
+                <td class="font-medium"><%= percentile[:label] %></td>
+                <td class="font-mono"><%= percentile[:value] %> min</td>
+                <td>
+                  <% width = @statistics[:max] > 0 ? ((percentile[:value].to_f / @statistics[:max]) * 100).round : 0 %>
+                  <div class="w-full max-w-xs">
+                    <progress class="progress progress-<%= percentile[:color] %> w-full" value="<%= width %>" max="100"></progress>
+                  </div>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <%# Time Distribution Histogram %>
+  <div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Time Distribution</h2>
+
+      <% if @distribution.present? %>
+        <div class="h-64 flex items-end gap-1">
+          <% max_count = @distribution.values.max || 1 %>
+          <% @distribution.each do |bucket_label, count| %>
+            <% height = ((count.to_f / max_count) * 100).round %>
+            <div class="flex-1 flex flex-col items-center group relative">
+              <div class="w-full bg-primary/30 hover:bg-primary/50 transition-colors rounded-t"
+                   style="height: <%= [height, 2].max %>%;">
+                <%# Tooltip %>
+                <div class="opacity-0 group-hover:opacity-100 absolute -top-12 left-1/2 -translate-x-1/2 bg-base-300 text-xs px-2 py-1 rounded shadow pointer-events-none whitespace-nowrap z-10">
+                  <%= bucket_label %><br>
+                  <%= count %> forms
+                </div>
+              </div>
+              <div class="text-[8px] text-base-content/60 mt-2 -rotate-45 origin-top-left translate-y-2">
+                <%= bucket_label.split('-').first %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        <p class="text-xs text-base-content/60 text-center mt-4">Completion time in minutes</p>
+      <% else %>
+        <p class="text-center text-base-content/60 py-8">No completion time data available</p>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+    <%# Time Trends %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Time Trends (Weekly)</h2>
+
+        <% if @trends.present? %>
+          <div class="space-y-3">
+            <% @trends.each do |trend| %>
+              <div>
+                <div class="flex justify-between mb-1 text-sm">
+                  <span><%= trend[:period] %></span>
+                  <span class="font-semibold">
+                    Median: <%= trend[:median] %> min
+                    <span class="text-xs text-base-content/60">(n=<%= trend[:count] %>)</span>
+                  </span>
+                </div>
+                <% width = @statistics[:max] > 0 ? ((trend[:median].to_f / @statistics[:max]) * 100).round : 0 %>
+                <progress class="progress progress-info w-full" value="<%= width %>" max="100"></progress>
+              </div>
+            <% end %>
+          </div>
+
+          <% if @trends.count >= 2 %>
+            <% latest = @trends.last[:median] %>
+            <% previous = @trends[-2][:median] %>
+            <% change = previous > 0 ? (((latest - previous).to_f / previous) * 100).round(1) : 0 %>
+            <div class="alert <%= change < 0 ? 'alert-success' : change > 0 ? 'alert-warning' : '' %> mt-4">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>
+                <% if change < 0 %>
+                  <strong>Improvement!</strong> <%= change.abs %>% faster than last week
+                <% elsif change > 0 %>
+                  <strong>Slower:</strong> <%= change %>% slower than last week
+                <% else %>
+                  No change from last week
+                <% end %>
+              </span>
+            </div>
+          <% end %>
+        <% else %>
+          <p class="text-center text-base-content/60 py-8">No trend data available</p>
+        <% end %>
+      </div>
+    </div>
+
+    <%# Outliers %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Outliers</h2>
+
+        <div class="space-y-4">
+          <%# Fastest %>
+          <div>
+            <h3 class="text-sm font-semibold text-success mb-2">Fastest Completions</h3>
+            <% if @outliers[:fastest].any? %>
+              <div class="space-y-1">
+                <% @outliers[:fastest].each do |outlier| %>
+                  <div class="flex justify-between text-xs p-2 bg-success/10 rounded">
+                    <span class="font-mono">ID: <%= outlier[:submission_id] %></span>
+                    <span class="font-semibold"><%= outlier[:minutes] %> min</span>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-xs text-base-content/60">No data</p>
+            <% end %>
+          </div>
+
+          <%# Slowest %>
+          <div>
+            <h3 class="text-sm font-semibold text-error mb-2">Slowest Completions</h3>
+            <% if @outliers[:slowest].any? %>
+              <div class="space-y-1">
+                <% @outliers[:slowest].each do |outlier| %>
+                  <div class="flex justify-between text-xs p-2 bg-error/10 rounded">
+                    <span class="font-mono">ID: <%= outlier[:submission_id] %></span>
+                    <span class="font-semibold"><%= outlier[:minutes] %> min</span>
+                  </div>
+                <% end %>
+              </div>
+            <% else %>
+              <p class="text-xs text-base-content/60">No data</p>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <%# Time by Form %>
+  <% if @form_definition_id.blank? && @by_form.present? %>
+    <div class="card bg-base-100 shadow mb-6">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Time-to-Complete by Form</h2>
+
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th class="text-right">Completions</th>
+                <th class="text-right">Median</th>
+                <th class="text-right">Mean</th>
+                <th class="text-right">P75</th>
+                <th class="text-right">P90</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @by_form.each do |form| %>
+                <tr>
+                  <td>
+                    <div class="font-medium"><%= form[:form_code] %></div>
+                    <div class="text-xs text-base-content/60"><%= form[:form_title].truncate(40) %></div>
+                  </td>
+                  <td class="text-right font-mono"><%= number_with_delimiter(form[:completion_count]) %></td>
+                  <td class="text-right font-mono"><%= form[:median_time] %> min</td>
+                  <td class="text-right font-mono"><%= form[:mean_time] %> min</td>
+                  <td class="text-right font-mono"><%= form[:p75_time] %> min</td>
+                  <td class="text-right font-mono"><%= form[:p90_time] %> min</td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Wizard vs Traditional Comparison %>
+  <% if @mode_comparison.present? %>
+    <div class="card bg-base-100 shadow">
+      <div class="card-body">
+        <h2 class="card-title mb-4">Wizard vs Traditional Mode</h2>
+
+        <div class="grid grid-cols-2 gap-6">
+          <%# Wizard Mode %>
+          <div>
+            <h3 class="text-sm font-semibold text-primary mb-3">Wizard Mode</h3>
+            <div class="stats shadow">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Completions</div>
+                <div class="stat-value text-lg"><%= @mode_comparison[:wizard][:count] %></div>
+              </div>
+            </div>
+            <div class="stats shadow mt-2">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Median Time</div>
+                <div class="stat-value text-lg text-primary"><%= @mode_comparison[:wizard][:median] %> min</div>
+              </div>
+            </div>
+            <div class="stats shadow mt-2">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Mean Time</div>
+                <div class="stat-value text-lg text-primary"><%= @mode_comparison[:wizard][:mean] %> min</div>
+              </div>
+            </div>
+          </div>
+
+          <%# Traditional Mode %>
+          <div>
+            <h3 class="text-sm font-semibold text-secondary mb-3">Traditional Mode</h3>
+            <div class="stats shadow">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Completions</div>
+                <div class="stat-value text-lg"><%= @mode_comparison[:traditional][:count] %></div>
+              </div>
+            </div>
+            <div class="stats shadow mt-2">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Median Time</div>
+                <div class="stat-value text-lg text-secondary"><%= @mode_comparison[:traditional][:median] %> min</div>
+              </div>
+            </div>
+            <div class="stats shadow mt-2">
+              <div class="stat p-4">
+                <div class="stat-title text-xs">Mean Time</div>
+                <div class="stat-value text-lg text-secondary"><%= @mode_comparison[:traditional][:mean] %> min</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <% wizard_median = @mode_comparison[:wizard][:median] %>
+        <% traditional_median = @mode_comparison[:traditional][:median] %>
+        <% if wizard_median > 0 && traditional_median > 0 %>
+          <% diff = ((wizard_median - traditional_median).to_f / traditional_median * 100).round(1) %>
+          <div class="alert <%= diff < 0 ? 'alert-success' : 'alert-info' %> mt-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>
+              <% if diff < 0 %>
+                Wizard mode is <%= diff.abs %>% faster than traditional mode
+              <% elsif diff > 0 %>
+                Wizard mode is <%= diff %>% slower than traditional mode
+              <% else %>
+                Both modes have similar completion times
+              <% end %>
+            </span>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+<% else %>
+  <div class="alert">
+    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <span>No completion data available for the selected period and form.</span>
+  </div>
+<% end %>

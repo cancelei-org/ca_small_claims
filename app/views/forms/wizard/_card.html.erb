@@ -1,10 +1,13 @@
 <%# Wizard Card - Single field with 3D flip animation %>
 <%# locals: field, form, submission, index %>
 
+<% js_conditions = field.conditions_for_js %>
 <div class="wizard-card <%= 'hidden' unless index == 0 %>"
      id="wizard-card-<%= index %>"
      data-wizard-target="card"
-     data-index="<%= index %>">
+     data-index="<%= index %>"
+     data-controller="<%= 'conditional-field' if js_conditions.any? %>"
+     data-conditional-field-conditions-value="<%= js_conditions.to_json if js_conditions.any? %>">
 
   <div class="card bg-base-100 shadow-xl min-h-[300px] transform-style-3d">
     <div class="card-body relative">
@@ -55,7 +58,7 @@
 
       <%# Required indicator %>
       <% if field.required %>
-        <div class="mt-2 text-xs text-base-content/50 text-center">
+        <div class="mt-2 text-xs text-base-content/60 text-center">
           This field is required
         </div>
       <% end %>

@@ -33,6 +33,31 @@ class ProfilesController < ApplicationController
     end
   end
 
+  # Valid tutorial identifiers - whitelist to prevent arbitrary data injection
+  VALID_TUTORIALS = %w[
+    welcome_tour
+    form_wizard_intro
+    form_filling_basics
+    pdf_generation
+    workflow_intro
+    data_sharing
+    auto_save_demo
+    keyboard_shortcuts
+    accessibility_features
+  ].freeze
+
+  def tutorial_completed
+    tutorial_id = params[:tutorial_id]
+
+    unless tutorial_id.present? && VALID_TUTORIALS.include?(tutorial_id)
+      head :bad_request
+      return
+    end
+
+    current_user.complete_tutorial!(tutorial_id)
+    head :ok
+  end
+
   private
 
   def profile_params

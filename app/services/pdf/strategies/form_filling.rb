@@ -20,9 +20,19 @@ module Pdf
 
         flattened_path = output.sub(".pdf", "_flattened.pdf")
 
-        system(pdftk_path, output, "output", flattened_path, "flatten")
+        success = system(pdftk_path, output, "output", flattened_path, "flatten")
 
-        File.exist?(flattened_path) ? flattened_path : output
+        unless success
+          Rails.logger.error "pdftk flatten failed with exit status #{$?.exitstatus} for #{output}"
+          return output
+        end
+
+        unless File.exist?(flattened_path)
+          Rails.logger.error "pdftk flatten succeeded but output file not found: #{flattened_path}"
+          return output
+        end
+
+        flattened_path
       end
 
       private

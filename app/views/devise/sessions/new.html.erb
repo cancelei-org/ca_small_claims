@@ -28,7 +28,7 @@
         <% end %>
 
         <div class="form-control mt-6">
-          <%= f.submit "Log in", class: "btn btn-primary w-full min-h-[48px] text-base" %>
+          <%= f.submit "Log in", class: "btn btn-primary w-full min-h-[48px] text-base", data: { turbo_submits_with: "Logging in...", disable_with: "Logging in..." } %>
         </div>
       <% end %>
 

@@ -1,0 +1,261 @@
+# Field Help Configuration
+# Maps field types and field keys to helpful examples, format hints, and help links
+#
+# Structure:
+#   field_types: General help by field type (date, tel, email, etc.)
+#   field_keys: Specific help for particular field keys (case_number, plaintiff_name, etc.)
+#   error_messages: Friendly rewrites for common validation errors
+
+field_types:
+  date:
+    example: "01/15/2024"
+    format_hint: "Enter date in MM/DD/YYYY format"
+    placeholder: "MM/DD/YYYY"
+    help_text: "Enter a date using month/day/year format. For example, January 15, 2024 would be 01/15/2024."
+    faq_anchor: "date-format"
+
+  tel:
+    example: "(555) 123-4567"
+    format_hint: "10-digit phone number with area code"
+    placeholder: "(555) 555-5555"
+    help_text: "Enter a valid US phone number including area code. We'll format it automatically."
+    faq_anchor: "phone-format"
+
+  email:
+    example: "john.smith@example.com"
+    format_hint: "Valid email address required"
+    placeholder: "email@example.com"
+    help_text: "Enter a valid email address. This will be used for court notifications if you opt in."
+    faq_anchor: "email-format"
+
+  currency:
+    example: "$1,500.00"
+    format_hint: "Enter dollar amount (e.g., 1500.00)"
+    placeholder: "0.00"
+    help_text: "Enter the dollar amount without commas. Cents are optional. Maximum claim is $12,500 for individuals."
+    faq_anchor: "currency-format"
+
+  number:
+    example: "5"
+    format_hint: "Enter a whole number"
+    placeholder: ""
+    help_text: "Enter a numeric value without letters or special characters."
+    faq_anchor: "number-format"
+
+  text:
+    example: ""
+    format_hint: ""
+    placeholder: ""
+    help_text: ""
+    faq_anchor: ""
+
+  select:
+    example: ""
+    format_hint: "Select an option from the dropdown"
+    placeholder: ""
+    help_text: "Click to see available options and select the one that applies to your case."
+    faq_anchor: ""
+
+  address:
+    example: |
+      123 Main Street
+      Apt 4B
+      Los Angeles, CA 90001
+    format_hint: "Complete California address with street, city, state, and ZIP code"
+    placeholder: ""
+    help_text: "Enter a complete mailing address. California addresses are most common for Small Claims Court."
+    faq_anchor: "address-format"
+
+  textarea:
+    example: ""
+    format_hint: ""
+    placeholder: ""
+    help_text: "Enter detailed information. Be clear and specific."
+    faq_anchor: ""
+
+# Specific field key configurations (override field_type defaults)
+field_keys:
+  case_number:
+    example: "24STSC12345"
+    format_hint: "Format: YYCCCSCNNNNN (2-digit year, 2-3 letter court code, SC, 5+ digits)"
+    placeholder: "e.g., 24STSC12345"
+    help_text: |
+      The case number is assigned by the court when you file. It typically includes:
+      - Year (2 digits): e.g., "24" for 2024
+      - Court code (2-3 letters): e.g., "ST" for Los Angeles Stanley Mosk
+      - "SC" for Small Claims
+      - Sequential number (5+ digits)
+    faq_anchor: "case-number"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/case-number"
+
+  plaintiff_name:
+    example: "John Smith"
+    format_hint: "Your full legal name as it appears on your ID"
+    placeholder: "Your full legal name"
+    help_text: "Enter your full legal name exactly as it appears on your government-issued ID. This is the person bringing the lawsuit."
+    faq_anchor: "plaintiff-name"
+
+  defendant_name:
+    example: "Jane Doe"
+    format_hint: "The other party's full legal name"
+    placeholder: "Other party's full legal name"
+    help_text: "Enter the full legal name of the person or business you are suing. Spell their name correctly."
+    faq_anchor: "defendant-name"
+
+  claim_amount:
+    example: "$5,000.00"
+    format_hint: "Maximum: $12,500 for individuals, $6,250 for businesses"
+    placeholder: "0.00"
+    help_text: |
+      Enter the total dollar amount you are claiming. In California Small Claims Court:
+      - Individuals can claim up to $12,500
+      - Businesses and other entities can claim up to $6,250
+      - You can only file 2 claims over $2,500 per year
+    faq_anchor: "claim-amount"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/claim-limits"
+
+  filing_fee:
+    example: "$75.00"
+    format_hint: "Filing fees range from $30 to $75"
+    placeholder: "0.00"
+    help_text: |
+      Filing fees in California Small Claims Court depend on claim amount:
+      - Claims up to $1,500: $30
+      - Claims $1,500.01 to $5,000: $50
+      - Claims $5,000.01 to $12,500: $75
+    faq_anchor: "filing-fees"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/filing-fees"
+
+  hearing_date:
+    example: "03/15/2024"
+    format_hint: "The court assigns this date after you file"
+    placeholder: "MM/DD/YYYY"
+    help_text: "This is the date and time your case will be heard in court. The court will provide this date after you file your claim."
+    faq_anchor: "hearing-date"
+
+  court_name:
+    example: "Los Angeles County Superior Court"
+    format_hint: "Full name of the court handling your case"
+    placeholder: ""
+    help_text: "Enter the full official name of the court where your case is filed. This is typically the Superior Court in the county where the dispute occurred."
+    faq_anchor: "court-name"
+
+  court_address:
+    example: |
+      111 N. Hill Street
+      Los Angeles, CA 90012
+    format_hint: "Complete street address of the courthouse"
+    placeholder: ""
+    help_text: "Enter the physical address of the courthouse where your case will be heard."
+    faq_anchor: "court-address"
+
+  service_date:
+    example: "02/15/2024"
+    format_hint: "Date the defendant was served"
+    placeholder: "MM/DD/YYYY"
+    help_text: |
+      The service date is when the defendant received the court papers. This is important for calculating deadlines:
+      - In-county service: at least 15 days before hearing
+      - Out-of-county service: at least 20 days before hearing
+      - Certified mail by clerk: at least 25 days before hearing
+    faq_anchor: "service-date"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/serving-papers"
+
+  zip_code:
+    example: "90001"
+    format_hint: "5-digit or ZIP+4 format (e.g., 90001-1234)"
+    placeholder: "90001"
+    help_text: "Enter a valid US ZIP code. California ZIP codes start with 9."
+    faq_anchor: "zip-format"
+
+  ssn_last_four:
+    example: "1234"
+    format_hint: "Last 4 digits only"
+    placeholder: "XXXX"
+    help_text: "For security, only enter the last 4 digits of the Social Security Number if required."
+    faq_anchor: "ssn-format"
+
+  drivers_license:
+    example: "A1234567"
+    format_hint: "California DL: 1 letter + 7 digits"
+    placeholder: "A1234567"
+    help_text: "Enter the driver's license number exactly as it appears on the license."
+    faq_anchor: "dl-format"
+
+  business_name:
+    example: "ABC Company, Inc."
+    format_hint: "Full legal business name including entity type"
+    placeholder: "Business legal name"
+    help_text: "Enter the full legal name of the business, including the entity type (LLC, Inc., Corp., etc.) if applicable."
+    faq_anchor: "business-name"
+
+# Friendly error message rewrites
+# Maps technical validation messages to user-friendly alternatives
+error_messages:
+  # Required field errors
+  "can't be blank": "This field is required"
+  "is required": "This field is required"
+  "must be filled": "Please fill in this field"
+
+  # Format errors
+  "is invalid": "Please check the format (see example below)"
+  "is not a valid email": "Please enter a valid email address"
+  "is not a number": "Please enter a number"
+  "is not a valid phone number": "Please enter a valid phone number"
+
+  # Range errors
+  "is too short": "This is too short. Please enter more characters"
+  "is too long": "This is too long. Please shorten your entry"
+  "must be greater than": "Please enter a larger value"
+  "must be less than": "Please enter a smaller value"
+
+  # Date errors
+  "is not a valid date": "Please enter a valid date"
+  "must be in the future": "Please enter a future date"
+  "must be in the past": "Please enter a past date"
+
+  # Selection errors
+  "is not included in the list": "Please select a valid option"
+  "must be selected": "Please select an option"
+
+# Common mistakes and retry suggestions
+common_mistakes:
+  phone:
+    - mistake: "Entered 7 digits instead of 10"
+      suggestion: "Make sure to include the area code (3 digits)"
+    - mistake: "Included country code"
+      suggestion: "Don't include +1 or 1- at the beginning"
+
+  date:
+    - mistake: "Used YYYY-MM-DD format"
+      suggestion: "Use MM/DD/YYYY format instead"
+    - mistake: "Used dashes instead of slashes"
+      suggestion: "Use slashes (/) between month, day, and year"
+
+  case_number:
+    - mistake: "Included spaces or dashes"
+      suggestion: "Enter the case number without spaces or dashes"
+    - mistake: "Missing court code"
+      suggestion: "Include the 2-3 letter court code after the year"
+
+  currency:
+    - mistake: "Included dollar sign"
+      suggestion: "Enter just the numbers (we'll add the $)"
+    - mistake: "Included commas"
+      suggestion: "Enter numbers without commas (e.g., 1500 not 1,500)"
+
+  zip_code:
+    - mistake: "Non-California ZIP code"
+      suggestion: "California ZIP codes start with 9"
+    - mistake: "Missing digits"
+      suggestion: "ZIP codes should be 5 digits (or 9 with extension)"
+
+# FAQ integration - maps field keys to relevant FAQ sections
+faq_mappings:
+  case_number: "which-form"
+  claim_amount: "claim-limits"
+  filing_fee: "filing-fees"
+  service_date: "serving-papers"
+  hearing_date: "court-dates"
+  plaintiff_name: "parties"
+  defendant_name: "parties"

@@ -1,0 +1,10 @@
+[tools]
+nodejs = "24.8.0"
+ruby = "3.4.7"
+
+[tasks]
+setup = "bundle install && npm install"
+dev = "bin/dev"
+test = "bin/rails test"
+console = "bin/rails console"
+migrate = "bin/rails db:migrate"

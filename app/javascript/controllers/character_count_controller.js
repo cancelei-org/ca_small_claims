@@ -42,7 +42,7 @@ export default class extends Controller {
 
       // Visual feedback based on remaining characters
       this.remainingTarget.classList.remove(
-        'text-base-content/50',
+        'text-base-content/60',
         'text-warning',
         'text-error'
       );
@@ -52,7 +52,7 @@ export default class extends Controller {
       } else if (remaining <= this.warnAtValue) {
         this.remainingTarget.classList.add('text-warning');
       } else {
-        this.remainingTarget.classList.add('text-base-content/50');
+        this.remainingTarget.classList.add('text-base-content/60');
       }
     }
 

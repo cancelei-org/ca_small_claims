@@ -58,6 +58,15 @@ module PdfHandling
     pdf_path = flattened ? submission.generate_flattened_pdf : submission.generate_pdf
     resolved_filename = filename || generate_pdf_filename(submission, disposition)
 
+    if async_pdf_requested?
+      return enqueue_pdf_job(
+        submission,
+        flattened: flattened,
+        filename: resolved_filename,
+        disposition: disposition
+      )
+    end
+
     send_file pdf_path,
       type: "application/pdf",
       disposition: disposition,
@@ -127,5 +136,23 @@ module PdfHandling
     else
       root_path
     end
+  end
+
+  def async_pdf_requested?
+    async_pdf_enabled? && params[:async].present?
+  end
+
+  def async_pdf_enabled?
+    ActiveModel::Type::Boolean.new.cast(ENV["PDF_ASYNC_ENABLED"])
+  end
+
+  def enqueue_pdf_job(submission, flattened:, filename:, disposition:)
+    PdfGenerationJob.perform_later(submission.class.name, submission.id, flattened: flattened)
+    render json: {
+      status: "queued",
+      submission_id: submission.id,
+      filename: filename,
+      disposition: disposition
+    }, status: :accepted
   end
 end

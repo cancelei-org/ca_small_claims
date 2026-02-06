@@ -1,9 +1,24 @@
 <% content_for :title, "My Submissions - CA Small Claims Court" %>
 
-<div class="mb-8">
-  <h1 class="text-3xl font-bold text-base-content mb-2">My Submissions</h1>
-  <p class="text-base-content/70">View and manage your saved form submissions.</p>
-</div>
+<div data-controller="pull-to-refresh" data-pull-to-refresh-threshold-value="90">
+  <div class="fixed top-2 left-1/2 -translate-x-1/2 z-30 transition-all duration-200 opacity-0 -translate-y-6 pull-to-refresh-indicator"
+       data-pull-to-refresh-target="indicator">
+    <div class="px-4 py-2 rounded-full shadow-lg bg-base-100 border border-base-200 flex items-center gap-2">
+      <svg class="w-5 h-5 text-primary transition-transform"
+           data-pull-to-refresh-target="icon"
+           fill="none"
+           stroke="currentColor"
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 10l7-7m0 0l7 7m-7-7v18"></path>
+      </svg>
+      <span class="text-sm text-base-content/80" data-pull-to-refresh-target="label">Pull to refresh</span>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-base-content mb-2">My Submissions</h1>
+    <p class="text-base-content/70">View and manage your saved form submissions.</p>
+  </div>
 
 <% if @submissions.any? %>
   <div class="overflow-x-auto bg-base-100 rounded-lg shadow">
@@ -94,3 +109,4 @@
     action_path: forms_path,
     action_text: "Browse Forms" %>
 <% end %>
+</div>

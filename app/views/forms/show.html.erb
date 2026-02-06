@@ -1,10 +1,12 @@
 <% content_for :title, "#{@form_definition.code} - #{@form_definition.title}" %>
 <% content_for :description, "Fill out #{@form_definition.code} - #{@form_definition.title} online. Free California Small Claims Court form with guided wizard." %>
 
-<%# Wrap entire page content in view-toggle, keyboard-shortcuts, and pdf-drawer controllers %>
-<div data-controller="view-toggle keyboard-shortcuts pdf-drawer"
+<%# Tutorial wrapper for first-time users %>
+<%= tutorial_wrapper("form_tutorial") do %>
+
+<%# Wrap entire page content in view-toggle and keyboard-shortcuts controllers %>
+<div data-controller="view-toggle keyboard-shortcuts"
      data-keyboard-shortcuts-save-url-value="<%= form_path(@form_definition.code) %>"
-     data-keyboard-shortcuts-preview-url-value="<%= preview_form_path(@form_definition.code) %>"
      data-keyboard-shortcuts-download-url-value="<%= download_form_path(@form_definition.code) %>">
 
 <%# Back Link %>
@@ -23,6 +25,10 @@
   <div>
     <h1 class="text-2xl font-bold text-base-content"><%= @form_definition.code %></h1>
     <p class="text-base-content/70"><%= @form_definition.title %></p>
+    <%# Difficulty and Time Estimate %>
+    <div class="mt-2">
+      <%= form_estimates_badges(@form_definition, size: :sm) %>
+    </div>
   </div>
 
   <%# Controls Row %>
@@ -55,73 +61,155 @@
   </div>
 </div>
 
-<%# Main Content - CSS Grid Layout for Side-by-Side %>
-<div class="form-pdf-layout">
-  <%# Form Section (Left on Desktop) %>
-  <div class="form-scroll-container">
+<%# Quick Fill Template Selector - Show on SC-100 (main claim form) %>
+<% if @form_definition.code.upcase == "SC-100" %>
+  <%= render "forms/template_selector" %>
+<% end %>
+
+<div class="mb-6" data-controller="completion-indicator encouragement"
+     data-completion-indicator-required-fields-value="<%= @form_definition.required_fields.pluck(:name).to_json %>"
+     data-completion-indicator-form-selector-value="#main-form"
+     data-completion-indicator-form-code-value="<%= @form_definition.code %>"
+     data-encouragement-form-code-value="<%= @form_definition.code %>">
+  <div class="card bg-base-100 shadow">
+    <div class="card-body flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-4">
+        <div class="radial-progress text-primary"
+             data-completion-indicator-target="progress"
+             style="--value:<%= @submission.completion_percentage %>; --size:4rem; --thickness:8px;"
+             role="progressbar"
+             aria-valuenow="<%= @submission.completion_percentage %>"
+             aria-valuemin="0"
+             aria-valuemax="100">
+          <span data-completion-indicator-target="percent"><%= @submission.completion_percentage %>%</span>
+        </div>
+        <div>
+          <p class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">Completion</p>
+          <p class="text-base-content font-semibold">
+            Required fields: <%= @form_definition.required_fields.count %>
+          </p>
+          <p class="text-sm text-base-content/60">
+            Updated just now (auto-refreshes as you type)
+          </p>
+        </div>
+      </div>
+      <div class="text-left sm:text-right">
+        <p class="text-sm font-semibold text-base-content/70 uppercase tracking-wide">Estimated time</p>
+        <p class="text-lg font-bold text-base-content" data-completion-indicator-target="eta">
+          Calculating...
+        </p>
+        <p class="text-sm text-base-content/60">Based on remaining required questions</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Main Content - Centered Layout %>
+<div class="max-w-4xl mx-auto">
+  <%# Form Section %>
+  <div>
     <%= form_with model: @submission,
                   url: form_path(@form_definition.code),
                   method: :patch,
                   local: false,
                   id: "main-form",
                   data: {
-                    controller: "form validation",
+                    controller: "form validation keyboard-nav history",
                     form_save_url_value: form_path(@form_definition.code),
                     validation_target: "form"
                   } do |f| %>
 
+      <div class="flex justify-end gap-2 mb-4">
+        <button type="button"
+                class="btn btn-ghost btn-sm"
+                data-action="history#undo"
+                data-history-target="undoButton">
+          Undo
+        </button>
+        <button type="button"
+                class="btn btn-ghost btn-sm"
+                data-action="history#redo"
+                data-history-target="redoButton">
+          Redo
+        </button>
+      </div>
+
       <%# Wizard Mode Container %>
       <div id="wizard-container"
            class="<%= 'hidden' unless @wizard_mode %>"
-           data-view-toggle-target="wizardContainer"
-           data-controller="wizard"
-           data-wizard-total-fields-value="<%= @wizard_fields&.count || 0 %>"
-           data-wizard-skip-filled-value="<%= @skip_filled %>">
+           data-view-toggle-target="wizardContainer">
 
-        <% if @wizard_fields.present? && @wizard_fields.any? %>
-          <%# Progress Bar %>
-          <%= render "forms/wizard/progress_bar" %>
-
-          <%# Wizard Cards Container with 3D Perspective %>
-          <div class="wizard-cards-container perspective-1000 min-h-[350px]">
-            <% @wizard_fields.each_with_index do |field, index| %>
-              <%= render "forms/wizard/card",
-                         field: field,
-                         form: f,
-                         submission: @submission,
-                         index: index %>
-            <% end %>
-          </div>
-
-          <%# Navigation %>
-          <%= render "forms/wizard/navigation" %>
+        <%# NEW: Use simple wizard for SC-100, old wizard for others %>
+        <% if @form_definition.code.to_s.upcase == "SC-100" || @form_definition.code.to_s == "sc100" %>
+          <%= render "forms/simple_wizard",
+                     form_definition: @form_definition,
+                     submission: @submission,
+                     wizard_fields: @wizard_fields %>
         <% else %>
-          <%# Empty State %>
-          <div class="card bg-base-100 shadow-xl">
-            <div class="card-body text-center py-12">
-              <svg class="w-16 h-16 mx-auto text-success mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-              </svg>
-              <h3 class="text-xl font-semibold text-base-content mb-2">All Fields Complete!</h3>
-              <p class="text-base-content/70 mb-4">
-                <% if @skip_filled %>
-                  All required fields have been filled. You can download your form.
-                <% else %>
-                  This form has no fillable fields configured yet.
+          <%# OLD wizard for other forms %>
+          <div data-controller="wizard"
+               data-wizard-total-fields-value="<%= @wizard_fields&.count || 0 %>"
+               data-wizard-skip-filled-value="<%= @skip_filled %>"
+               data-wizard-form-code-value="<%= @form_definition.code %>">
+
+            <%= hidden_field_tag "submission[_wizard_progress]",
+                                 @submission.form_data["_wizard_progress"]&.to_json,
+                                 data: { wizard_target: "progressField" } %>
+
+            <% if @wizard_fields.present? && @wizard_fields.any? %>
+              <%# Progress Bar %>
+              <%= render "forms/wizard/progress_bar" %>
+
+              <%# Wizard Cards Container with 3D Perspective %>
+              <div class="wizard-cards-container perspective-1000 min-h-[350px]">
+                <% @wizard_fields.each_with_index do |field, index| %>
+                  <%= render "forms/wizard/card",
+                             field: field,
+                             form: f,
+                             submission: @submission,
+                             index: index %>
                 <% end %>
-              </p>
-              <div class="flex justify-center gap-3">
-                <%= link_to preview_form_path(@form_definition.code),
-                            target: "_blank",
-                            class: "btn btn-outline btn-primary" do %>
-                  Preview PDF
-                <% end %>
-                <%= render "shared/download_button",
-                    path: download_form_path(@form_definition.code),
-                    text: "Download PDF",
-                    class: "btn btn-success" %>
+              </div>
+
+              <%# Navigation %>
+              <%= render "forms/wizard/navigation" %>
+        <% else %>
+          <%# Empty State - Form Complete %>
+          <div class="space-y-6">
+            <div class="card bg-base-100 shadow-xl">
+              <div class="card-body text-center py-12">
+                <svg class="w-16 h-16 mx-auto text-success mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <h3 class="text-xl font-semibold text-base-content mb-2">All Fields Complete!</h3>
+                <p class="text-base-content/70 mb-4">
+                  <% if @skip_filled %>
+                    All required fields have been filled. You can download your form.
+                  <% else %>
+                    This form has no fillable fields configured yet.
+                  <% end %>
+                </p>
+                <div class="flex justify-center gap-3">
+                  <%= link_to preview_form_path(@form_definition.code),
+                              target: "_blank",
+                              class: "btn btn-outline btn-primary" do %>
+                    Preview PDF
+                  <% end %>
+                  <%= render "shared/download_button",
+                      path: download_form_path(@form_definition.code),
+                      text: "Download PDF",
+                      class: "btn btn-success" %>
+                </div>
               </div>
             </div>
+
+              <%# Review Auto-filled Data %>
+              <%= autofill_review_summary(@submission) %>
+
+              <%# What Happens Next? Guidance %>
+              <%= next_steps_guidance(@form_definition, @submission) %>
+            </div>
+          <% end %>
           </div>
         <% end %>
       </div>
@@ -139,7 +227,9 @@
         <div class="mt-6 p-4 bg-base-200 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-4">
           <div class="flex items-center gap-3">
             <%= f.submit "Save",
-                         class: "btn btn-primary" %>
+                         class: "btn btn-primary",
+                         data: { turbo_submits_with: "Saving...", disable_with: "Saving..." },
+                         aria: { busy: false } %>
             <span class="text-sm text-base-content/70">
               <%= @submission.completion_percentage %>% complete
             </span>
@@ -166,39 +256,6 @@
         </div>
       </div>
     <% end %>
-  </div>
-
-  <%# PDF Preview Section (Right on Desktop, Drawer on Mobile/Tablet) %>
-  <div class="pdf-preview-container hidden md:block"
-       data-pdf-drawer-target="panel">
-    <%= render PdfPreviewComponent.new(form_definition: @form_definition) %>
-  </div>
-</div>
-
-<%# Mobile/Tablet: PDF Preview Drawer %>
-<div class="md:hidden">
-  <%# Drawer Backdrop %>
-  <div class="pdf-drawer-backdrop hidden"
-       data-pdf-drawer-target="backdrop"
-       data-action="click->pdf-drawer#close"></div>
-
-  <%# Drawer Panel %>
-  <div class="pdf-drawer-panel"
-       data-pdf-drawer-target="drawer">
-    <div class="pdf-drawer-header">
-      <h3 class="font-semibold text-base-content">PDF Preview</h3>
-      <button type="button"
-              class="btn btn-ghost btn-circle min-h-[44px] min-w-[44px]"
-              data-action="click->pdf-drawer#close"
-              aria-label="Close preview">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-        </svg>
-      </button>
-    </div>
-    <div class="pdf-drawer-content">
-      <%= render PdfPreviewComponent.new(form_definition: @form_definition, variant: "mobile") %>
-    </div>
   </div>
 </div>
 
@@ -281,4 +338,12 @@
 <%# Keyboard Shortcuts Modal %>
 <%= render "shared/keyboard_shortcuts_modal" %>
 
+<%# Before You Start Checklist Modal %>
+<%= render "shared/form_requirements_modal", form_definition: @form_definition %>
+
+<%# Signup Prompt Modal (for email feature) %>
+<%= render "shared/signup_prompt_modal" %>
+
 </div><%# Close view-toggle controller wrapper %>
+
+<% end %><%# Close tutorial_wrapper %>

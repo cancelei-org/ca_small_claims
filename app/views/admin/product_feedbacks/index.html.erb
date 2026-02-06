@@ -1,0 +1,84 @@
+<% content_for :title, "Product Feedback - Admin" %>
+
+<div class="space-y-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div>
+      <h1 class="text-3xl font-bold">Product Feedback</h1>
+      <p class="text-base-content/70 mt-1">Manage user feedback, feature requests, and bug reports.</p>
+    </div>
+    <div class="flex gap-2">
+      <%= link_to export_admin_product_feedbacks_path(format: :csv, **request.query_parameters), class: "btn btn-outline btn-sm" do %>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+        Export CSV
+      <% end %>
+    </div>
+  </div>
+
+  <!-- Status Counts -->
+  <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
+    <div class="stat">
+      <div class="stat-title">Total</div>
+      <div class="stat-value"><%= @counts[:total] %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Pending</div>
+      <div class="stat-value text-warning" id="pending-count"><%= @counts[:pending] %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Under Review</div>
+      <div class="stat-value text-info" id="under-review-count"><%= @counts[:under_review] %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">Planned</div>
+      <div class="stat-value text-primary" id="planned-count"><%= @counts[:planned] %></div>
+    </div>
+    <div class="stat">
+      <div class="stat-title">In Progress</div>
+      <div class="stat-value text-secondary" id="in-progress-count"><%= @counts[:in_progress] %></div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <%= render "admin/product_feedbacks/filters" %>
+
+  <!-- Feedback List -->
+  <div class="card bg-base-100 shadow-xl">
+    <div class="card-body p-0">
+      <% if @product_feedbacks.any? %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Title</th>
+                <th>User</th>
+                <th>Status</th>
+                <th>Votes</th>
+                <th>Submitted</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="feedback-list">
+              <% @product_feedbacks.each do |feedback| %>
+                <%= render "admin/product_feedbacks/feedback_row", product_feedback: feedback %>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="p-4">
+          <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+        </div>
+      <% else %>
+        <div class="p-8 text-center text-base-content/60">
+          <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+          </svg>
+          <p class="text-lg">No feedback found matching your filters.</p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

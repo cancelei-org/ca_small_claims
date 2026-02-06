@@ -29,7 +29,7 @@
         </div>
 
         <div class="form-control mt-6">
-          <%= f.submit "Sign up", class: "btn btn-primary w-full min-h-[48px] text-base" %>
+          <%= f.submit "Sign up", class: "btn btn-primary w-full min-h-[48px] text-base", data: { turbo_submits_with: "Creating account...", disable_with: "Creating account..." } %>
         </div>
       <% end %>
 

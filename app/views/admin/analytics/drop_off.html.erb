@@ -1,0 +1,323 @@
+<% content_for :title, "Drop-Off Analysis - Admin" %>
+
+<%# Breadcrumbs %>
+<div class="text-sm breadcrumbs mb-4">
+  <ul>
+    <li><%= link_to "Admin", admin_root_path %></li>
+    <li><%= link_to "Analytics", admin_analytics_path %></li>
+    <li>Drop-Off Analysis</li>
+  </ul>
+</div>
+
+<%# Header %>
+<div class="mb-6">
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-base-content mb-2">Form Drop-Off Analysis</h1>
+      <p class="text-sm md:text-base text-base-content/70">
+        Identify where users abandon forms and which fields cause the most problems.
+      </p>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <%= link_to admin_analytics_path, class: "btn btn-sm btn-ghost gap-1" do %>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to Dashboard
+      <% end %>
+    </div>
+  </div>
+
+  <p class="text-xs text-base-content/60 mt-2">
+    Showing data from <%= @start_date.strftime("%b %d, %Y") %> to <%= @end_date.strftime("%b %d, %Y") %>
+  </p>
+</div>
+
+<%# Filters %>
+<div class="card bg-base-100 shadow mb-6">
+  <div class="card-body p-4">
+    <div class="flex flex-col md:flex-row gap-4">
+      <%# Period Filter %>
+      <div class="flex flex-wrap gap-2">
+        <%= link_to "7 Days",
+            drop_off_admin_analytics_path(period: "7d", form_id: @form_definition_id),
+            class: "btn btn-sm #{@period == '7d' ? 'btn-primary' : 'btn-ghost'}" %>
+        <%= link_to "30 Days",
+            drop_off_admin_analytics_path(period: "30d", form_id: @form_definition_id),
+            class: "btn btn-sm #{@period == '30d' ? 'btn-primary' : 'btn-ghost'}" %>
+        <%= link_to "90 Days",
+            drop_off_admin_analytics_path(period: "90d", form_id: @form_definition_id),
+            class: "btn btn-sm #{@period == '90d' ? 'btn-primary' : 'btn-ghost'}" %>
+      </div>
+
+      <%# Form Filter %>
+      <div class="flex-1 md:max-w-xs">
+        <%= form_with url: drop_off_admin_analytics_path, method: :get, local: true, class: "flex gap-2" do %>
+          <%= hidden_field_tag :period, @period %>
+          <%= select_tag :form_id,
+              options_for_select([["All Forms", ""]] + @forms.map { |f| ["#{f.code} - #{f.title}", f.id] }, @form_definition_id),
+              class: "select select-sm select-bordered flex-1",
+              onchange: "this.form.submit()" %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Key Metrics %>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+  <div class="stats shadow bg-base-100">
+    <div class="stat p-4">
+      <div class="stat-figure text-error">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+        </svg>
+      </div>
+      <div class="stat-title text-xs">Abandoned Forms</div>
+      <div class="stat-value text-error text-2xl"><%= number_with_delimiter(@abandonment_count) %></div>
+      <div class="stat-desc text-xs">Not completed in 24+ hours</div>
+    </div>
+  </div>
+
+  <div class="stats shadow bg-base-100">
+    <div class="stat p-4">
+      <div class="stat-figure text-warning">
+        <div class="radial-progress text-warning" style="--value:<%= @abandonment_rate %>; --size:3rem; --thickness:4px;" role="progressbar">
+          <span class="text-xs"><%= @abandonment_rate.round %>%</span>
+        </div>
+      </div>
+      <div class="stat-title text-xs">Abandonment Rate</div>
+      <div class="stat-value text-warning text-2xl"><%= @abandonment_rate %>%</div>
+      <div class="stat-desc text-xs">Of all started forms</div>
+    </div>
+  </div>
+
+  <div class="stats shadow bg-base-100">
+    <div class="stat p-4">
+      <div class="stat-figure text-info">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-8 h-8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="stat-title text-xs">Avg Time Before Drop-Off</div>
+      <div class="stat-value text-info text-2xl"><%= @avg_time %> min</div>
+      <div class="stat-desc text-xs">Time spent before abandoning</div>
+    </div>
+  </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+  <%# Time Distribution %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Time Before Drop-Off</h2>
+      <% if @time_distribution.present? %>
+        <div class="space-y-3">
+          <% max_count = @time_distribution.values.max || 1 %>
+          <% @time_distribution.each do |bucket, count| %>
+            <% percentage = ((count.to_f / max_count) * 100).round %>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm"><%= bucket %></span>
+                <span class="text-sm text-base-content/70"><%= count %> forms</span>
+              </div>
+              <div class="w-full bg-base-200 rounded-full h-2">
+                <div class="bg-error/50 h-2 rounded-full transition-all" style="width: <%= percentage %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-center text-base-content/60 py-8">No abandonment data</p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Completion Distribution %>
+  <div class="card bg-base-100 shadow">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Completion at Abandonment</h2>
+      <% if @completion_distribution.present? %>
+        <div class="space-y-3">
+          <% max_count = @completion_distribution.values.max || 1 %>
+          <% @completion_distribution.each do |bucket, count| %>
+            <% percentage = ((count.to_f / max_count) * 100).round %>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-sm"><%= bucket %> complete</span>
+                <span class="text-sm text-base-content/70"><%= count %> forms</span>
+              </div>
+              <div class="w-full bg-base-200 rounded-full h-2">
+                <div class="bg-warning/50 h-2 rounded-full transition-all" style="width: <%= percentage %>%"></div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <p class="text-center text-base-content/60 py-8">No abandonment data</p>
+      <% end %>
+    </div>
+  </div>
+</div>
+
+<% if @form_definition_id.present? %>
+  <%# Field-Level Analysis (Specific Form) %>
+
+  <%# Problematic Fields Alert %>
+  <% if @suggestions.present? %>
+    <div class="alert alert-warning shadow mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="stroke-current shrink-0 w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Problematic Fields Detected</h3>
+        <div class="text-sm"><%= @suggestions.count %> fields have high abandonment rates and may need attention</div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# Field Abandonment Stats %>
+  <div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Field-by-Field Analysis</h2>
+
+      <% if @field_stats.present? %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>Section</th>
+                <th class="text-center">Required</th>
+                <th class="text-right">Abandonments</th>
+                <th class="text-right">Drop-Off Rate</th>
+                <th class="text-right">Avg Time</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @field_stats.each do |field| %>
+                <tr class="<%= field[:abandonment_percentage] > 20 ? 'bg-error/10' : field[:abandonment_percentage] > 10 ? 'bg-warning/10' : '' %>">
+                  <td>
+                    <div class="font-medium"><%= field[:field_label] %></div>
+                    <div class="text-xs text-base-content/60"><%= field[:field_name] %></div>
+                  </td>
+                  <td class="text-sm"><%= field[:section] || "—" %></td>
+                  <td class="text-center">
+                    <% if field[:required] %>
+                      <span class="badge badge-sm badge-error">Required</span>
+                    <% else %>
+                      <span class="text-base-content/60">—</span>
+                    <% end %>
+                  </td>
+                  <td class="text-right font-mono"><%= field[:abandonment_count] %></td>
+                  <td class="text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <progress class="progress <%= field[:abandonment_percentage] > 20 ? 'progress-error' : field[:abandonment_percentage] > 10 ? 'progress-warning' : 'progress-info' %> w-16"
+                                value="<%= field[:abandonment_percentage] %>"
+                                max="100">
+                      </progress>
+                      <span class="text-sm font-bold <%= field[:abandonment_percentage] > 20 ? 'text-error' : field[:abandonment_percentage] > 10 ? 'text-warning' : '' %>">
+                        <%= field[:abandonment_percentage] %>%
+                      </span>
+                    </div>
+                  </td>
+                  <td class="text-right text-sm"><%= field[:avg_time_before_drop] %> min</td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-base-content/60 py-8">No field-level abandonment data available</p>
+      <% end %>
+    </div>
+  </div>
+
+  <%# Suggestions %>
+  <% if @suggestions.present? %>
+    <div class="card bg-base-100 shadow mb-6">
+      <div class="card-body">
+        <h2 class="card-title mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+          </svg>
+          Improvement Suggestions
+        </h2>
+
+        <div class="space-y-4">
+          <% @suggestions.each do |suggestion| %>
+            <div class="border border-warning/30 bg-warning/5 rounded-lg p-4">
+              <div class="flex items-start gap-3">
+                <div class="badge badge-warning badge-lg shrink-0"><%= suggestion[:abandonment_percentage] %>%</div>
+                <div class="flex-1">
+                  <h3 class="font-bold text-base mb-1"><%= suggestion[:field_label] %></h3>
+                  <ul class="list-disc list-inside space-y-1 text-sm">
+                    <% suggestion[:suggestions].each do |s| %>
+                      <li><%= s %></li>
+                    <% end %>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+<% else %>
+  <%# Abandonment by Form (All Forms View) %>
+  <div class="card bg-base-100 shadow mb-6">
+    <div class="card-body">
+      <h2 class="card-title mb-4">Abandonment by Form</h2>
+
+      <% if @by_form.present? %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra w-full">
+            <thead>
+              <tr>
+                <th>Form</th>
+                <th class="text-right">Total Started</th>
+                <th class="text-right">Abandoned</th>
+                <th class="text-right">Abandonment Rate</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @by_form.each do |form| %>
+                <tr>
+                  <td>
+                    <div class="font-medium"><%= form[:form_code] %></div>
+                    <div class="text-xs text-base-content/60"><%= form[:form_title] %></div>
+                  </td>
+                  <td class="text-right font-mono"><%= number_with_delimiter(form[:total_started]) %></td>
+                  <td class="text-right font-mono"><%= number_with_delimiter(form[:abandonment_count]) %></td>
+                  <td class="text-right">
+                    <div class="flex items-center justify-end gap-2">
+                      <progress class="progress <%= form[:abandonment_rate] > 50 ? 'progress-error' : form[:abandonment_rate] > 30 ? 'progress-warning' : 'progress-info' %> w-16"
+                                value="<%= form[:abandonment_rate] %>"
+                                max="100">
+                      </progress>
+                      <span class="text-sm font-bold <%= form[:abandonment_rate] > 50 ? 'text-error' : form[:abandonment_rate] > 30 ? 'text-warning' : '' %>">
+                        <%= form[:abandonment_rate] %>%
+                      </span>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <%= link_to drop_off_admin_analytics_path(period: @period, form_id: FormDefinition.find_by(code: form[:form_code])&.id),
+                        class: "btn btn-xs btn-ghost" do %>
+                      View Details
+                    <% end %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% else %>
+        <p class="text-center text-base-content/60 py-8">No form abandonment data available</p>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -29,7 +29,7 @@
           checked: submission.field_value(field.name) == option["value"],
           required: field.required,
           class: "radio radio-primary w-5 h-5",
-          data: field_data_attributes(action: "change->form#fieldChanged") %>
+          data: field_data_attributes(action: "change->form#fieldChanged").merge(validation_target: "input") %>
         <span class="label-text text-base"><%= option["label"] || option["value"] %></span>
       </label>
     <% end %>

@@ -1,0 +1,36 @@
+<dialog id="faq-modal" class="modal modal-bottom sm:modal-middle" data-controller="faq">
+  <div class="modal-box max-w-3xl h-[80vh] flex flex-col p-0">
+    <div class="flex items-center justify-between p-4 border-b bg-base-100 sticky top-0 z-10">
+      <h3 class="font-bold text-lg flex items-center gap-2">
+        <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        Help & FAQ
+      </h3>
+      <form method="dialog">
+        <button class="btn btn-sm btn-circle btn-ghost">✕</button>
+      </form>
+    </div>
+
+    <div class="p-6 overflow-y-auto grow" data-faq-target="content">
+      <%= render "shared/faq_content" %>
+      
+      <div class="mt-8 p-4 bg-primary/5 rounded-lg border border-primary/20 text-center">
+        <p class="text-sm font-medium text-primary mb-2">Still need help?</p>
+        <p class="text-xs text-base-content/70 mb-4">You can visit the official CA Courts Self-Help center for more detailed legal information.</p>
+        <a href="https://selfhelp.courts.ca.gov/small-claims" target="_blank" class="btn btn-primary btn-sm">
+          Visit CA Courts Self-Help
+        </a>
+      </div>
+    </div>
+    
+    <div class="modal-action p-4 border-t bg-base-100 sticky bottom-0 z-10">
+      <form method="dialog">
+        <button class="btn">Close</button>
+      </form>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>

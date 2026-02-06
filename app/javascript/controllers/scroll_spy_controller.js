@@ -48,7 +48,7 @@ export default class extends Controller {
 
     // If no section found, use the first or last based on position
     if (!currentSection && this.sectionTargets.length > 0) {
-      const firstSection = this.sectionTargets[0];
+      const [firstSection] = this.sectionTargets;
       const lastSection = this.sectionTargets[this.sectionTargets.length - 1];
 
       if (scrollPosition < firstSection.offsetTop) {

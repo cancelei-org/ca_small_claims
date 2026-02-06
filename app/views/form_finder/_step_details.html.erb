@@ -1,0 +1,74 @@
+<div class="card bg-base-100 shadow-xl">
+  <div class="card-body">
+    <h1 class="card-title text-2xl mb-2">A few more details</h1>
+    <p class="text-base-content/70 mb-6">These questions help us recommend the right forms for your situation.</p>
+
+    <%= form_with url: update_form_finder_path, method: :post, data: { turbo_frame: "_top" } do |f| %>
+      <div class="space-y-6">
+        <%# Multiple Parties Question %>
+        <div class="form-control">
+          <label class="label">
+            <span class="label-text text-lg font-medium">Are there more than 4 plaintiffs or defendants?</span>
+          </label>
+          <p class="text-base-content/60 text-sm mb-3">If you have more than 4 people on either side, you'll need an additional form.</p>
+          <div class="flex gap-4">
+            <label class="cursor-pointer flex items-center gap-2">
+              <input type="radio"
+                     name="multiple_parties"
+                     value="true"
+                     class="radio radio-primary"
+                     <%= "checked" if answers[:multiple_parties] == true %>>
+              <span>Yes, more than 4</span>
+            </label>
+            <label class="cursor-pointer flex items-center gap-2">
+              <input type="radio"
+                     name="multiple_parties"
+                     value="false"
+                     class="radio radio-primary"
+                     <%= "checked" if answers[:multiple_parties] == false || answers[:multiple_parties].nil? %>>
+              <span>No, 4 or fewer</span>
+            </label>
+          </div>
+        </div>
+
+        <% if answers[:role] == "plaintiff" && answers[:situation] == "new_case" %>
+          <%# Fee Waiver Question (only for new plaintiff cases) %>
+          <div class="form-control">
+            <label class="label">
+              <span class="label-text text-lg font-medium">Do you need a fee waiver?</span>
+            </label>
+            <p class="text-base-content/60 text-sm mb-3">If you can't afford the filing fee, you may qualify for a fee waiver based on your income.</p>
+            <div class="flex gap-4">
+              <label class="cursor-pointer flex items-center gap-2">
+                <input type="radio"
+                       name="needs_fee_waiver"
+                       value="true"
+                       class="radio radio-primary"
+                       <%= "checked" if answers[:needs_fee_waiver] == true %>>
+                <span>Yes, I need a fee waiver</span>
+              </label>
+              <label class="cursor-pointer flex items-center gap-2">
+                <input type="radio"
+                       name="needs_fee_waiver"
+                       value="false"
+                       class="radio radio-primary"
+                       <%= "checked" if answers[:needs_fee_waiver] == false || answers[:needs_fee_waiver].nil? %>>
+                <span>No, I'll pay the fee</span>
+              </label>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <div class="card-actions justify-between mt-8">
+        <%= button_to "Back", back_form_finder_path, method: :post, class: "btn btn-ghost min-h-[44px]", data: { turbo_frame: "_top" } %>
+        <button type="submit" class="btn btn-primary min-h-[44px]">
+          See Recommendations
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+</div>

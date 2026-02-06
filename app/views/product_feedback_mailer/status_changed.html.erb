@@ -1,0 +1,47 @@
+<h1>Your Feedback Status Has Been Updated</h1>
+
+<p>Hi <%= @user.display_name %>,</p>
+
+<p>We wanted to let you know that the status of your feedback has been updated.</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+  <tr>
+    <td style="padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9; width: 30%;"><strong>Title</strong></td>
+    <td style="padding: 10px; border: 1px solid #ddd;"><%= @product_feedback.title %></td>
+  </tr>
+  <tr>
+    <td style="padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>Category</strong></td>
+    <td style="padding: 10px; border: 1px solid #ddd;"><%= @product_feedback.category_display_name %></td>
+  </tr>
+  <tr>
+    <td style="padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>Previous Status</strong></td>
+    <td style="padding: 10px; border: 1px solid #ddd;"><%= ProductFeedback.status_display_name(@old_status) %></td>
+  </tr>
+  <tr>
+    <td style="padding: 10px; border: 1px solid #ddd; background-color: #f9f9f9;"><strong>New Status</strong></td>
+    <td style="padding: 10px; border: 1px solid #ddd;"><strong><%= @product_feedback.status_display_name %></strong></td>
+  </tr>
+</table>
+
+<% case @product_feedback.status %>
+<% when "under_review" %>
+<p>Our team is now actively reviewing your feedback. Thank you for helping us improve!</p>
+<% when "planned" %>
+<p>Great news! Your suggestion has been added to our roadmap. We'll implement this in a future update.</p>
+<% when "in_progress" %>
+<p>We're actively working on this! Stay tuned for updates.</p>
+<% when "completed" %>
+<p>Your feedback has been implemented. Thank you for contributing to making our platform better!</p>
+<% when "declined" %>
+<p>After careful consideration, we've decided not to proceed with this request at this time. We appreciate you taking the time to share your thoughts.</p>
+<% end %>
+
+<p style="margin-top: 30px;">
+  <a href="<%= product_feedback_url(@product_feedback) %>" style="display: inline-block; padding: 12px 24px; background-color: #0066cc; color: white; text-decoration: none; border-radius: 4px;">
+    View Your Feedback
+  </a>
+</p>
+
+<p style="color: #666; font-size: 14px; margin-top: 30px;">
+  If you have any questions, please don't hesitate to contact us.
+</p>

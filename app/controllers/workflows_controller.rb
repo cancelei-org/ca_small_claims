@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class WorkflowsController < ApplicationController
-  include SessionStorage
+  include FormDisplay
 
   before_action :set_workflow, only: [ :show, :step, :advance, :back, :complete ]
   before_action :set_engine, only: [ :show, :step, :advance, :back, :complete ]
@@ -16,16 +16,16 @@ class WorkflowsController < ApplicationController
     @current_submission = @engine.current_submission || @engine.start
     @progress = @engine.progress
     @current_step = @engine.current_step
-    @form_definition = @current_submission&.form_definition
-    @field_definitions = @form_definition&.field_definitions&.by_position || []
+    load_form_display_from_submission(@current_submission)
+    @field_definitions = safe_field_definitions
   end
 
   def step
     @current_submission = @engine.current_submission
     @progress = @engine.progress
     @current_step = @engine.current_step
-    @form_definition = @current_submission&.form_definition
-    @field_definitions = @form_definition&.field_definitions&.by_position || []
+    load_form_display_from_submission(@current_submission)
+    @field_definitions = safe_field_definitions
 
     return unless request.patch? && @current_submission
       @current_submission.update_fields(submission_params)
@@ -87,6 +87,12 @@ class WorkflowsController < ApplicationController
   end
 
   def submission_params
-    params.require(:submission).permit!.to_h
+    # Security: Only permit fields from the current workflow step's form
+    # This prevents mass assignment attacks by restricting to known field names
+    current_submission = @engine&.current_submission
+    return {} unless current_submission&.form_definition
+
+    permitted_fields = current_submission.form_definition.field_definitions.pluck(:name)
+    params.require(:submission).permit(*permitted_fields).to_h
   end
 end

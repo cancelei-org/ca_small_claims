@@ -40,4 +40,8 @@ class HomeController < ApplicationController
 
   def accessibility
   end
+
+  def glossary
+    @terms = LegalTerms::Glossary.instance.terms.sort_by { |t| t[:term] }
+  end
 end

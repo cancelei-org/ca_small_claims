@@ -1,10 +1,11 @@
 # frozen_string_literal: true
 
 class FormsController < ApplicationController
-  include SessionStorage
   include PdfHandling
+  include FormDisplay
+  include FormResponseHandler
 
-  before_action :set_form_definition, only: [ :show, :update, :preview, :download, :toggle_wizard ]
+  before_action :set_form_definition, only: [ :show, :update, :preview, :download, :toggle_wizard, :apply_template, :clear_template, :send_email ]
 
   def index
     @forms = FormDefinition.active.includes(:category)
@@ -32,8 +33,7 @@ class FormsController < ApplicationController
 
   def show
     @submission = find_or_create_submission(@form_definition)
-    @sections = @form_definition.sections
-    @field_definitions = @form_definition.field_definitions.by_position
+    load_form_display_data
 
     # Wizard mode support
     @wizard_mode = wizard_mode_enabled?
@@ -55,31 +55,9 @@ class FormsController < ApplicationController
     @submission = find_or_create_submission(@form_definition)
 
     if @submission.update_fields(submission_params)
-      respond_to do |format|
-        format.turbo_stream do
-          render turbo_stream: turbo_stream.replace(
-            "autosave-status",
-            partial: "shared/autosave_status",
-            locals: { saved_at: Time.current }
-          )
-        end
-        format.json { render json: { success: true, saved_at: Time.current.iso8601 } }
-        format.html { redirect_to form_path(@form_definition.code), notice: "Form saved" }
-      end
+      respond_with_autosave(@submission, redirect_path: form_path(@form_definition.code))
     else
-      respond_to do |format|
-        format.turbo_stream do
-          @sections = @form_definition.sections
-          @field_definitions = @form_definition.field_definitions.by_position
-          render :show, status: :unprocessable_entity
-        end
-        format.json { render json: { success: false, errors: @submission.errors.full_messages }, status: :unprocessable_entity }
-        format.html do
-          @sections = @form_definition.sections
-          @field_definitions = @form_definition.field_definitions.by_position
-          render :show, status: :unprocessable_entity
-        end
-      end
+      respond_with_autosave_error(@submission) { load_form_display_data }
     end
   end
 
@@ -93,6 +71,102 @@ class FormsController < ApplicationController
     send_pdf_download(@submission)
   end
 
+  def apply_template
+    @submission = find_or_create_submission(@form_definition)
+    template_id = params[:template_id]
+    customizations = params[:customizations] || {}
+
+    applier = Templates::Applier.new(
+      template_id: template_id,
+      submission: @submission,
+      customizations: customizations
+    )
+
+    result = applier.apply
+
+    respond_to do |format|
+      if result[:success]
+        format.html { redirect_to form_path(@form_definition.code), notice: "Template applied successfully!" }
+        format.json { render json: result, status: :ok }
+        format.turbo_stream do
+          flash.now[:notice] = "Template applied successfully!"
+          redirect_to form_path(@form_definition.code)
+        end
+      else
+        format.html { redirect_to form_path(@form_definition.code), alert: result[:errors].join(", ") }
+        format.json { render json: result, status: :unprocessable_entity }
+        format.turbo_stream do
+          flash.now[:alert] = result[:errors].join(", ")
+          redirect_to form_path(@form_definition.code)
+        end
+      end
+    end
+  end
+
+  def clear_template
+    @submission = find_or_create_submission(@form_definition)
+
+    # Remove template metadata and prefilled fields
+    if @submission.form_data["_template_metadata"].present?
+      template_id = @submission.form_data.dig("_template_metadata", "template_id")
+      template = Templates::Loader.instance.find(template_id)
+
+      # Get prefill keys to clear
+      if template
+        form_code = @form_definition.code.to_sym
+        prefills = template.dig(:prefills, :default, form_code) || {}
+
+        # Clear prefilled fields
+        new_data = @submission.form_data.except(*prefills.keys.map(&:to_s), "_template_metadata")
+        @submission.update!(form_data: new_data)
+      else
+        @submission.update!(form_data: @submission.form_data.except("_template_metadata"))
+      end
+    end
+
+    respond_to do |format|
+      format.html { redirect_to form_path(@form_definition.code), notice: "Template cleared" }
+      format.json { render json: { success: true }, status: :ok }
+    end
+  end
+
+  def send_email
+    unless user_signed_in?
+      return respond_to do |format|
+        format.html { redirect_to new_user_registration_path, alert: "Please create an account to receive your form by email." }
+        format.json do
+          render json: {
+            success: false,
+            requires_signup: true,
+            message: "Create a free account to receive your completed form by email. Your progress will be saved!",
+            signup_url: new_user_registration_path,
+            login_url: new_user_session_path
+          }, status: :unauthorized
+        end
+      end
+    end
+
+    @submission = find_or_create_submission(@form_definition)
+
+    # Queue the email delivery job
+    FormEmailJob.perform_later(
+      user_id: current_user.id,
+      submission_id: @submission.id,
+      submission_type: @submission.class.name
+    )
+
+    respond_to do |format|
+      format.html { redirect_to form_path(@form_definition.code), notice: "Your form has been sent to #{current_user.email}!" }
+      format.json do
+        render json: {
+          success: true,
+          message: "Your completed #{@form_definition.code} form is on its way to #{current_user.email}!",
+          email: current_user.email
+        }, status: :ok
+      end
+    end
+  end
+
   private
 
   def set_form_definition
@@ -104,7 +178,10 @@ class FormsController < ApplicationController
   end
 
   def submission_params
-    params.require(:submission).permit!.to_h
+    # Security: Only permit fields that are defined for this form
+    # This prevents mass assignment attacks by restricting to known field names
+    permitted_fields = @form_definition.field_definitions.pluck(:name)
+    params.require(:submission).permit(*permitted_fields).to_h
   end
 
   def wizard_mode_enabled?

@@ -1,0 +1,14 @@
+<%# Email input for simple wizard
+    locals: field, form, submission, index
+%>
+
+<%= form.email_field field.name,
+                     id: "simple-wizard-field-#{field.name}",
+                     value: submission.field_value(field.name),
+                     placeholder: field.placeholder || "email@example.com",
+                     required: field.required,
+                     class: "input input-bordered w-full",
+                     autocomplete: "email",
+                     data: {
+                       action: "input->simple-wizard#fieldChanged input->form#fieldChanged"
+                     } %>

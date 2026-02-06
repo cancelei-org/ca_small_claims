@@ -1,0 +1,66 @@
+<% content_for :title, "Legal Terms Glossary - California Small Claims Court" %>
+
+<div class="max-w-4xl mx-auto py-8">
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold mb-2">Legal Terms Glossary</h1>
+    <p class="text-base-content/70">
+      Understanding legal terminology can be confusing. This glossary explains common terms you'll encounter
+      when using California Small Claims Court forms. Terms marked with a
+      <span class="legal-term" style="cursor: default;">dotted underline</span>
+      throughout our forms will show definitions when you hover or tap on them.
+    </p>
+  </div>
+
+  <%# Search/Filter %>
+  <div class="mb-6">
+    <div class="form-control">
+      <input type="text"
+             placeholder="Search terms..."
+             class="input input-bordered w-full max-w-xs"
+             data-controller="glossary-search"
+             data-action="input->glossary-search#filter"
+             aria-label="Search glossary">
+    </div>
+  </div>
+
+  <%# Glossary Grid %>
+  <div class="grid gap-4 md:grid-cols-2" data-glossary-search-target="container">
+    <% @terms.each do |term| %>
+      <div class="card bg-base-100 border border-base-300 glossary-term" data-term="<%= term[:term].downcase %>">
+        <div class="card-body p-4">
+          <h3 class="card-title text-lg text-primary">
+            <%= term[:term] %>
+          </h3>
+          <% if term[:simple].present? %>
+            <p class="text-sm font-medium text-base-content/80 -mt-1">
+              <%= term[:simple] %>
+            </p>
+          <% end %>
+          <p class="text-sm text-base-content/70">
+            <%= term[:definition] %>
+          </p>
+          <% if term[:help_url].present? %>
+            <div class="card-actions justify-end mt-2">
+              <%= link_to term[:help_url], target: "_blank", rel: "noopener", class: "btn btn-xs btn-ghost text-primary gap-1" do %>
+                Learn more at CA Courts
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                </svg>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Back link %>
+  <div class="mt-8">
+    <%= link_to root_path, class: "btn btn-ghost gap-2" do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      </svg>
+      Back to Home
+    <% end %>
+  </div>
+</div>

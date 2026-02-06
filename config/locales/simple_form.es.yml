@@ -1,0 +1,23 @@
+# Spanish translations for SimpleForm
+es:
+  simple_form:
+    "yes": 'Sí'
+    "no": 'No'
+    required:
+      text: 'obligatorio'
+      mark: '*'
+    error_notification:
+      default_message: "Por favor revise los problemas a continuación:"
+    labels:
+      defaults:
+        email: "Correo electrónico"
+        password: "Contraseña"
+        password_confirmation: "Confirmar contraseña"
+        remember_me: "Recordarme"
+        current_password: "Contraseña actual"
+    hints:
+      defaults:
+        password: "Mínimo 6 caracteres"
+    placeholders:
+      defaults:
+        email: "ejemplo@correo.com"

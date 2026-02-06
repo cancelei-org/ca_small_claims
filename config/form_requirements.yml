@@ -1,0 +1,340 @@
+# Form Requirements Configuration
+# Pre-form checklists to reduce mid-form abandonment
+# UX-USER-09: Pre-Form Requirements Checklist
+
+defaults:
+  # Default settings for all forms
+  allow_skip: true
+  show_on_first_visit: true
+  save_for_later_enabled: true
+
+# Categories of requirement items
+categories:
+  required_documents:
+    label: "Required Documents"
+    icon: "document"
+    description: "Documents you'll need to reference"
+  information_needed:
+    label: "Information Needed"
+    icon: "info"
+    description: "Details you should have ready"
+  optional_items:
+    label: "Optional but Helpful"
+    icon: "lightbulb"
+    description: "These can speed up the process"
+
+# Per-form requirements
+forms:
+  SC-100:
+    title: "Plaintiff's Claim - What You'll Need"
+    description: "Filing a small claims case requires specific information. Gather these items before you start."
+    estimated_time: "15-25 minutes"
+    requirements:
+      required_documents:
+        - id: defendant_info
+          label: "Defendant's name and current address"
+          description: "The exact legal name and street address of the person or business you're suing"
+          required: true
+          profile_field: null
+          tip: "If suing a business, get the exact legal name from the California Secretary of State website"
+        - id: amount_proof
+          label: "Proof of the amount you're claiming"
+          description: "Receipts, invoices, contracts, or estimates showing your damages"
+          required: true
+          profile_field: null
+          tip: "Organize your receipts by date - you may need to explain the timeline in court"
+        - id: claim_description
+          label: "Written description of what happened"
+          description: "A clear summary of the dispute, including dates and key events"
+          required: true
+          profile_field: null
+          tip: "Keep it factual and brief - courts prefer concise explanations"
+      information_needed:
+        - id: plaintiff_contact
+          label: "Your contact information"
+          description: "Your full legal name, address, phone, and email"
+          required: true
+          profile_field: full_name
+          tip: "This must match your ID - use your legal name, not a nickname"
+        - id: incident_date
+          label: "Date the problem occurred"
+          description: "When the incident happened or when you discovered the damage"
+          required: true
+          profile_field: null
+          tip: "California has time limits (statutes of limitations) - make sure you're filing in time"
+        - id: venue_info
+          label: "Court location decision"
+          description: "Know why you're filing in this specific court (defendant's location, where incident occurred, etc.)"
+          required: true
+          profile_field: null
+          tip: "Filing in the wrong court can delay your case"
+        - id: claim_amount
+          label: "Total amount you're claiming"
+          description: "Calculate your damages - maximum is $12,500 for individuals"
+          required: true
+          profile_field: null
+          tip: "Don't forget to include filing fees in your claim"
+      optional_items:
+        - id: prior_demand
+          label: "Record of demand letter sent"
+          description: "Evidence that you asked the defendant to pay before filing"
+          required: false
+          profile_field: null
+          tip: "While not required, showing you tried to resolve this outside court can help your case"
+        - id: witness_info
+          label: "Witness contact information"
+          description: "Names and phone numbers of anyone who saw what happened"
+          required: false
+          profile_field: null
+          tip: "Witnesses can significantly strengthen your case"
+
+  SC-120:
+    title: "Defendant's Claim - What You'll Need"
+    description: "Filing a counterclaim requires the case information from the plaintiff's claim plus your own evidence."
+    estimated_time: "15-20 minutes"
+    requirements:
+      required_documents:
+        - id: original_claim
+          label: "Copy of the plaintiff's claim (SC-100)"
+          description: "The case papers you received when you were sued"
+          required: true
+          profile_field: null
+          tip: "You'll need the case number from this document"
+        - id: case_number
+          label: "Case number"
+          description: "Found on the top right of the plaintiff's claim"
+          required: true
+          profile_field: null
+          tip: "The case number links your counterclaim to the original case"
+        - id: your_evidence
+          label: "Evidence supporting your counterclaim"
+          description: "Documents proving the plaintiff owes YOU money"
+          required: true
+          profile_field: null
+          tip: "Think about why the plaintiff's claim is wrong AND what they owe you"
+      information_needed:
+        - id: plaintiff_info
+          label: "Plaintiff's contact information"
+          description: "Full name and address of the person who sued you"
+          required: true
+          profile_field: null
+          tip: "Copy this exactly from the SC-100 you received"
+        - id: your_contact
+          label: "Your contact information"
+          description: "Your full legal name, address, and phone"
+          required: true
+          profile_field: full_name
+          tip: "Make sure this matches your ID"
+        - id: counterclaim_amount
+          label: "Amount of your counterclaim"
+          description: "How much the plaintiff owes you (maximum $12,500)"
+          required: true
+          profile_field: null
+          tip: "You can claim more than the plaintiff is claiming"
+      optional_items:
+        - id: hearing_date
+          label: "Original hearing date"
+          description: "When the first case is scheduled to be heard"
+          required: false
+          profile_field: null
+          tip: "Your counterclaim will typically be heard at the same time"
+
+  SC-105:
+    title: "Additional Plaintiffs - What You'll Need"
+    description: "Adding more plaintiffs to a small claims case."
+    estimated_time: "5-10 minutes"
+    requirements:
+      information_needed:
+        - id: case_number
+          label: "Case number from SC-100"
+          description: "The case number assigned when the first claim was filed"
+          required: true
+          profile_field: null
+          tip: "Found on your SC-100 after filing"
+        - id: additional_plaintiff_info
+          label: "Additional plaintiff contact information"
+          description: "Full name, address, and phone for each additional plaintiff"
+          required: true
+          profile_field: null
+          tip: "Each plaintiff must sign the original SC-100"
+
+  SC-100A:
+    title: "Additional Defendants - What You'll Need"
+    description: "Adding more defendants to a small claims case."
+    estimated_time: "5-10 minutes"
+    requirements:
+      information_needed:
+        - id: case_number
+          label: "Case number from SC-100"
+          description: "The case number from your original claim"
+          required: true
+          profile_field: null
+          tip: "All defendants will be part of the same case"
+        - id: additional_defendant_info
+          label: "Additional defendant information"
+          description: "Full legal name and current address for each additional defendant"
+          required: true
+          profile_field: null
+          tip: "You must serve each defendant separately"
+
+  SC-103:
+    title: "Fictitious Business Name Declaration - What You'll Need"
+    description: "Use when suing or being sued under a business name."
+    estimated_time: "5 minutes"
+    requirements:
+      required_documents:
+        - id: business_docs
+          label: "Fictitious business name statement"
+          description: "Filed with the county clerk when you started doing business under this name"
+          required: true
+          profile_field: null
+          tip: "Search your county clerk's records if you don't have a copy"
+      information_needed:
+        - id: owner_info
+          label: "Owner information"
+          description: "Names of all owners of the business"
+          required: true
+          profile_field: null
+          tip: "All owners should be listed even if only one is filing"
+
+  FW-001:
+    title: "Fee Waiver Request - What You'll Need"
+    description: "Request a fee waiver if you cannot afford court fees."
+    estimated_time: "10-15 minutes"
+    requirements:
+      required_documents:
+        - id: income_proof
+          label: "Proof of income"
+          description: "Recent pay stubs, tax returns, or benefits statements"
+          required: true
+          profile_field: null
+          tip: "Gather documents for the last 2-3 months"
+        - id: expense_records
+          label: "Monthly expense records"
+          description: "Bills and receipts showing your regular expenses"
+          required: true
+          profile_field: null
+          tip: "Include rent, utilities, food, medical, and other necessities"
+      information_needed:
+        - id: household_info
+          label: "Household information"
+          description: "Number of people in your household and their income"
+          required: true
+          profile_field: null
+          tip: "Include everyone who lives with you"
+        - id: benefits_info
+          label: "Government benefits"
+          description: "Any public assistance you receive (CalFresh, Medi-Cal, SSI, etc.)"
+          required: false
+          profile_field: null
+          tip: "Some benefits automatically qualify you for a fee waiver"
+
+  POS-030:
+    title: "Proof of Service - What You'll Need"
+    description: "Document that shows you properly served the other party."
+    estimated_time: "5-10 minutes"
+    requirements:
+      required_documents:
+        - id: served_docs
+          label: "Copy of documents that were served"
+          description: "The exact papers that were given to the other party"
+          required: true
+          profile_field: null
+          tip: "Keep copies of everything you serve"
+      information_needed:
+        - id: server_info
+          label: "Server's information"
+          description: "Name, address, and age of the person who did the serving"
+          required: true
+          profile_field: null
+          tip: "The server must be at least 18 and not a party to the case"
+        - id: service_details
+          label: "Service details"
+          description: "Date, time, and location of service"
+          required: true
+          profile_field: null
+          tip: "Be as specific as possible with the address"
+        - id: served_person_info
+          label: "Person served information"
+          description: "Name and description of who received the documents"
+          required: true
+          profile_field: null
+          tip: "Include physical description if not serving the party directly"
+
+  SC-150:
+    title: "Mediation Request - What You'll Need"
+    description: "Request mediation to try to resolve your case before the hearing."
+    estimated_time: "5 minutes"
+    requirements:
+      information_needed:
+        - id: case_info
+          label: "Case information"
+          description: "Your case number and the other party's name"
+          required: true
+          profile_field: null
+          tip: "Mediation can happen before or after the hearing date"
+        - id: availability
+          label: "Your availability"
+          description: "Days and times you're available to meet for mediation"
+          required: true
+          profile_field: null
+          tip: "The more flexible you are, the faster mediation can be scheduled"
+
+  SC-300:
+    title: "Appeal Request - What You'll Need"
+    description: "Appeal a small claims decision you disagree with."
+    estimated_time: "10-15 minutes"
+    requirements:
+      required_documents:
+        - id: judgment_copy
+          label: "Copy of the judgment"
+          description: "The court's decision you are appealing"
+          required: true
+          profile_field: null
+          tip: "You have 30 days from the mailing of the notice to file"
+      information_needed:
+        - id: case_number
+          label: "Original case number"
+          description: "The case number from your small claims case"
+          required: true
+          profile_field: null
+          tip: "This links your appeal to the original case"
+        - id: appeal_reason
+          label: "Reason for appeal"
+          description: "Why you believe the judgment was wrong"
+          required: true
+          profile_field: null
+          tip: "Focus on legal errors, not just disagreement with the outcome"
+      optional_items:
+        - id: new_evidence
+          label: "New evidence (if any)"
+          description: "Evidence you could not present at the original hearing"
+          required: false
+          profile_field: null
+          tip: "Appeals are usually based on the original record, but new evidence may be allowed"
+
+# Default requirements for forms not specifically configured
+default_form_requirements:
+  title: "Before You Start"
+  description: "Gather this information to complete the form efficiently."
+  estimated_time: "10-15 minutes"
+  requirements:
+    information_needed:
+      - id: case_info
+        label: "Case information (if applicable)"
+        description: "Your case number if this relates to an existing case"
+        required: false
+        profile_field: null
+        tip: "Check your court documents for the case number"
+      - id: personal_info
+        label: "Your contact information"
+        description: "Your full legal name, address, and phone number"
+        required: true
+        profile_field: full_name
+        tip: "Use the name on your ID"
+      - id: other_party_info
+        label: "Other party's information"
+        description: "Name and address of the other person involved"
+        required: true
+        profile_field: null
+        tip: "Get the exact legal name, especially for businesses"

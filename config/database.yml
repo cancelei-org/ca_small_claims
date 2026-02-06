@@ -10,13 +10,63 @@ default: &default
   password: <%= ENV.fetch("DATABASE_PASSWORD") { "" } %>
 
 development:
-  <<: *default
-  database: ca_small_claims_development
+  primary:
+    <<: *default
+    database: ca_small_claims_development
+    migrations_paths: db/migrate
+  cache:
+    <<: *default
+    database: ca_small_claims_cache_development
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: ca_small_claims_queue_development
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: ca_small_claims_cable_development
+    migrations_paths: db/cable_migrate
 
 test:
-  <<: *default
-  database: ca_small_claims_test
+  primary:
+    <<: *default
+    database: ca_small_claims_test
+    migrations_paths: db/migrate
+  cache:
+    <<: *default
+    database: ca_small_claims_cache_test
+    migrations_paths: db/cache_migrate
+  queue:
+    <<: *default
+    database: ca_small_claims_queue_test
+    migrations_paths: db/queue_migrate
+  cable:
+    <<: *default
+    database: ca_small_claims_cable_test
+    migrations_paths: db/cable_migrate
 
 production:
-  <<: *default
-  url: <%= ENV["DATABASE_URL"] %>
+  primary:
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    url: <%= ENV["DATABASE_URL"] %>
+    migrations_paths: db/migrate
+  cache:
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    url: <%= ENV["CACHE_DATABASE_URL"] || ENV["DATABASE_URL"] %>
+    migrations_paths: db/cache_migrate
+  queue:
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    url: <%= ENV["QUEUE_DATABASE_URL"] || ENV["DATABASE_URL"] %>
+    migrations_paths: db/queue_migrate
+  cable:
+    adapter: postgresql
+    encoding: unicode
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    url: <%= ENV["CABLE_DATABASE_URL"] || ENV["DATABASE_URL"] %>
+    migrations_paths: db/cable_migrate

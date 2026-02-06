@@ -1,4 +1,5 @@
 import { Controller } from '@hotwired/stimulus';
+import { prefersReducedMotion } from '../utils/accessibility';
 
 /**
  * Motion Preference Controller
@@ -190,22 +191,5 @@ export default class extends Controller {
   }
 }
 
-/**
- * Utility function to check reduced motion from anywhere
- * Can be imported and used by other modules
- */
-export function prefersReducedMotion() {
-  // Check user override first
-  const userPref = localStorage.getItem('motion-preference');
-
-  if (userPref === 'reduce') {
-    return true;
-  }
-
-  if (userPref === 'normal') {
-    return false;
-  }
-
-  // Fall back to system preference
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
+// Re-export for backward compatibility
+export { prefersReducedMotion };

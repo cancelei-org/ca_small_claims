@@ -1,5 +1,5 @@
 <% prefix ||= nil %>
-<%= field_wrapper(field, prefix: prefix) do %>
+<%= field_wrapper(field, prefix: prefix, submission: submission) do %>
   <% if field.max_length.present? && field.max_length > 0 %>
     <%# Wrap with character count controller when max_length is set %>
     <div data-controller="character-count"
@@ -15,6 +15,7 @@
         id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
         data: field_data_attributes.merge(
           character_count_target: "input",
+          validation_target: "input",
           action: "input->form#fieldChanged input->character-count#updateCount"
         ),
         **field_aria_attributes(field, prefix: prefix) %>
@@ -25,8 +26,8 @@
            aria-live="polite"
            aria-atomic="true">
         <span data-character-count-target="remaining"
-              class="text-base-content/50"><%= field.max_length - (submission.field_value(field.name)&.length || 0) %></span>
-        <span class="text-base-content/50">/<%= field.max_length %> characters remaining</span>
+              class="text-base-content/60"><%= field.max_length - (submission.field_value(field.name)&.length || 0) %></span>
+        <span class="text-base-content/60">/<%= field.max_length %> characters remaining</span>
       </div>
     </div>
   <% else %>
@@ -38,7 +39,7 @@
       rows: 4,
       class: standard_textarea_class,
       id: [ prefix, field.name.parameterize, "input" ].compact.join("-"),
-      data: field_data_attributes,
+      data: field_data_attributes.merge(validation_target: "input"),
       **field_aria_attributes(field, prefix: prefix) %>
   <% end %>
 <% end %>

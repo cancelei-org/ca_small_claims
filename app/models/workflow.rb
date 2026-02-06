@@ -15,9 +15,6 @@ class Workflow < ApplicationRecord
   scope :by_category_id, ->(id) { where(category_id: id) }
   scope :ordered, -> { order(:position, :name) }
 
-  # Legacy constant for backward compatibility during migration
-  LEGACY_CATEGORIES = %w[plaintiff defendant post_judgment appeal].freeze
-
   def first_step
     workflow_steps.order(:position).first
   end

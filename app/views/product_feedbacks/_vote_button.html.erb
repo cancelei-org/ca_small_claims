@@ -1,0 +1,29 @@
+<% voted = product_feedback.voted_by?(current_user) %>
+
+<div class="flex items-center gap-2">
+  <% if voted %>
+    <%= button_to unvote_product_feedback_path(product_feedback),
+                  method: :delete,
+                  class: "btn btn-sm btn-primary gap-2",
+                  data: { turbo_frame: "_self" } do %>
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 4l8 8h-6v8h-4v-8H4l8-8z" />
+      </svg>
+      <span><%= product_feedback.votes_count %></span>
+    <% end %>
+  <% else %>
+    <%= button_to vote_product_feedback_path(product_feedback),
+                  method: :post,
+                  class: "btn btn-sm btn-outline gap-2",
+                  data: { turbo_frame: "_self" } do %>
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+      </svg>
+      <span><%= product_feedback.votes_count %></span>
+    <% end %>
+  <% end %>
+
+  <span class="text-sm text-base-content/60">
+    <%= voted ? "You voted" : "Upvote" %>
+  </span>
+</div>

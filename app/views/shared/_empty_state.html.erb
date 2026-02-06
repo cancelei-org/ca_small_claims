@@ -103,12 +103,12 @@
     <%# Suggested next actions %>
     <% if suggestions.present? && suggestions.any? %>
       <div class="mt-8 pt-6 border-t border-base-200">
-        <p class="text-xs font-medium text-base-content/50 uppercase tracking-wider mb-4">Suggested next steps</p>
+        <p class="text-xs font-medium text-base-content/60 uppercase tracking-wider mb-4">Suggested next steps</p>
         <div class="flex flex-wrap justify-center gap-2">
           <% suggestions.each do |suggestion| %>
             <%= link_to suggestion[:path], class: "inline-flex items-center gap-2 px-3 py-2 text-sm rounded-lg bg-base-200 hover:bg-base-300 transition-colors" do %>
               <% if suggestion[:icon] && icons[suggestion[:icon]] %>
-                <svg class="w-4 h-4 text-base-content/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-base-content/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <%= icons[suggestion[:icon]].html_safe %>
                 </svg>
               <% end %>

@@ -1,0 +1,44 @@
+<div class="card bg-base-100 shadow">
+  <div class="card-body">
+    <%= form_with url: admin_product_feedbacks_path, method: :get, local: true, class: "flex flex-wrap gap-4 items-end" do |f| %>
+      <div class="form-control">
+        <%= f.label :category, "Category", class: "label" %>
+        <%= f.select :category,
+                     options_for_select(ProductFeedback.categories_for_select.unshift(["All Categories", ""]), params[:category]),
+                     {},
+                     class: "select select-bordered select-sm" %>
+      </div>
+
+      <div class="form-control">
+        <%= f.label :status, "Status", class: "label" %>
+        <%= f.select :status,
+                     options_for_select(ProductFeedback.statuses_for_select.unshift(["All Statuses", ""]), params[:status]),
+                     {},
+                     class: "select select-bordered select-sm" %>
+      </div>
+
+      <div class="form-control">
+        <%= f.label :date_from, "From", class: "label" %>
+        <%= f.date_field :date_from, value: params[:date_from], class: "input input-bordered input-sm" %>
+      </div>
+
+      <div class="form-control">
+        <%= f.label :date_to, "To", class: "label" %>
+        <%= f.date_field :date_to, value: params[:date_to], class: "input input-bordered input-sm" %>
+      </div>
+
+      <div class="form-control">
+        <%= f.label :sort, "Sort", class: "label" %>
+        <%= f.select :sort,
+                     options_for_select([["Newest First", ""], ["Most Votes", "votes"]], params[:sort]),
+                     {},
+                     class: "select select-bordered select-sm" %>
+      </div>
+
+      <div class="flex gap-2">
+        <%= f.submit "Filter", class: "btn btn-primary btn-sm" %>
+        <%= link_to "Clear", admin_product_feedbacks_path, class: "btn btn-ghost btn-sm" %>
+      </div>
+    <% end %>
+  </div>
+</div>

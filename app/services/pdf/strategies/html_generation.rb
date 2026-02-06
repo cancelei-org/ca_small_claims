@@ -32,9 +32,14 @@ module Pdf
         # just copy the original PDF since there's nothing to fill
         original_path = form_definition.pdf_path.to_s
 
-        raise "Original PDF not found: #{original_path}" unless File.exist?(original_path)
+        raise TemplateNotFoundError, "Original PDF not found: #{original_path}" unless File.exist?(original_path)
 
-        FileUtils.cp(original_path, output_path)
+        begin
+          FileUtils.cp(original_path, output_path)
+        rescue SystemCallError => e
+          raise GenerationError, "Failed to copy PDF from #{original_path}: #{e.message}"
+        end
+
         update_generation_timestamp
 
         output_path

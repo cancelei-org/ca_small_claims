@@ -1,50 +1,62 @@
 import { Controller } from '@hotwired/stimulus';
 
+// Simple command bar controller
 export default class extends Controller {
-  static targets = ['dialog', 'input', 'results', 'item'];
+  static targets = ['input', 'item', 'dialog', 'emptyState'];
   static values = {
-    isOpen: Boolean
+    isOpen: { type: Boolean, default: false }
   };
 
   connect() {
     this.boundHandleKeydown = this.handleKeydown.bind(this);
-    this.previouslyFocusedElement = null;
-    document.addEventListener('keydown', this.boundHandleKeydown);
+    window.addEventListener('keydown', this.boundHandleKeydown);
   }
 
   disconnect() {
-    document.removeEventListener('keydown', this.boundHandleKeydown);
+    window.removeEventListener('keydown', this.boundHandleKeydown);
   }
 
+  /**
+   * Global keyboard shortcut to open command bar (Cmd/Ctrl + K)
+   */
   handleKeydown(event) {
-    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'k') {
       event.preventDefault();
       this.toggle();
     }
 
-    if (this.isOpenValue) {
-      if (event.key === 'Escape') {
-        event.preventDefault();
-        this.close();
-      }
+    if (this.isOpenValue && event.key === 'Escape') {
+      this.close();
+    }
+  }
 
-      // Arrow key navigation for items
-      if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-        event.preventDefault();
-        this.navigateItems(event.key === 'ArrowDown' ? 1 : -1);
-      }
+  /**
+   * Handle input changes to filter items
+   * Called as both 'filter' and 'search' (alias)
+   */
+  search() {
+    this.filter();
+  }
 
-      // Enter to select focused item
-      if (event.key === 'Enter') {
-        const focusedItem = this.element.querySelector(
-          '[data-command-bar-target="item"]:focus'
-        );
+  filter() {
+    const query = this.inputTarget.value.toLowerCase().trim();
+    let hasVisibleItems = false;
 
-        if (focusedItem) {
-          event.preventDefault();
-          focusedItem.click();
-        }
+    this.itemTargets.forEach(item => {
+      const text = item.innerText.toLowerCase();
+      const isVisible = text.includes(query);
+
+      item.classList.toggle('hidden', !isVisible);
+      if (isVisible) {
+        hasVisibleItems = true;
       }
+    });
+
+    if (this.hasEmptyStateTarget) {
+      this.emptyStateTarget.classList.toggle(
+        'hidden',
+        hasVisibleItems || query === ''
+      );
     }
   }
 
@@ -63,7 +75,7 @@ export default class extends Controller {
     const currentIndex = visibleItems.findIndex(
       item => item === document.activeElement
     );
-    let nextIndex;
+    let nextIndex = 0;
 
     if (currentIndex === -1) {
       nextIndex = direction === 1 ? 0 : visibleItems.length - 1;
@@ -81,7 +93,11 @@ export default class extends Controller {
   }
 
   toggle() {
-    this.isOpenValue ? this.close() : this.open();
+    if (this.isOpenValue) {
+      this.close();
+    } else {
+      this.open();
+    }
   }
 
   open() {
@@ -100,82 +116,51 @@ export default class extends Controller {
     document.body.classList.remove('overflow-hidden');
 
     // Restore focus to previously focused element
-    if (this.previouslyFocusedElement && this.previouslyFocusedElement.focus) {
-      requestAnimationFrame(() => {
-        this.previouslyFocusedElement.focus();
-        this.previouslyFocusedElement = null;
-      });
+    if (this.previouslyFocusedElement) {
+      this.previouslyFocusedElement.focus();
     }
   }
 
-  search(event) {
-    const query = event.target.value.toLowerCase();
-
-    // Simple client-side filtering for now
-    this.itemTargets.forEach(item => {
-      const text = item.textContent.toLowerCase();
-      const match = text.includes(query);
-
-      item.classList.toggle('hidden', !match);
-    });
-  }
-
+  /**
+   * Handle item selection
+   */
   select(event) {
-    const item = event.currentTarget;
-    const url = item.dataset.url;
-    const action = item.dataset.commandBarAction;
+    const url = event.currentTarget.dataset.url;
+    const action = event.currentTarget.dataset.commandBarAction;
 
+    this.close();
+
+    // Handle URL navigation
     if (url) {
       window.location.href = url;
-    } else if (action === 'theme') {
-      // Trigger theme toggle event
-      const themeController =
-        this.application.getControllerForElementAndIdentifier(
-          document.querySelector('[data-controller="theme"]'),
-          'theme'
-        );
 
-      themeController?.openModal();
-      this.close();
-    } else if (action === 'clear-form') {
-      this.clearForm();
-    } else if (action === 'copy-link') {
-      this.copyLink();
+      return;
+    }
+
+    // Handle command actions
+    if (action) {
+      // Execute the command action if it's a function or dispatch event
+      if (typeof this[action] === 'function') {
+        this[action]();
+      } else {
+        document.dispatchEvent(new CustomEvent(`command:${action}`));
+      }
     }
   }
 
+  // Example commands
   clearForm() {
-    const form = document.querySelector('#main-form');
-
-    if (
-      form &&
-      confirm(
-        'Are you sure you want to clear all fields? This cannot be undone.'
-      )
-    ) {
-      form.reset();
-      // Dispatch input event to trigger autosave/validation clear if needed
-      form.querySelectorAll('input, textarea, select').forEach(input => {
-        input.dispatchEvent(new Event('input', { bubbles: true }));
-      });
-      this.close();
-
-      document.dispatchEvent(
-        new CustomEvent('toast:show', {
-          detail: { message: 'Form cleared', type: 'info' }
-        })
-      );
+    // eslint-disable-next-line no-alert -- User confirmation required for destructive action
+    if (window.confirm('Are you sure you want to clear all form data?')) {
+      document.dispatchEvent(new CustomEvent('form:clear'));
     }
   }
 
-  copyLink() {
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      this.close();
-      document.dispatchEvent(
-        new CustomEvent('toast:show', {
-          detail: { message: 'Link copied to clipboard', type: 'success' }
-        })
-      );
-    });
+  goToDashboard() {
+    window.location.href = '/dashboard';
+  }
+
+  showHelp() {
+    document.dispatchEvent(new CustomEvent('help:show'));
   }
 }

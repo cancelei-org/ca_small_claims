@@ -1,0 +1,26 @@
+<% content_for :title, "Find the Right Forms - California Small Claims Court" %>
+
+<div class="max-w-2xl mx-auto py-8" data-controller="form-finder">
+  <%# Progress Bar %>
+  <div class="mb-8">
+    <div class="flex justify-between items-center mb-2">
+      <span class="text-sm font-medium">Step <%= @progress[:current] %> of <%= @progress[:total] %></span>
+      <span class="text-sm text-base-content/60"><%= @progress[:percentage] %>% complete</span>
+    </div>
+    <progress
+      class="progress progress-primary w-full"
+      value="<%= @progress[:percentage] %>"
+      max="100"
+      aria-label="Progress: <%= @progress[:percentage] %>%"
+    ></progress>
+  </div>
+
+  <%# Step Content %>
+  <div id="form_finder_content">
+    <%= render "form_finder/step_#{@current_step}",
+               progress: @progress,
+               current_step: @current_step,
+               answers: @answers,
+               recommendation: @recommendation %>
+  </div>
+</div>

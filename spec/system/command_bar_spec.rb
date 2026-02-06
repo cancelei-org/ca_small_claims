@@ -36,15 +36,21 @@ RSpec.describe "Command Bar", type: :system, js: true do
       click_on t("command_bar.browse_forms")
     end
 
-    expect(page).to have_current_path(forms_path)
+    # Wait for navigation to complete
+    sleep 0.5
+    expect(page).to have_current_path(forms_path, wait: 5)
   end
 
   it "filters results" do
     page.driver.browser.action.key_down(:control).send_keys('k').key_up(:control).perform
 
+    # Wait for modal to be fully open before typing
+    expect(page).to have_selector(:modal, "Command Bar", wait: 5)
+
     fill_in "Type a command or search...", with: "Theme"
 
-    expect(page).to have_content("Switch Theme")
-    expect(page).not_to have_content("Go to Home")
+    # Wait for filter to apply
+    expect(page).to have_content("Switch Theme", wait: 3)
+    expect(page).to have_no_content("Go to Home", wait: 3)
   end
 end

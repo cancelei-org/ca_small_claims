@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
+  # Skip credentials check - using environment variables for config
+  config.require_master_key = false
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Code is not reloaded between requests.
@@ -25,17 +28,39 @@ Rails.application.configure do
   config.active_storage.service = :local
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  # config.assume_ssl = true
+  config.assume_ssl = true
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  # config.force_ssl = true
+  config.force_ssl = true
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+
+  # Secure cookie defaults for all application cookies
+  # This ensures any cookies set by the application have secure attributes
+  config.action_dispatch.cookies_same_site_protection = :lax
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
   config.logger   = ActiveSupport::TaggedLogging.logger(STDOUT)
+
+# Use Lograge for structured logging
+config.lograge.enabled = true
+config.lograge.formatter = Lograge::Formatters::Json.new
+config.lograge.custom_options = lambda do |event|
+  {
+    time: Time.current.iso8601,
+    request_id: event.payload[:request_id],
+    remote_ip: event.payload[:remote_ip],
+    user_agent: event.payload[:user_agent],
+    user_id: event.payload[:user_id],
+    session_id: event.payload[:session_id],
+    path: event.payload[:path],
+    params: event.payload[:params]&.except("controller", "action", "format"),
+    exception: event.payload[:exception],
+    exception_object: event.payload[:exception_object]
+  }
+end
 
   # Change to "debug" to log everything (including potentially personally-identifiable information!).
   config.log_level = ENV.fetch("RAILS_LOG_LEVEL", "info")
@@ -46,12 +71,13 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Replace the default in-process memory cache store with a durable alternative.
+  # Solid trifecta on Postgres
   config.cache_store = :solid_cache_store
-
-  # Replace the default in-process and non-durable queuing backend for Active Job.
+  # Database connections configured via database.yml with URL approach
+  # config.solid_cache.connects_to = { database: { writing: :cache } }
   config.active_job.queue_adapter = :solid_queue
-  config.solid_queue.connects_to = { database: { writing: :queue } }
+  # config.solid_queue.connects_to = { database: { writing: :queue } }
+  config.action_cable.cable = { adapter: "solid_cable" }
 
   # Ignore bad email addresses and do not raise email delivery errors.
   # Set this to true and configure the email server for immediate delivery to raise delivery errors.

@@ -1,0 +1,147 @@
+<% content_for :title, "Impersonation Logs - Admin" %>
+
+<div class="space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold">Impersonation Logs</h1>
+      <p class="text-base-content/60 mt-1">
+        View history of admin impersonation sessions
+      </p>
+    </div>
+
+    <div class="stats shadow">
+      <div class="stat">
+        <div class="stat-title">Total Sessions</div>
+        <div class="stat-value text-2xl"><%= @total_impersonations %></div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Active Now</div>
+        <div class="stat-value text-2xl <%= @active_count > 0 ? 'text-warning' : 'text-success' %>">
+          <%= @active_count %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <% if @active_impersonations.any? %>
+    <!-- Active Impersonations Alert -->
+    <div class="alert alert-warning shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+      </svg>
+      <div>
+        <h3 class="font-bold">Active Impersonation Sessions</h3>
+        <div class="text-sm">
+          <% @active_impersonations.each do |log| %>
+            <span class="font-medium"><%= log.admin.display_name %></span>
+            is viewing as
+            <span class="font-medium"><%= log.target_user.display_name %></span>
+            (started <%= time_ago_in_words(log.started_at) %> ago)
+            <br>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <!-- Impersonation History Table -->
+  <div class="card bg-base-100 shadow-lg">
+    <div class="card-body">
+      <% if @impersonation_logs.any? %>
+        <div class="overflow-x-auto">
+          <table class="table table-zebra">
+            <thead>
+              <tr>
+                <th>Admin</th>
+                <th>Target User</th>
+                <th>Started</th>
+                <th>Ended</th>
+                <th>Duration</th>
+                <th>Reason</th>
+                <th>IP Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @impersonation_logs.each do |log| %>
+                <tr class="<%= log.active? ? 'bg-warning/10' : '' %>">
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-8">
+                          <span class="text-xs"><%= log.admin.display_name.first(2).upcase %></span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="font-medium"><%= log.admin.display_name %></div>
+                        <div class="text-xs opacity-60"><%= log.admin.email %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="flex items-center gap-2">
+                      <div class="avatar placeholder">
+                        <div class="bg-primary text-primary-content rounded-full w-8">
+                          <span class="text-xs"><%= log.target_user.display_name.first(2).upcase %></span>
+                        </div>
+                      </div>
+                      <div>
+                        <div class="font-medium"><%= log.target_user.display_name %></div>
+                        <div class="text-xs opacity-60"><%= log.target_user.email %></div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <div class="text-sm">
+                      <%= log.started_at.strftime("%b %d, %Y") %>
+                      <br>
+                      <span class="text-xs opacity-60"><%= log.started_at.strftime("%I:%M %p") %></span>
+                    </div>
+                  </td>
+                  <td>
+                    <% if log.active? %>
+                      <span class="badge badge-warning badge-sm">Active</span>
+                    <% else %>
+                      <div class="text-sm">
+                        <%= log.ended_at.strftime("%b %d, %Y") %>
+                        <br>
+                        <span class="text-xs opacity-60"><%= log.ended_at.strftime("%I:%M %p") %></span>
+                      </div>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="text-sm"><%= log.duration_in_words %></span>
+                  </td>
+                  <td>
+                    <% if log.reason.present? %>
+                      <span class="text-sm max-w-xs truncate block" title="<%= log.reason %>">
+                        <%= truncate(log.reason, length: 50) %>
+                      </span>
+                    <% else %>
+                      <span class="text-xs opacity-40">No reason provided</span>
+                    <% end %>
+                  </td>
+                  <td>
+                    <span class="text-xs font-mono"><%= log.ip_address %></span>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+      <% else %>
+        <div class="text-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-16 h-16 mx-auto text-base-content/20">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          <h3 class="mt-4 text-lg font-medium">No impersonation history</h3>
+          <p class="mt-2 text-base-content/60">
+            When admins impersonate users, the sessions will appear here.
+          </p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

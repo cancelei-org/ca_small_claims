@@ -14,14 +14,16 @@ export default class extends Controller {
     'finishBtn',
     'skipToggle',
     'dot',
-    'dotStatus'
+    'dotStatus',
+    'progressField'
   ];
 
   static values = {
     currentIndex: { type: Number, default: 0 },
     totalFields: Number,
     skipFilled: { type: Boolean, default: false },
-    animationDuration: { type: Number, default: 500 }
+    animationDuration: { type: Number, default: 500 },
+    formCode: String
   };
 
   connect() {
@@ -42,6 +44,7 @@ export default class extends Controller {
     this.bindModeChangeListener();
     this.bindFieldChangeListener();
     this.bindSwipeGestures();
+    this.restoreProgress();
     this.focusCurrentInput();
   }
 
@@ -493,7 +496,7 @@ export default class extends Controller {
   /**
    * Announce navigation changes to screen readers via aria-live region
    */
-  announceNavigation(direction) {
+  announceNavigation(_direction) {
     const currentStep = this.currentIndexValue + 1;
     const totalSteps = this.totalFieldsValue;
     const currentCard = this.cardTargets[this.currentIndexValue];
@@ -543,6 +546,25 @@ export default class extends Controller {
     if (this.currentIndexValue >= this.totalFieldsValue - 1) {
       return;
     }
+
+    // Dispatch beforeNext event - allows validation controller to prevent navigation
+    const beforeNextEvent = new CustomEvent('wizard:beforeNext', {
+      bubbles: true,
+      cancelable: true,
+      detail: {
+        currentIndex: this.currentIndexValue,
+        targetIndex: this.currentIndexValue + 1
+      }
+    });
+
+    const allowed = this.element.dispatchEvent(beforeNextEvent);
+
+    if (!allowed) {
+      this.triggerHapticFeedback('heavy');
+
+      return;
+    }
+
     if (!this.canAdvance()) {
       this.triggerHapticFeedback('heavy'); // Error feedback
       this.showValidationMessage();
@@ -722,6 +744,65 @@ export default class extends Controller {
     if (this.hasCounterTarget) {
       this.counterTarget.textContent = `${currentStep} / ${totalSteps}`;
     }
+
+    this.persistProgress();
+  }
+
+  persistProgress() {
+    const key = this.progressStorageKey;
+    const payload = {
+      currentIndex: this.currentIndexValue,
+      total: this.totalFieldsValue,
+      path: window.location.pathname,
+      updatedAt: Date.now(),
+      formCode: this.formCodeValue || ''
+    };
+
+    try {
+      localStorage.setItem(key, JSON.stringify(payload));
+
+      // Keep smart resume card in sync
+      localStorage.setItem(
+        'last_form_activity',
+        JSON.stringify({
+          code: payload.formCode || this.formCodeValue,
+          path: payload.path,
+          step: payload.currentIndex + 1,
+          timestamp: payload.updatedAt
+        })
+      );
+    } catch (e) {
+      console.warn('Unable to persist wizard progress', e);
+    }
+
+    // Sync into hidden field so autosave carries server copy
+    if (this.hasProgressFieldTarget) {
+      this.progressFieldTarget.value = JSON.stringify(payload);
+    }
+  }
+
+  restoreProgress() {
+    const key = this.progressStorageKey;
+    let payload = null;
+
+    try {
+      payload = JSON.parse(localStorage.getItem(key));
+    } catch {
+      return;
+    }
+
+    if (
+      payload &&
+      Number.isInteger(payload.currentIndex) &&
+      payload.currentIndex >= 0 &&
+      payload.currentIndex < this.totalFieldsValue
+    ) {
+      this.goToInstant(payload.currentIndex);
+    }
+  }
+
+  get progressStorageKey() {
+    return `wizard-progress:${this.formCodeValue || window.location.pathname}`;
   }
 
   focusCurrentInput() {
@@ -829,7 +910,8 @@ export default class extends Controller {
     // Fallback to name or placeholder
     return (
       input.placeholder ||
-      input.name.replace(/_/gu, ' ').replace(/\[.*\]/gu, '')
+      // eslint-disable-next-line sonarjs/slow-regex -- safe pattern with negated character class
+      input.name.replace(/_/gu, ' ').replace(/\[[^\]]*\]/gu, '')
     );
   }
 }

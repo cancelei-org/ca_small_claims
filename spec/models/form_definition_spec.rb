@@ -133,4 +133,133 @@ RSpec.describe FormDefinition, type: :model do
       end
     end
   end
+
+  describe "scopes" do
+    let!(:active_form) { create(:form_definition, active: true) }
+    let!(:inactive_form) { create(:form_definition, active: false) }
+
+    describe ".active" do
+      it "returns only active forms" do
+        expect(FormDefinition.active).to include(active_form)
+        expect(FormDefinition.active).not_to include(inactive_form)
+      end
+    end
+
+    describe ".search" do
+      let!(:plaintiff_form) { create(:form_definition, code: "SC-100", title: "Plaintiff's Claim") }
+      let!(:other_form) { create(:form_definition, code: "SC-200", title: "Different Form") }
+
+      it "finds forms by code" do
+        expect(FormDefinition.search("SC-100")).to include(plaintiff_form)
+        expect(FormDefinition.search("SC-100")).not_to include(other_form)
+      end
+
+      it "finds forms by title (case insensitive)" do
+        expect(FormDefinition.search("plaintiff")).to include(plaintiff_form)
+      end
+
+      it "returns all forms for blank query" do
+        result = FormDefinition.search("")
+        expect(result).to include(plaintiff_form, other_form)
+      end
+
+      it "returns all forms for nil query" do
+        result = FormDefinition.search(nil)
+        expect(result).to include(plaintiff_form, other_form)
+      end
+    end
+
+    describe ".by_popularity" do
+      let!(:popular_form) { create(:form_definition) }
+      let!(:unpopular_form) { create(:form_definition) }
+
+      before do
+        create_list(:submission, 10, form_definition: popular_form)
+        create(:submission, form_definition: unpopular_form)
+      end
+
+      it "orders by submission count" do
+        result = FormDefinition.by_popularity.where(id: [ popular_form.id, unpopular_form.id ])
+        expect(result.first).to eq(popular_form)
+      end
+    end
+  end
+
+  describe "edge cases" do
+    describe "#sections" do
+      let(:form) { create(:form_definition) }
+
+      it "handles form with no field definitions" do
+        expect(form.sections).to eq({})
+      end
+
+      it "groups fields by section" do
+        create(:field_definition, form_definition: form, section: "Personal Info", position: 1)
+        create(:field_definition, form_definition: form, section: "Personal Info", position: 2)
+        create(:field_definition, form_definition: form, section: "Case Details", position: 1)
+
+        sections = form.sections
+        expect(sections.keys).to contain_exactly("Personal Info", "Case Details")
+        expect(sections["Personal Info"].size).to eq(2)
+      end
+    end
+
+    describe "#recommended_next_forms" do
+      let(:category) { create(:category) }
+      let(:form) { create(:form_definition, category: category) }
+
+      it "handles form with no category" do
+        form_without_category = create(:form_definition, category: nil)
+        result = form_without_category.recommended_next_forms
+        expect(result).to be_an(Array)
+      end
+
+      it "handles category with no other forms" do
+        result = form.recommended_next_forms
+        expect(result).to be_an(Array)
+      end
+
+      it "excludes self from recommendations" do
+        result = form.recommended_next_forms
+        expect(result).not_to include(form)
+      end
+    end
+
+    describe "#feedback_stats" do
+      let(:form) { create(:form_definition) }
+
+      it "handles form with no feedback" do
+        stats = form.feedback_stats
+        expect(stats[:total]).to eq(0)
+        expect(stats[:average_rating]).to eq(0)
+      end
+    end
+
+    describe "#usage_count" do
+      let(:form) { create(:form_definition) }
+
+      it "returns 0 for unused form" do
+        expect(form.usage_count).to eq(0)
+      end
+
+      it "counts both submissions and session_submissions" do
+        create_list(:submission, 3, form_definition: form)
+        create_list(:session_submission, 2, form_definition: form)
+        expect(form.usage_count).to eq(5)
+      end
+    end
+
+    describe "FriendlyId" do
+      it "normalizes special characters in code" do
+        form = create(:form_definition, code: "SC-100 (Rev.)")
+        expect(form.slug).to match(/sc-100/)
+      end
+
+      it "handles duplicate codes gracefully" do
+        form1 = create(:form_definition, code: "SC-100")
+        form2 = create(:form_definition, code: "SC-100-V2")
+        expect(form1.slug).not_to eq(form2.slug)
+      end
+    end
+  end
 end

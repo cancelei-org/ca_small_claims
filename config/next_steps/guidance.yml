@@ -1,0 +1,264 @@
+# Next Steps Guidance Configuration
+# Provides "What Happens Next?" checklists after form completion
+
+# Default steps for forms without specific guidance
+default:
+  title: "What Happens Next?"
+  intro: "You've completed your form. Here's what to do next:"
+  steps:
+    - id: review
+      title: "Review Your Form"
+      description: "Double-check all information before filing. Make sure names, addresses, and amounts are correct."
+      icon: "check-circle"
+      required: true
+
+    - id: print
+      title: "Print Your Form"
+      description: "Print the required number of copies. Most courts need the original plus 2 copies."
+      icon: "printer"
+      required: true
+
+    - id: file
+      title: "File with the Court"
+      description: "Take your forms to the court clerk's office. You can also file online in some counties."
+      icon: "building"
+      required: true
+      link:
+        text: "Find your local courthouse"
+        url: "https://www.courts.ca.gov/find-my-court.htm"
+
+  resources:
+    - title: "California Courts Self-Help Center"
+      url: "https://selfhelp.courts.ca.gov/small-claims"
+      description: "Official guidance for small claims cases"
+
+# Form-specific guidance
+forms:
+  SC-100:
+    title: "Filing Your Small Claims Case"
+    intro: "Great job completing your Plaintiff's Claim! Follow these steps to file your case:"
+    steps:
+      - id: review
+        title: "Review Your Claim"
+        description: "Make sure all defendant information is correct. Errors could delay your case."
+        icon: "check-circle"
+        required: true
+
+      - id: copies
+        title: "Make Copies"
+        description: "You need the original plus one copy for each defendant, plus one for yourself."
+        icon: "copy"
+        required: true
+
+      - id: file
+        title: "File at the Courthouse"
+        description: "File at the court in the county where the defendant lives or where the problem happened."
+        icon: "building"
+        required: true
+        link:
+          text: "Find your local courthouse"
+          url: "https://www.courts.ca.gov/find-my-court.htm"
+
+      - id: pay_fee
+        title: "Pay Filing Fee"
+        description: "Filing fees range from $30-$75 depending on your claim amount. Fee waivers are available if you qualify."
+        icon: "credit-card"
+        required: true
+        conditional: "!needs_fee_waiver"
+
+      - id: serve
+        title: "Serve the Defendant"
+        description: "You must have someone else deliver the court papers to the defendant. You cannot do this yourself."
+        icon: "mail"
+        required: true
+        link:
+          text: "Learn about service of process"
+          url: "https://selfhelp.courts.ca.gov/small-claims/serve"
+
+      - id: proof_of_service
+        title: "File Proof of Service"
+        description: "After serving the defendant, file form SC-104 (Proof of Service) with the court."
+        icon: "file-check"
+        required: true
+
+      - id: prepare
+        title: "Prepare for Your Hearing"
+        description: "Gather evidence, photos, receipts, and witness information. Practice explaining your case clearly."
+        icon: "calendar"
+        required: true
+        link:
+          text: "Hearing preparation tips"
+          url: "https://selfhelp.courts.ca.gov/small-claims/hearing"
+
+    related_forms:
+      - code: "SC-104"
+        reason: "Required to prove you served the defendant"
+      - code: "SC-103"
+        reason: "If you need a fee waiver"
+        conditional: "needs_fee_waiver"
+
+    resources:
+      - title: "Small Claims Advisor"
+        url: "https://selfhelp.courts.ca.gov/small-claims/advisor"
+        description: "Free help available at every courthouse"
+      - title: "Filing Instructions"
+        url: "https://selfhelp.courts.ca.gov/small-claims/file"
+        description: "Step-by-step filing guide"
+
+  SC-120:
+    title: "Filing Your Counter-Claim"
+    intro: "You've completed your Defendant's Claim. Here's what to do:"
+    steps:
+      - id: review
+        title: "Review Your Counter-Claim"
+        description: "Make sure your claim amount and reasons are clearly stated."
+        icon: "check-circle"
+        required: true
+
+      - id: file_before_hearing
+        title: "File Before Your Hearing"
+        description: "Your counter-claim must be filed at least 5 days before the hearing date."
+        icon: "clock"
+        required: true
+        important: true
+
+      - id: serve_plaintiff
+        title: "Serve the Plaintiff"
+        description: "Have someone deliver a copy to the plaintiff. The same service rules apply."
+        icon: "mail"
+        required: true
+
+      - id: prepare
+        title: "Prepare for Hearing"
+        description: "You'll present both your defense and your counter-claim at the same hearing."
+        icon: "calendar"
+        required: true
+
+    related_forms:
+      - code: "SC-104"
+        reason: "To prove service on the plaintiff"
+
+  SC-104:
+    title: "After Filing Proof of Service"
+    intro: "You've completed your Proof of Service. Here's what's next:"
+    steps:
+      - id: file
+        title: "File with the Court"
+        description: "File this form with the court clerk as soon as possible after service."
+        icon: "building"
+        required: true
+
+      - id: keep_copy
+        title: "Keep Your Copy"
+        description: "Keep a copy for your records. You may need it at the hearing."
+        icon: "folder"
+        required: true
+
+      - id: wait_for_hearing
+        title: "Wait for Your Hearing Date"
+        description: "The court will set a hearing date. It's usually 30-70 days after filing."
+        icon: "calendar"
+        required: true
+
+    related_forms:
+      - code: "SC-100"
+        reason: "Your original claim form"
+
+  SC-132:
+    title: "After Recording Satisfaction"
+    intro: "You've acknowledged the judgment was paid. Final steps:"
+    steps:
+      - id: file
+        title: "File with the Court"
+        description: "File this form to officially close your case."
+        icon: "building"
+        required: true
+
+      - id: notify_debtor
+        title: "Notify the Judgment Debtor"
+        description: "Send a copy to the person who paid so they have proof."
+        icon: "mail"
+        required: false
+
+      - id: remove_liens
+        title: "Remove Any Liens"
+        description: "If you recorded an Abstract of Judgment, you may need to remove the lien."
+        icon: "x-circle"
+        required: false
+
+  EJ-001:
+    title: "After Creating Abstract of Judgment"
+    intro: "You've completed your Abstract of Judgment. Here's how to use it:"
+    steps:
+      - id: record
+        title: "Record with County Recorder"
+        description: "Record this document in any county where the debtor owns real property."
+        icon: "building"
+        required: true
+        link:
+          text: "Find your County Recorder"
+          url: "https://www.courts.ca.gov/find-my-court.htm"
+
+      - id: creates_lien
+        title: "Understand the Lien"
+        description: "Recording creates a lien on the debtor's property. It lasts 10 years and can be renewed."
+        icon: "lock"
+        required: false
+
+      - id: other_collection
+        title: "Consider Other Collection Methods"
+        description: "You may also pursue wage garnishment or bank levies to collect."
+        icon: "dollar-sign"
+        required: false
+        link:
+          text: "Collection options"
+          url: "https://selfhelp.courts.ca.gov/small-claims/collect"
+
+# Category-level defaults (used when no form-specific guidance exists)
+categories:
+  plaintiff:
+    steps:
+      - id: file
+        title: "File at the Courthouse"
+        description: "Take your completed form to the court clerk."
+        icon: "building"
+        required: true
+      - id: serve
+        title: "Serve the Other Party"
+        description: "Have someone deliver copies to all other parties."
+        icon: "mail"
+        required: true
+
+  defendant:
+    steps:
+      - id: file
+        title: "File Before Deadline"
+        description: "Make sure to file before your response deadline."
+        icon: "clock"
+        required: true
+      - id: attend
+        title: "Attend Your Hearing"
+        description: "Appear at court on your scheduled hearing date."
+        icon: "calendar"
+        required: true
+
+  judgment:
+    steps:
+      - id: file
+        title: "File with the Court"
+        description: "Submit this form to the court clerk."
+        icon: "building"
+        required: true
+
+  enforcement:
+    steps:
+      - id: record
+        title: "Record the Document"
+        description: "File with the appropriate county office."
+        icon: "building"
+        required: true
+      - id: enforce
+        title: "Begin Collection"
+        description: "Use legal methods to collect what you're owed."
+        icon: "dollar-sign"
+        required: false

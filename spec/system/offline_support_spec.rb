@@ -2,9 +2,7 @@
 
 require "rails_helper"
 
-# SKIPPED: Offline Support UI messaging changed
-# Re-enable when CASC-FEAT-16 (PWA/offline) is fully implemented
-RSpec.describe "Offline Support", type: :system, js: true, skip: "Offline feature messaging not finalized" do
+RSpec.describe "Offline Support", type: :system, js: true do
   let(:form) { create(:form_definition, code: "SC-100") }
   let!(:field) { create(:field_definition, form_definition: form, name: "claimant_name") }
 
@@ -31,8 +29,31 @@ RSpec.describe "Offline Support", type: :system, js: true, skip: "Offline featur
     # Check for local save indicator
     expect(page).to have_content("Saved locally (offline)")
 
-    # Check localStorage
-    data = page.evaluate_script("localStorage.getItem('offline_data_' + window.location.pathname)")
+    # Check IndexedDB for saved data (uses ca_small_claims_offline database, form_submissions store)
+    # Wait for async IndexedDB save to complete
+    sleep 0.5
+
+    # Read from IndexedDB using a promise-based approach
+    data = page.evaluate_async_script(<<~JS)
+      var callback = arguments[arguments.length - 1];
+      var request = indexedDB.open('ca_small_claims_offline', 1);
+      request.onsuccess = function(event) {
+        var db = event.target.result;
+        var transaction = db.transaction(['form_submissions'], 'readonly');
+        var store = transaction.objectStore('form_submissions');
+        var getRequest = store.get(window.location.pathname);
+        getRequest.onsuccess = function() {
+          callback(JSON.stringify(getRequest.result));
+        };
+        getRequest.onerror = function() {
+          callback(null);
+        };
+      };
+      request.onerror = function() {
+        callback(null);
+      };
+    JS
+
     expect(data).to include("Offline User")
 
     # Go back online

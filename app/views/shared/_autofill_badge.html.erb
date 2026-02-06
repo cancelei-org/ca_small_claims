@@ -1,0 +1,109 @@
+<%#
+  Autofill Badge Component
+
+  Shows a small pill/badge indicating a field was auto-filled.
+
+  Local variables:
+    - source: String - 'profile' or form code like 'SC-100'
+    - source_label: String - Human-readable label like "Your name"
+    - original_value: String - The original auto-filled value
+    - field_name: String - The field name for event tracking
+%>
+
+<% source ||= 'profile' %>
+<% source_label ||= nil %>
+<% original_value ||= '' %>
+<% field_name ||= '' %>
+
+<div class="autofill-badge-container"
+     data-autofill-indicator-target="badge"
+     data-source="<%= source %>"
+     data-modified="false">
+
+  <%# Main Badge Pill %>
+  <div class="autofill-badge group"
+       tabindex="0"
+       role="status"
+       aria-label="Auto-filled from <%= source == 'profile' ? 'your profile' : "form #{source}" %>">
+
+    <%# Sparkle/Magic Icon %>
+    <svg class="autofill-badge-icon"
+         viewBox="0 0 24 24"
+         fill="none"
+         stroke="currentColor"
+         stroke-width="1.5"
+         aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round"
+            d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
+    </svg>
+
+    <%# Badge Text %>
+    <span class="autofill-badge-text">
+      Auto-filled
+    </span>
+
+    <%# Source indicator %>
+    <span class="autofill-badge-source">
+      <% if source == 'profile' %>
+        from Profile
+      <% else %>
+        from <%= source %>
+      <% end %>
+    </span>
+
+    <%# Hover/Focus Actions %>
+    <div class="autofill-badge-actions">
+      <%# Edit Button %>
+      <button type="button"
+              class="autofill-action-btn"
+              data-action="click->autofill-indicator#edit"
+              title="Edit this value"
+              aria-label="Edit auto-filled value">
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125" />
+        </svg>
+        <span class="sr-only">Edit</span>
+      </button>
+
+      <%# Clear Button %>
+      <button type="button"
+              class="autofill-action-btn autofill-action-btn-danger"
+              data-action="click->autofill-indicator#clear"
+              title="Clear this value"
+              aria-label="Clear auto-filled value">
+        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+        <span class="sr-only">Clear</span>
+      </button>
+    </div>
+  </div>
+
+  <%# Expanded Details (on hover/focus) %>
+  <div class="autofill-badge-details" role="tooltip">
+    <div class="autofill-details-content">
+      <% if source == 'profile' %>
+        <p class="autofill-details-title">Auto-filled from your Profile</p>
+        <% if source_label.present? %>
+          <p class="autofill-details-subtitle">Field: <%= source_label %></p>
+        <% end %>
+      <% else %>
+        <p class="autofill-details-title">Auto-filled from form <%= source %></p>
+        <% if source_label.present? %>
+          <p class="autofill-details-subtitle"><%= source_label %></p>
+        <% end %>
+      <% end %>
+
+      <% if original_value.present? %>
+        <p class="autofill-details-value">
+          Value: <span class="font-medium"><%= truncate(original_value, length: 50) %></span>
+        </p>
+      <% end %>
+
+      <div class="autofill-details-hint">
+        Click Edit to modify or Clear to remove
+      </div>
+    </div>
+  </div>
+</div>

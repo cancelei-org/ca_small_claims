@@ -2,6 +2,9 @@
 
 module Pdf
   module Strategies
+    class GenerationError < StandardError; end
+    class TemplateNotFoundError < GenerationError; end
+
     class Base
       attr_reader :submission, :form_definition
 

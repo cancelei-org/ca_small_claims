@@ -1,6 +1,6 @@
 import { Controller } from '@hotwired/stimulus';
 import { csrfToken } from 'utilities/csrf';
-import { DEBOUNCE_DELAYS, createDebouncedHandler } from 'utilities/debounce';
+import { createDebouncedHandler } from 'utilities/debounce';
 import { SYNC_STATUS, getOfflineStorage } from 'utils/offline_storage';
 import { StatusIndicator } from 'utils/status_indicator';
 
@@ -28,11 +28,11 @@ export default class extends Controller {
       });
     }
 
-    // Handle online/offline events
-    this.boundHandleOnline = this.handleOnline.bind(this);
-    this.boundHandleOffline = this.handleOffline.bind(this);
-    window.addEventListener('online', this.boundHandleOnline);
-    window.addEventListener('offline', this.boundHandleOffline);
+    // Handle online/offline events with consolidated handler
+    this.boundHandleConnectionChange = event =>
+      this.handleConnectionChange(event.type === 'online');
+    window.addEventListener('online', this.boundHandleConnectionChange);
+    window.addEventListener('offline', this.boundHandleConnectionChange);
 
     // Listen for sync status updates
     this.boundUpdateSyncIndicator = this.updateSyncIndicator.bind(this);
@@ -52,25 +52,28 @@ export default class extends Controller {
 
   disconnect() {
     this.debouncedSave.cancel();
-    window.removeEventListener('online', this.boundHandleOnline);
-    window.removeEventListener('offline', this.boundHandleOffline);
+    window.removeEventListener('online', this.boundHandleConnectionChange);
+    window.removeEventListener('offline', this.boundHandleConnectionChange);
     document.removeEventListener(
       'offline:sync-status',
       this.boundUpdateSyncIndicator
     );
   }
 
-  handleOnline() {
-    this.isOffline = false;
+  /**
+   * Consolidated handler for online/offline state changes
+   * @param {boolean} isOnline - Whether the browser is now online
+   */
+  handleConnectionChange(isOnline) {
+    this.isOffline = !isOnline;
     this.updateOfflineIndicator();
-    this.status?.info('Back online. Syncing...');
-    this.syncOfflineData();
-  }
 
-  handleOffline() {
-    this.isOffline = true;
-    this.updateOfflineIndicator();
-    this.status?.warning('You are offline');
+    if (isOnline) {
+      this.status?.info('Back online. Syncing...');
+      this.syncOfflineData();
+    } else {
+      this.status?.warning('Offline. Saving locally.');
+    }
   }
 
   updateOfflineIndicator() {
@@ -110,22 +113,6 @@ export default class extends Controller {
 
       localStorage.setItem('last_form_activity', JSON.stringify(activity));
     }
-  }
-
-  highlightField(event) {
-    let fieldName = event.target.name;
-    const match = fieldName.match(/submission\[(.+)\]/);
-
-    if (match) {
-      fieldName = match[1];
-    }
-    document.dispatchEvent(
-      new CustomEvent('form:highlight-field', { detail: { fieldName } })
-    );
-  }
-
-  clearHighlight() {
-    document.dispatchEvent(new CustomEvent('form:clear-highlight'));
   }
 
   retrySave() {
@@ -187,33 +174,6 @@ export default class extends Controller {
   }
 
   async syncOfflineData() {
-    // First check for legacy localStorage format
-    const legacyKey = `offline_data_${window.location.pathname}`;
-    const legacyData = localStorage.getItem(legacyKey);
-
-    if (legacyData) {
-      try {
-        const { data } = JSON.parse(legacyData);
-
-        this.isSyncing = true;
-        this.status?.info('Syncing offline data...');
-
-        const success = await this.performSave(data);
-
-        if (success) {
-          localStorage.removeItem(legacyKey);
-          this.status?.saved('Synced to cloud');
-        }
-        this.isSyncing = false;
-        this.updateOfflineIndicator();
-
-        return;
-      } catch (e) {
-        console.error('Legacy offline sync failed', e);
-      }
-    }
-
-    // Sync from IndexedDB/new format
     const record = await this.offlineStorage.load(window.location.pathname);
 
     if (record && record.status === SYNC_STATUS.PENDING) {
@@ -231,7 +191,7 @@ export default class extends Controller {
 
         if (success) {
           await this.offlineStorage.delete(window.location.pathname);
-          this.status?.saved('Synced to cloud');
+          this.status?.saved('Saved and synced to cloud');
 
           // Dispatch sync complete event
           document.dispatchEvent(
@@ -311,7 +271,7 @@ export default class extends Controller {
       }
 
       return true;
-    } catch (error) {
+    } catch {
       // Check if we went offline during the request
       if (!navigator.onLine) {
         this.isOffline = true;

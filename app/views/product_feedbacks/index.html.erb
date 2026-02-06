@@ -1,0 +1,55 @@
+<% content_for :title, "Product Feedback" %>
+
+<div class="max-w-6xl mx-auto">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+    <div>
+      <h1 class="text-3xl font-bold">Product Feedback</h1>
+      <p class="text-base-content/70 mt-1">Help us improve by sharing your thoughts, reporting bugs, or suggesting features.</p>
+    </div>
+    <%= link_to new_product_feedback_path, class: "btn btn-primary" do %>
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      Submit Feedback
+    <% end %>
+  </div>
+
+  <% if @my_feedbacks.any? %>
+    <div class="mb-8">
+      <h2 class="text-xl font-semibold mb-4">Your Recent Feedback</h2>
+      <div class="grid gap-4">
+        <% @my_feedbacks.each do |feedback| %>
+          <%= render "product_feedbacks/feedback_card", product_feedback: feedback, show_user: false %>
+        <% end %>
+      </div>
+      <% if current_user.product_feedbacks.count > 5 %>
+        <div class="text-center mt-4">
+          <span class="text-sm text-base-content/60">
+            Showing 5 of <%= current_user.product_feedbacks.count %> submissions
+          </span>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="divider"></div>
+
+  <h2 class="text-xl font-semibold mb-4">All Feedback</h2>
+
+  <% if @product_feedbacks.any? %>
+    <div class="grid gap-4">
+      <% @product_feedbacks.each do |feedback| %>
+        <%= render "product_feedbacks/feedback_card", product_feedback: feedback, show_user: true %>
+      <% end %>
+    </div>
+
+    <div class="flex justify-center mt-8">
+      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+    </div>
+  <% else %>
+    <%= render "shared/empty_state",
+               icon: "chat-bubble-left-right",
+               title: "No feedback yet",
+               description: "Be the first to share your thoughts about the platform." %>
+  <% end %>
+</div>

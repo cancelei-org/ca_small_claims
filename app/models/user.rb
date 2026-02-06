@@ -6,9 +6,22 @@ class User < ApplicationRecord
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :validatable
 
+  # Encryption for sensitive PII
+  encrypts :full_name, :address, :city, :zip_code, :phone, :date_of_birth
+
+  # Roles
+  ROLES = %w[user admin super_admin].freeze
+
   has_many :submissions, dependent: :destroy
   has_many :form_feedbacks, dependent: :nullify
   has_many :resolved_feedbacks, class_name: "FormFeedback", foreign_key: "resolved_by_id", dependent: :nullify, inverse_of: :resolved_by
+  has_one :notification_preference, dependent: :destroy
+  has_many :product_feedbacks, dependent: :destroy
+  has_many :product_feedback_votes, dependent: :destroy
+
+  # Impersonation tracking
+  has_many :impersonation_logs_as_admin, class_name: "ImpersonationLog", foreign_key: "admin_id", dependent: :destroy, inverse_of: :admin
+  has_many :impersonation_logs_as_target, class_name: "ImpersonationLog", foreign_key: "target_user_id", dependent: :destroy, inverse_of: :target_user
 
   scope :guests, -> { where(guest: true) }
   scope :registered, -> { where(guest: false) }
@@ -20,7 +33,21 @@ class User < ApplicationRecord
   end
 
   def admin?
-    admin == true
+    admin == true || role.in?(%w[admin super_admin])
+  end
+
+  def super_admin?
+    role == "super_admin"
+  end
+
+  # Check if this user can impersonate others
+  def can_impersonate?
+    admin? || super_admin?
+  end
+
+  # Check if this user can be impersonated
+  def can_be_impersonated?
+    !admin? && !super_admin?
   end
 
   def profile_for_autofill
@@ -58,6 +85,40 @@ class User < ApplicationRecord
 
   def recent_submissions(limit = 10)
     submissions.recent.limit(limit)
+  end
+
+  # Tutorial tracking
+  def tutorial_completed?(tutorial_id)
+    completed_tutorials.include?(tutorial_id.to_s)
+  end
+
+  def complete_tutorial!(tutorial_id)
+    self.preferences ||= {}
+    self.preferences["completed_tutorials"] ||= []
+    self.preferences["completed_tutorials"] << tutorial_id.to_s unless tutorial_completed?(tutorial_id)
+    save!
+  end
+
+  def completed_tutorials
+    (preferences || {}).fetch("completed_tutorials", [])
+  end
+
+  # Notification preferences helpers
+  # Creates notification preferences with defaults if they don't exist
+  def ensure_notification_preference!
+    notification_preference || create_notification_preference!
+  end
+
+  # Check if user wants to receive a specific notification type
+  # @param notification_type [String, Symbol] The notification type to check
+  # @return [Boolean] true if notification is enabled
+  def notifications_enabled?(notification_type)
+    ensure_notification_preference!.enabled?(notification_type)
+  end
+
+  # Quick access to check if user can receive emails (has verified email)
+  def can_receive_emails?
+    email.present? && !guest?
   end
 
   private

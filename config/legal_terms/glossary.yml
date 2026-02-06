@@ -1,0 +1,338 @@
+# Legal Terms Glossary for California Small Claims Court
+# Terms are matched case-insensitively in form labels and help text
+
+terms:
+  plaintiff:
+    term: "Plaintiff"
+    definition: "The person or business who starts the lawsuit by filing a claim against another party."
+    simple: "The person suing"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/plaintiff"
+
+  defendant:
+    term: "Defendant"
+    definition: "The person or business being sued. The defendant must respond to the plaintiff's claim."
+    simple: "The person being sued"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/defendant"
+
+  claimant:
+    term: "Claimant"
+    definition: "Another term for plaintiff - the person making a claim in the lawsuit."
+    simple: "Person making the claim"
+
+  respondent:
+    term: "Respondent"
+    definition: "Another term for defendant - the person responding to the claim."
+    simple: "Person responding to claim"
+
+  claim:
+    term: "Claim"
+    definition: "A formal request asking the court to order the defendant to pay you money for damages or a debt."
+    simple: "Your lawsuit for money"
+
+  counter_claim:
+    term: "Defendant's Claim"
+    definition: "A claim filed by the defendant against the plaintiff. Both claims are heard at the same hearing."
+    simple: "When the defendant sues back"
+
+  # Service and Process Terms
+  service:
+    term: "Service of Process"
+    definition: "The legal requirement to officially notify the other party about the lawsuit by delivering court documents in a specific way."
+    simple: "Officially delivering court papers"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/serve"
+
+  proof_of_service:
+    term: "Proof of Service"
+    definition: "A form filed with the court proving that the other party was properly served with court documents."
+    simple: "Proof you delivered the papers"
+
+  personal_service:
+    term: "Personal Service"
+    definition: "Delivering court papers directly to the person being sued by handing them the documents in person."
+    simple: "Hand-delivering papers to someone"
+
+  substituted_service:
+    term: "Substituted Service"
+    definition: "When personal service fails, leaving papers with a responsible adult at the person's home or workplace, then mailing copies."
+    simple: "Leaving papers with another adult"
+
+  certified_mail:
+    term: "Certified Mail"
+    definition: "A type of mail service where you get a receipt proving the documents were delivered or attempted."
+    simple: "Mail with delivery proof"
+
+  # Court and Hearing Terms
+  hearing:
+    term: "Hearing"
+    definition: "The court date when both parties appear before a judge to present their case."
+    simple: "Your court date"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/hearing"
+
+  trial:
+    term: "Trial"
+    definition: "The formal court proceeding where evidence is presented and the judge makes a decision on your case."
+    simple: "Court proceeding to decide your case"
+
+  continuance:
+    term: "Continuance"
+    definition: "A postponement of the hearing to a later date, which must be approved by the court."
+    simple: "Delay of your court date"
+
+  default_judgment:
+    term: "Default Judgment"
+    definition: "A judgment entered against the defendant when they fail to appear at the hearing."
+    simple: "Automatic win when defendant doesn't show"
+
+  judgment:
+    term: "Judgment"
+    definition: "The court's official decision in your case. It determines who wins and how much money is owed."
+    simple: "The court's final decision"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/judgment"
+
+  judgment_creditor:
+    term: "Judgment Creditor"
+    definition: "The person who won the lawsuit and is owed money according to the judgment."
+    simple: "The winner who is owed money"
+
+  judgment_debtor:
+    term: "Judgment Debtor"
+    definition: "The person who lost the lawsuit and owes money according to the judgment."
+    simple: "The loser who owes money"
+
+  # Venue and Jurisdiction Terms
+  venue:
+    term: "Venue"
+    definition: "The specific court location where your case should be filed, based on where the defendant lives or where the problem happened."
+    simple: "Which courthouse to use"
+
+  jurisdiction:
+    term: "Jurisdiction"
+    definition: "The court's legal authority to hear your type of case. Small claims court handles cases up to $12,500."
+    simple: "Court's authority over your case"
+
+  small_claims_limit:
+    term: "Small Claims Limit"
+    definition: "The maximum amount you can sue for in small claims court. Currently $12,500 for individuals, $6,250 for businesses."
+    simple: "Maximum you can sue for"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/how-much"
+
+  # Money and Damages Terms
+  damages:
+    term: "Damages"
+    definition: "The money you're asking for to compensate you for losses caused by the defendant's actions."
+    simple: "Money to cover your losses"
+
+  restitution:
+    term: "Restitution"
+    definition: "Money paid to compensate for loss or injury, often ordered by a court to make the victim whole."
+    simple: "Money to make things right"
+
+  principal:
+    term: "Principal"
+    definition: "The original amount of money owed, not including interest or other charges."
+    simple: "Original amount owed"
+
+  interest:
+    term: "Interest"
+    definition: "Additional money owed on top of the principal amount, calculated as a percentage over time."
+    simple: "Extra money charged over time"
+
+  court_costs:
+    term: "Court Costs"
+    definition: "Fees paid to file your case and for other court services. The winner can often recover these costs."
+    simple: "Fees for using the court"
+
+  # Filing and Fees Terms
+  filing_fee:
+    term: "Filing Fee"
+    definition: "The fee paid to the court to start your case. The amount depends on how much money you're claiming."
+    simple: "Cost to file your case"
+
+  fee_waiver:
+    term: "Fee Waiver"
+    definition: "A request to have court fees waived if you cannot afford them. You must qualify based on income."
+    simple: "Request to skip fees if you can't pay"
+    help_url: "https://selfhelp.courts.ca.gov/fee-waiver"
+
+  # Legal Deadlines
+  statute_of_limitations:
+    term: "Statute of Limitations"
+    definition: "The deadline by which you must file your lawsuit. Different types of cases have different deadlines."
+    simple: "Deadline to file your case"
+
+  deadline:
+    term: "Deadline"
+    definition: "A date by which something must be done or filed with the court."
+    simple: "Date something is due"
+
+  # Appeals
+  appeal:
+    term: "Appeal"
+    definition: "A request for a higher court to review the judgment. In small claims, only defendants can appeal."
+    simple: "Asking a higher court to review"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/appeal"
+
+  de_novo:
+    term: "De Novo"
+    definition: "A new trial from the beginning, as if the first trial never happened. This is how small claims appeals work."
+    simple: "Starting over with a new trial"
+
+  # Enforcement Terms
+  abstract_of_judgment:
+    term: "Abstract of Judgment"
+    definition: "A document that creates a lien on the debtor's property when recorded with the county recorder."
+    simple: "Document to claim property as payment"
+
+  lien:
+    term: "Lien"
+    definition: "A legal claim against property that secures payment of a debt. The property cannot be sold until the lien is paid."
+    simple: "Legal hold on someone's property"
+
+  garnishment:
+    term: "Wage Garnishment"
+    definition: "A court order requiring an employer to withhold money from the debtor's paycheck to pay the judgment."
+    simple: "Taking money from paychecks"
+
+  levy:
+    term: "Bank Levy"
+    definition: "A legal process to take money directly from the debtor's bank account to pay the judgment."
+    simple: "Taking money from bank accounts"
+
+  writ_of_execution:
+    term: "Writ of Execution"
+    definition: "A court order that allows the sheriff to collect money or property from the judgment debtor."
+    simple: "Order to collect what's owed"
+
+  satisfaction_of_judgment:
+    term: "Satisfaction of Judgment"
+    definition: "A document filed when the judgment has been paid in full, officially closing the case."
+    simple: "Proof the debt was paid"
+
+  # Evidence and Witnesses
+  subpoena:
+    term: "Subpoena"
+    definition: "A court order requiring a person to appear at the hearing to testify as a witness."
+    simple: "Order for a witness to appear"
+
+  evidence:
+    term: "Evidence"
+    definition: "Documents, photos, records, or testimony that support your claims in court."
+    simple: "Proof to support your case"
+
+  witness:
+    term: "Witness"
+    definition: "A person who testifies in court about what they saw, heard, or know about the case."
+    simple: "Someone who can speak about the facts"
+
+  testimony:
+    term: "Testimony"
+    definition: "Spoken statements made under oath in court by witnesses or parties."
+    simple: "What you say in court under oath"
+
+  exhibit:
+    term: "Exhibit"
+    definition: "A document, photo, or object presented as evidence during the hearing."
+    simple: "Physical proof shown in court"
+
+  # Court Resources
+  small_claims_advisor:
+    term: "Small Claims Advisor"
+    definition: "Free help available at every California courthouse to assist with small claims procedures."
+    simple: "Free court help"
+    help_url: "https://selfhelp.courts.ca.gov/small-claims/advisor"
+
+  self_help_center:
+    term: "Self-Help Center"
+    definition: "A court office where you can get free information and help with court forms and procedures."
+    simple: "Free court information office"
+
+  superior_court:
+    term: "Superior Court"
+    definition: "California's trial court system. Small claims is a division of Superior Court."
+    simple: "California's main court"
+
+  clerk:
+    term: "Court Clerk"
+    definition: "A court employee who processes paperwork, schedules hearings, and maintains court records."
+    simple: "Person who handles court paperwork"
+
+  # Business Terms
+  dba:
+    term: "DBA"
+    definition: "Stands for 'Doing Business As' - a business name that's different from the owner's legal name."
+    simple: "A business's trade name"
+
+  corporation:
+    term: "Corporation"
+    definition: "A type of business that is legally separate from its owners. Corporations can sue and be sued."
+    simple: "A company with separate legal status"
+
+  llc:
+    term: "LLC"
+    definition: "Limited Liability Company - a business structure that protects owners' personal assets from business debts."
+    simple: "A type of business structure"
+
+  # Contract Terms
+  contract:
+    term: "Contract"
+    definition: "A legally binding agreement between two or more parties that can be enforced in court."
+    simple: "A legal agreement"
+
+  breach_of_contract:
+    term: "Breach of Contract"
+    definition: "When one party fails to fulfill their obligations under a contract without a valid excuse."
+    simple: "Breaking a legal agreement"
+
+  oral_contract:
+    term: "Oral Contract"
+    definition: "A verbal agreement that can be legally binding, though harder to prove than written contracts."
+    simple: "A spoken agreement"
+
+  # Property Terms
+  security_deposit:
+    term: "Security Deposit"
+    definition: "Money a tenant pays upfront that the landlord holds to cover damages or unpaid rent."
+    simple: "Money held for damages or rent"
+
+  landlord:
+    term: "Landlord"
+    definition: "The owner of a rental property who rents it to tenants."
+    simple: "Property owner who rents to others"
+
+  tenant:
+    term: "Tenant"
+    definition: "A person who rents and lives in a property owned by someone else."
+    simple: "Person renting a place to live"
+
+  # Dismissal and Settlement
+  dismissal:
+    term: "Dismissal"
+    definition: "When a case is closed or thrown out before a judgment is made. Can be with or without prejudice."
+    simple: "Case closed before decision"
+
+  settlement:
+    term: "Settlement"
+    definition: "An agreement between parties to resolve the dispute without the court making a decision."
+    simple: "Agreement to end the case"
+
+  mediation:
+    term: "Mediation"
+    definition: "A process where a neutral third party helps both sides try to reach an agreement."
+    simple: "Getting help to reach an agreement"
+    help_url: "https://selfhelp.courts.ca.gov/mediation"
+
+  stipulation:
+    term: "Stipulation"
+    definition: "A formal agreement between parties about certain facts or procedures in the case."
+    simple: "Agreed-upon terms"
+
+  # Motion Terms
+  motion:
+    term: "Motion"
+    definition: "A formal request asking the court to make a specific ruling or take a specific action."
+    simple: "A request to the court"
+
+  vacate:
+    term: "Vacate"
+    definition: "To cancel or set aside a judgment or court order."
+    simple: "Cancel a court decision"

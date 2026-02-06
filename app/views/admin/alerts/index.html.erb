@@ -1,0 +1,39 @@
+<% content_for :title, "Alerts" %>
+
+<div class="mb-6 flex items-center justify-between">
+  <div>
+    <h1 class="text-2xl font-bold text-base-content">Alerts</h1>
+    <p class="text-base-content/70">Recent critical events</p>
+  </div>
+</div>
+
+<div class="space-y-6">
+  <% @alerts.each do |severity, alerts| %>
+    <div class="bg-base-100 shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-3 border-b border-base-200 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="badge <%= severity == "critical" ? "badge-error" : "badge-warning" %>"><%= severity.titleize %></span>
+          <span class="text-sm text-base-content/70"><%= alerts.size %> events</span>
+        </div>
+      </div>
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>When</th>
+            <th>Event</th>
+            <th>Payload</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% alerts.each do |alert| %>
+            <tr>
+              <td class="text-sm text-base-content/70"><%= time_ago_in_words(alert.created_at) %> ago</td>
+              <td><%= alert.event %></td>
+              <td class="text-xs"><%= alert.payload.to_json %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  <% end %>
+</div>

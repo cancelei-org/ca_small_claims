@@ -30,7 +30,9 @@ export default class extends Controller {
 
   show(activity) {
     this.linkTarget.href = activity.path;
-    this.codeTarget.textContent = activity.code;
+    this.codeTarget.textContent = activity.step
+      ? `${activity.code} · Step ${activity.step}`
+      : activity.code;
 
     // Slide in animation
     this.cardTarget.classList.remove(

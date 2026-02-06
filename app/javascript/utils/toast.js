@@ -9,24 +9,7 @@
  *   showToast('Please fill required fields', 'error');
  */
 
-/**
- * Check if reduced motion is preferred
- */
-function prefersReducedMotion() {
-  // Check user override first
-  const userPref = localStorage.getItem('motion-preference');
-
-  if (userPref === 'reduce') {
-    return true;
-  }
-
-  if (userPref === 'normal') {
-    return false;
-  }
-
-  // Fall back to system preference
-  return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-}
+import { prefersReducedMotion } from './accessibility';
 
 const TOAST_TYPES = {
   success: {
@@ -75,6 +58,32 @@ function getToastContainer() {
   }
 
   return container;
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+  const div = document.createElement('div');
+
+  div.textContent = text;
+
+  return div.innerHTML;
+}
+
+/**
+ * Dismiss a toast with animation
+ * @param {HTMLElement} toast - The toast element
+ * @param {boolean} reduceMotion - Whether to use reduced motion
+ */
+function dismissToast(toast, reduceMotion = false) {
+  if (reduceMotion) {
+    toast.classList.add('opacity-0');
+    setTimeout(() => toast.remove(), 100);
+  } else {
+    toast.classList.add('translate-x-full', 'opacity-0');
+    setTimeout(() => toast.remove(), 300);
+  }
 }
 
 /**
@@ -145,32 +154,6 @@ export function showToast(message, type = 'info', duration = 4000) {
 }
 
 /**
- * Dismiss a toast with animation
- * @param {HTMLElement} toast - The toast element
- * @param {boolean} reduceMotion - Whether to use reduced motion
- */
-function dismissToast(toast, reduceMotion = false) {
-  if (reduceMotion) {
-    toast.classList.add('opacity-0');
-    setTimeout(() => toast.remove(), 100);
-  } else {
-    toast.classList.add('translate-x-full', 'opacity-0');
-    setTimeout(() => toast.remove(), 300);
-  }
-}
-
-/**
- * Escape HTML to prevent XSS
- */
-function escapeHtml(text) {
-  const div = document.createElement('div');
-
-  div.textContent = text;
-
-  return div.innerHTML;
-}
-
-/**
  * Show field validation error
  * Updates the field's error container and shows a toast
  * Screen reader accessible with aria-describedby linking
@@ -188,7 +171,7 @@ export function showFieldError(field, message) {
 
     // Ensure error container has an ID for aria-describedby
     if (!errorContainer.id) {
-      errorContainer.id = `error-${field.name || field.id || Math.random().toString(36).slice(2)}`;
+      errorContainer.id = `error-${field.name || field.id || crypto.randomUUID()}`;
     }
 
     // Set aria-live on error container for screen reader announcements

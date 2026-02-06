@@ -90,15 +90,16 @@ test.describe('Cross-User Data Access Security', () => {
         .all();
 
       // Each submission should be accessible to the current user
-      for (const link of submissionLinks) {
-        const href = await link.getAttribute('href');
+      // Sequential navigation is intentional for this security test
+      const hrefs = await Promise.all(
+        submissionLinks.map(link => link.getAttribute('href'))
+      );
 
-        if (href) {
-          const response = await page.goto(href);
+      for (const href of hrefs.filter(Boolean)) {
+        const response = await page.goto(href); // eslint-disable-line no-await-in-loop
 
-          expect(response.status()).not.toBe(403);
-          expect(response.status()).not.toBe(404);
-        }
+        expect(response.status()).not.toBe(403);
+        expect(response.status()).not.toBe(404);
       }
     });
   });
@@ -140,14 +141,14 @@ test.describe('Cross-User Data Access Security', () => {
 
       // Start a form and save progress (if the feature exists)
       const startButton = page
-        .getByRole('button', { name: /SC-100|start/i })
+        .getByRole('button', { name: /SC-100|start/iu })
         .first();
 
       if ((await startButton.count()) > 0) {
         await startButton.click();
 
         // Fill some data
-        const nameField = page.getByLabel(/name/i).first();
+        const nameField = page.getByLabel(/name/iu).first();
 
         if ((await nameField.count()) > 0) {
           await nameField.fill('User A Name');
@@ -155,7 +156,7 @@ test.describe('Cross-User Data Access Security', () => {
 
         // Save draft
         const saveButton = page
-          .getByRole('button', { name: /save|draft/i })
+          .getByRole('button', { name: /save|draft/iu })
           .first();
 
         if ((await saveButton.count()) > 0) {
@@ -307,7 +308,7 @@ test.describe('Cross-User Data Access Security', () => {
       // Forms and categories should be visible
       const content = await page.content();
 
-      expect(content).toMatch(/form|small claims|SC-/i);
+      expect(content).toMatch(/form|small claims|SC-/iu);
     });
 
     test('Users can only start forms they have access to', async ({
@@ -326,15 +327,16 @@ test.describe('Cross-User Data Access Security', () => {
         .all();
 
       // Each form link should be accessible
-      for (const link of formLinks) {
-        const href = await link.getAttribute('href');
+      // Sequential navigation is intentional for this security test
+      const hrefs = await Promise.all(
+        formLinks.map(link => link.getAttribute('href'))
+      );
 
-        if (href) {
-          const response = await page.goto(href);
+      for (const href of hrefs.filter(Boolean)) {
+        const response = await page.goto(href); // eslint-disable-line no-await-in-loop
 
-          // Should either work (200) or properly redirect, not throw 500
-          expect(response.status()).not.toBe(500);
-        }
+        // Should either work (200) or properly redirect, not throw 500
+        expect(response.status()).not.toBe(500);
       }
     });
   });
