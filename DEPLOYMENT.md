@@ -270,8 +270,13 @@ ssh staging-vps "docker service ps ca-small-claims"
 curl http://194.163.44.171:3010/up
 ```
 
+## Related Documentation
+
+- [Services Registry](../flukebase-ecosystem/SERVICES_REGISTRY.md) — Central reference for all deployed services
+- [Deployment Guide](../DEPLOYMENT_GUIDE.md) — General VPS deployment patterns
+
 ---
 
-**Last Updated**: 2026-02-04
+**Last Updated**: 2026-02-07
 **Deployment Method**: GitHub Actions with self-hosted runners
 **Environment**: Production (vps16gb)
